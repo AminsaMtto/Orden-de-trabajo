@@ -3,7 +3,7 @@
  * Usa fetch con modo cors y un iframe oculto como fallback para guardar
  */
 
-const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyB9vWEI2Ct2Wn_eUF2dt6EN9_Aso19yXxowqrIBtIuaVnXDYvDrbgbnxQA2RlKlnfPuw/exec';
+const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwAnpy2AfWhA-u8cF6Y3tpEMDDzveAkKZBDTzfVVbA4YOsxFLTwItQL1l1auTiWOe-1bg/exec';
 
 // ── Guardar orden — usa iframe para evitar CORS en POST ────────
 function guardarOrden(datos) {
