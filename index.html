@@ -868,7 +868,7 @@
 
 <script src="sheets.js"></script>
 <script>
-const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwAnpy2AfWhA-u8cF6Y3tpEMDDzveAkKZBDTzfVVbA4YOsxFLTwItQL1l1auTiWOe-1bg/exec';
+const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyB9vWEI2Ct2Wn_eUF2dt6EN9_Aso19yXxowqrIBtIuaVnXDYvDrbgbnxQA2RlKlnfPuw/exec';
 let todasLasOrdenes = [];
 let filtroActual = 'todos';
 let folioSeleccionado = '';
@@ -878,28 +878,60 @@ document.addEventListener('DOMContentLoaded', () => {
   verificarConexion();
 });
 
+// Fetch con timeout para no quedarse colgado
+async function fetchConTimeout(url, ms = 8000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timer);
+    return res;
+  } catch(e) {
+    clearTimeout(timer);
+    throw e;
+  }
+}
+
 async function verificarConexion() {
   const dot   = document.getElementById('sync-dot');
   const label = document.getElementById('sync-label');
-  const ordenes = await obtenerOrdenes();
-  if (ordenes.length >= 0) {
-    dot.className = 'sync-dot online';
-    label.textContent = 'SHEETS CONECTADO';
-  } else {
+  try {
+    const res    = await fetchConTimeout(SHEETS_WEBAPP_URL + '?accion=listar', 8000);
+    const result = await res.json();
+    if (result.ok !== false) {
+      dot.className = 'sync-dot online';
+      label.textContent = 'SHEETS CONECTADO';
+    } else {
+      label.textContent = 'SIN CONEXIÓN (LOCAL)';
+    }
+  } catch(e) {
     label.textContent = 'SIN CONEXIÓN (LOCAL)';
   }
 }
 
 async function cargarOrdenes() {
-  const remotas = await obtenerOrdenes();
+  // 1. Mostrar locales de inmediato
   const locales = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
-  const foliosRemotos = new Set(remotas.map(o => o.folio));
-  const soloLocales = locales.filter(o => !foliosRemotos.has(o.folio));
-  todasLasOrdenes = [...remotas, ...soloLocales].sort((a, b) => {
-    return new Date(b.fecha_reporte || 0) - new Date(a.fecha_reporte || 0);
-  });
+  todasLasOrdenes = [...locales];
   actualizarStats();
   renderTabla(aplicarFiltro(todasLasOrdenes));
+
+  // 2. Intentar cargar remotas con timeout
+  try {
+    const res     = await fetchConTimeout(SHEETS_WEBAPP_URL + '?accion=listar', 8000);
+    const result  = await res.json();
+    const remotas = result.ordenes || [];
+    const foliosRemotos = new Set(remotas.map(o => o.folio));
+    const soloLocales   = locales.filter(o => !foliosRemotos.has(o.folio));
+    todasLasOrdenes = [...remotas, ...soloLocales].sort((a, b) =>
+      new Date(b.fecha_reporte || 0) - new Date(a.fecha_reporte || 0)
+    );
+    actualizarStats();
+    renderTabla(aplicarFiltro(todasLasOrdenes));
+  } catch(e) {
+    // Si falla, se quedaron las locales ya mostradas
+    console.warn('No se pudo conectar a Sheets, mostrando datos locales');
+  }
 }
 
 function actualizarStats() {
