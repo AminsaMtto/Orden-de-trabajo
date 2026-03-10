@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AMINSA — Sistema de Órdenes de Trabajo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --azul:       #0d2137;
+      --azul-medio: #1a3a5c;
+      --azul-claro: #2563a8;
+      --acento:     #f59e0b;
+      --acento2:    #ef4444;
+      --verde:      #16a34a;
+      --fondo:      #f1f5f9;
+      --borde:      #cbd5e1;
+      --texto:      #0f172a;
+      --gris:       #64748b;
+      --blanco:     #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--fondo);
+      color: var(--texto);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--azul);
+      color: var(--blanco);
+      padding: 0 32px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 3px solid var(--acento);
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .header-logo {
+      width: 36px;
+      height: 36px;
+      background: var(--acento);
+      color: var(--azul);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+    .header-title { font-size: 15px; font-weight: 600; letter-spacing: 0.5px; }
+    .header-sub { font-size: 11px; color: #94a3b8; margin-top: 2px; font-family: 'IBM Plex Mono', monospace; }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      background: var(--azul-medio);
+      padding: 12px 32px;
+      display: flex;
+      gap: 32px;
+    }
+    .stat {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .stat-num {
+      font-size: 24px;
+      font-weight: 700;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--blanco);
+    }
+    .stat-num.amarillo { color: var(--acento); }
+    .stat-num.rojo     { color: #fca5a5; }
+    .stat-num.verde    { color: #86efac; }
+    .stat-label { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      padding: 20px 32px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .toolbar-left { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      text-decoration: none;
+      font-family: 'IBM Plex Sans', sans-serif;
+    }
+    .btn-primary {
+      background: var(--azul-claro);
+      color: var(--blanco);
+    }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-danger {
+      background: transparent;
+      color: var(--acento2);
+      border: 1.5px solid var(--acento2);
+    }
+    .btn-danger:hover { background: var(--acento2); color: var(--blanco); }
+    .btn-success {
+      background: transparent;
+      color: var(--verde);
+      border: 1.5px solid var(--verde);
+    }
+    .btn-success:hover { background: var(--verde); color: var(--blanco); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--gris);
+      border: 1.5px solid var(--borde);
+    }
+    .btn-ghost:hover { background: var(--blanco); }
+
+    /* Filtros */
+    .filtros { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .filtro-btn {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1.5px solid var(--borde);
+      background: var(--blanco);
+      color: var(--gris);
+      transition: all 0.15s;
+    }
+    .filtro-btn.activo {
+      background: var(--azul-medio);
+      color: var(--blanco);
+      border-color: var(--azul-medio);
+    }
+
+    .search-input {
+      padding: 8px 14px;
+      border: 1.5px solid var(--borde);
+      border-radius: 4px;
+      font-size: 13px;
+      width: 220px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--blanco);
+    }
+    .search-input:focus { outline: none; border-color: var(--azul-claro); }
+
+    /* ── TABLA ── */
+    .table-wrap {
+      margin: 20px 32px;
+      background: var(--blanco);
+      border-radius: 6px;
+      border: 1px solid var(--borde);
+      overflow: auto;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead tr {
+      background: var(--azul);
+      color: var(--blanco);
+    }
+    th {
+      padding: 11px 14px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      white-space: nowrap;
+    }
+    td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--fondo);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #f8fafc; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-abierta  { background: #fef3c7; color: #92400e; }
+    .badge-cerrada  { background: #dcfce7; color: #14532d; }
+    .badge-urgente  { background: #fee2e2; color: #991b1b; }
+    .badge-alto     { background: #fef3c7; color: #92400e; }
+    .badge-medio    { background: #dbeafe; color: #1e40af; }
+    .badge-bajo     { background: #f0fdf4; color: #166534; }
+
+    .folio-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--azul-claro);
+    }
+
+    .acciones { display: flex; gap: 6px; }
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 11px;
+      border-radius: 3px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 64px 32px;
+      color: var(--gris);
+    }
+    .empty-state svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.3; }
+    .empty-state p { font-size: 15px; }
+    .empty-state small { font-size: 13px; color: #94a3b8; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.visible { display: flex; }
+
+    .modal {
+      background: var(--blanco);
+      border-radius: 8px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .modal-header {
+      background: var(--azul);
+      color: var(--blanco);
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 8px 8px 0 0;
+      border-bottom: 3px solid var(--acento);
+    }
+    .modal-header h2 { font-size: 15px; font-weight: 600; }
+    .modal-close {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+    }
+    .modal-close:hover { color: var(--blanco); }
+    .modal-body { padding: 24px; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-grid.full { grid-template-columns: 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group.span2 { grid-column: span 2; }
+    label { font-size: 12px; font-weight: 600; color: var(--gris); text-transform: uppercase; letter-spacing: 0.4px; }
+    input[type="text"], input[type="date"], input[type="time"], textarea, select {
+      padding: 8px 12px;
+      border: 1.5px solid var(--borde);
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--blanco);
+      color: var(--texto);
+      transition: border-color 0.15s;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--azul-claro);
+    }
+    textarea { resize: vertical; min-height: 80px; }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--fondo);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--azul);
+      color: var(--blanco);
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      border-left: 4px solid var(--acento);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 9999;
+      max-width: 320px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.error { border-left-color: var(--acento2); }
+    .toast.success { border-left-color: var(--verde); }
+
+    .sync-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+    .sync-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #94a3b8;
+    }
+    .sync-dot.online { background: #4ade80; box-shadow: 0 0 6px #4ade80; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-brand">
+    <div class="header-logo">AM</div>
+    <div>
+      <div class="header-title">AMINSA — Órdenes de Trabajo</div>
+      <div class="header-sub">Mantenimiento Preventivo y Correctivo · AM-MA-FO-7.1.3.-08</div>
+    </div>
+  </div>
+  <div class="sync-indicator" id="sync-indicator">
+    <div class="sync-dot" id="sync-dot"></div>
+    <span id="sync-label">Verificando conexión…</span>
+  </div>
+</header>
+
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-num" id="stat-total">0</div>
+    <div class="stat-label">Total</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num amarillo" id="stat-abiertas">0</div>
+    <div class="stat-label">Abiertas</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num verde" id="stat-cerradas">0</div>
+    <div class="stat-label">Cerradas</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num rojo" id="stat-urgentes">0</div>
+    <div class="stat-label">Muy Urgentes</div>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="toolbar-left">
+    <a href="orden.html" class="btn btn-primary">
+      ＋ Nueva Orden
+    </a>
+    <button class="btn btn-ghost" onclick="cargarOrdenes()">↻ Actualizar</button>
+    <div class="filtros">
+      <button class="filtro-btn activo" onclick="filtrar('todos', this)">Todas</button>
+      <button class="filtro-btn" onclick="filtrar('ABIERTA', this)">Abiertas</button>
+      <button class="filtro-btn" onclick="filtrar('CERRADA', this)">Cerradas</button>
+    </div>
+  </div>
+  <input class="search-input" type="text" placeholder="Buscar folio, equipo, técnico…" oninput="buscar(this.value)">
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Folio</th>
+        <th>Fecha</th>
+        <th>Centro</th>
+        <th>Equipo</th>
+        <th>Tipo</th>
+        <th>Urgencia</th>
+        <th>Técnico(s)</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="tabla-body">
+      <tr>
+        <td colspan="9">
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <p>Cargando órdenes…</p>
+            <small>Conectando con Google Sheets</small>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal Ver Detalles -->
+<div class="modal-overlay" id="modal-ver">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Detalle de Orden — <span id="modal-ver-folio"></span></h2>
+      <button class="modal-close" onclick="cerrarModal('modal-ver')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-ver-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cerrarModal('modal-ver')">Cerrar</button>
+      <button class="btn btn-primary" onclick="imprimirOrden()">🖨 Imprimir</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Cerrar Orden -->
+<div class="modal-overlay" id="modal-cerrar">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Cerrar Orden — <span id="modal-cerrar-folio"></span></h2>
+      <button class="modal-close" onclick="cerrarModal('modal-cerrar')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group span2">
+          <label>Descripción de la Reparación *</label>
+          <textarea id="c-descripcion" rows="4" placeholder="Describe el trabajo realizado…"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Fecha de Liberación *</label>
+          <input type="date" id="c-fecha-lib">
+        </div>
+        <div class="form-group">
+          <label>Hora de Entrega</label>
+          <input type="time" id="c-hora-entrega">
+        </div>
+        <div class="form-group">
+          <label>Técnico que Entrega *</label>
+          <input type="text" id="c-tecnico-entrega" placeholder="Nombre del técnico">
+        </div>
+        <div class="form-group">
+          <label>Nombre Persona que Recibe</label>
+          <input type="text" id="c-quien-recibe" placeholder="Nombre y firma">
+        </div>
+        <div class="form-group span2">
+          <label>Firma de Conformidad (36 hrs)</label>
+          <input type="text" id="c-firma-conformidad" placeholder="Nombre / observaciones">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cerrarModal('modal-cerrar')">Cancelar</button>
+      <button class="btn btn-success" onclick="ejecutarCierre()">✓ Cerrar Orden</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="sheets.js"></script>
+<script>
+let todasLasOrdenes = [];
+let filtroActual = 'todos';
+let folioSeleccionado = '';
+
+// ── Inicialización ──────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  cargarOrdenes();
+  verificarConexion();
+});
+
+async function verificarConexion() {
+  const dot   = document.getElementById('sync-dot');
+  const label = document.getElementById('sync-label');
+  const ordenes = await obtenerOrdenes();
+  if (ordenes.length >= 0) {
+    dot.className = 'sync-dot online';
+    label.textContent = 'Google Sheets conectado';
+  } else {
+    label.textContent = 'Sin conexión (modo local)';
+  }
+}
+
+// ── Cargar órdenes ──────────────────────────────
+async function cargarOrdenes() {
+  // 1. Cargar desde Sheets
+  const remotas = await obtenerOrdenes();
+  
+  // 2. Combinar con locales
+  const locales = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
+  
+  // Merge: remotas tienen prioridad, pero incluir locales no sincronizadas
+  const foliosRemotos = new Set(remotas.map(o => o.folio));
+  const soloLocales = locales.filter(o => !foliosRemotos.has(o.folio));
+  
+  todasLasOrdenes = [...remotas, ...soloLocales].sort((a, b) => {
+    return new Date(b.fecha_reporte || 0) - new Date(a.fecha_reporte || 0);
+  });
+  
+  actualizarStats();
+  renderTabla(aplicarFiltro(todasLasOrdenes));
+}
+
+// ── Stats ──────────────────────────────────────
+function actualizarStats() {
+  const total    = todasLasOrdenes.length;
+  const abiertas = todasLasOrdenes.filter(o => (o.estado || 'ABIERTA') === 'ABIERTA').length;
+  const cerradas = todasLasOrdenes.filter(o => o.estado === 'CERRADA').length;
+  const urgentes = todasLasOrdenes.filter(o => 
+    (o.grado_urgencia || '').toLowerCase().includes('urgente') && o.estado !== 'CERRADA'
+  ).length;
+
+  document.getElementById('stat-total').textContent    = total;
+  document.getElementById('stat-abiertas').textContent = abiertas;
+  document.getElementById('stat-cerradas').textContent = cerradas;
+  document.getElementById('stat-urgentes').textContent = urgentes;
+}
+
+// ── Render tabla ───────────────────────────────
+function renderTabla(ordenes) {
+  const tbody = document.getElementById('tabla-body');
+  
+  if (!ordenes.length) {
+    tbody.innerHTML = `
+      <tr><td colspan="9">
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <p>No hay órdenes registradas</p>
+          <small>Haz clic en "Nueva Orden" para comenzar</small>
+        </div>
+      </td></tr>`;
+    return;
+  }
+  
+  tbody.innerHTML = ordenes.map(o => {
+    const estado  = o.estado || 'ABIERTA';
+    const urgencia = o.grado_urgencia || '—';
+    const badgeEstado = estado === 'CERRADA' ? 'badge-cerrada' : 'badge-abierta';
+    let badgeUrg = 'badge-medio';
+    if (urgencia.toLowerCase().includes('urgente')) badgeUrg = 'badge-urgente';
+    else if (urgencia.toLowerCase() === 'alto') badgeUrg = 'badge-alto';
+    else if (urgencia.toLowerCase() === 'bajo') badgeUrg = 'badge-bajo';
+
+    return `
+    <tr>
+      <td><span class="folio-tag">${o.folio || '—'}</span></td>
+      <td>${o.fecha_reporte || '—'}</td>
+      <td>${o.centro_negocio || '—'}</td>
+      <td>${truncar(o.equipo_reportado, 28)}</td>
+      <td>${truncar(o.tipo_mantenimiento, 20)}</td>
+      <td><span class="badge ${badgeUrg}">${urgencia}</span></td>
+      <td>${truncar(o.tecnicos || o.quien_reporta || '—', 20)}</td>
+      <td><span class="badge ${badgeEstado}">${estado}</span></td>
+      <td>
+        <div class="acciones">
+          <button class="btn btn-ghost btn-sm" onclick="verOrden('${o.folio}')">Ver</button>
+          <button class="btn btn-primary btn-sm" onclick="abrirOrdenImpresion('${o.folio}')">🖨</button>
+          ${estado !== 'CERRADA' 
+            ? `<button class="btn btn-success btn-sm" onclick="abrirModalCerrar('${o.folio}')">Cerrar</button>` 
+            : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Filtros y búsqueda ────────────────────────
+function filtrar(tipo, btn) {
+  filtroActual = tipo;
+  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('activo'));
+  btn.classList.add('activo');
+  renderTabla(aplicarFiltro(todasLasOrdenes));
+}
+
+function aplicarFiltro(ordenes) {
+  if (filtroActual === 'todos') return ordenes;
+  return ordenes.filter(o => (o.estado || 'ABIERTA') === filtroActual);
+}
+
+function buscar(query) {
+  const q = query.toLowerCase();
+  const filtradas = todasLasOrdenes.filter(o =>
+    (o.folio || '').toLowerCase().includes(q) ||
+    (o.equipo_reportado || '').toLowerCase().includes(q) ||
+    (o.tecnicos || '').toLowerCase().includes(q) ||
+    (o.centro_negocio || '').toLowerCase().includes(q)
+  );
+  renderTabla(aplicarFiltro(filtradas));
+}
+
+// ── Ver detalle ───────────────────────────────
+function verOrden(folio) {
+  const o = todasLasOrdenes.find(x => x.folio === folio);
+  if (!o) return;
+  
+  document.getElementById('modal-ver-folio').textContent = folio;
+  document.getElementById('modal-ver-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:13px">
+      ${campo('Folio', o.folio)}
+      ${campo('Fecha Reporte', o.fecha_reporte)}
+      ${campo('Hora Reporte', o.hora_reporte)}
+      ${campo('Quién Reporta', o.quien_reporta)}
+      ${campo('Centro de Negocio', o.centro_negocio)}
+      ${campo('Tipo Mantenimiento', o.tipo_mantenimiento)}
+      ${campo('Equipo Reportado', o.equipo_reportado)}
+      ${campo('No. Control', o.no_control)}
+      ${campo('Grado Urgencia', o.grado_urgencia)}
+      ${campo('Frecuencia Falla', o.frecuencia_falla)}
+      <div style="grid-column:span 2">${campo('Falla Reportada', o.falla_reportada)}</div>
+      <div style="grid-column:span 2">${campo('Diagnóstico Inicial', o.diagnostico_inicial)}</div>
+      ${campo('Técnico(s)', o.tecnicos)}
+      ${campo('Fecha Atención', o.fecha_atencion)}
+      ${campo('Refacciones Requeridas', o.refacciones_requeridas)}
+      ${campo('Refacciones en Almacén', o.refacciones_almacen)}
+      ${campo('Fecha Estimada Entrega', o.fecha_estimada_entrega)}
+      ${campo('Costo Aprox.', o.costo_refacciones)}
+      <div style="grid-column:span 2">${campo('Descripción Reparación', o.descripcion_reparacion)}</div>
+      ${campo('Fecha Liberación', o.fecha_liberacion)}
+      ${campo('Hora Entrega Equipo', o.hora_entrega_equipo)}
+      ${campo('Estado', o.estado || 'ABIERTA')}
+      ${o.fecha_cierre ? campo('Fecha Cierre', o.fecha_cierre) : ''}
+    </div>`;
+  
+  folioSeleccionado = folio;
+  document.getElementById('modal-ver').classList.add('visible');
+}
+
+function campo(label, val) {
+  return `<div>
+    <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:3px">${label}</div>
+    <div style="color:#0f172a">${val || '—'}</div>
+  </div>`;
+}
+
+// ── Cerrar orden ──────────────────────────────
+function abrirModalCerrar(folio) {
+  folioSeleccionado = folio;
+  document.getElementById('modal-cerrar-folio').textContent = folio;
+  // Pre-llenar fecha de hoy
+  document.getElementById('c-fecha-lib').value = new Date().toISOString().split('T')[0];
+  document.getElementById('modal-cerrar').classList.add('visible');
+}
+
+async function ejecutarCierre() {
+  const descripcion = document.getElementById('c-descripcion').value.trim();
+  const fechaLib    = document.getElementById('c-fecha-lib').value;
+  const tecnicoEnt  = document.getElementById('c-tecnico-entrega').value.trim();
+  
+  if (!descripcion) { mostrarToast('Ingresa la descripción de la reparación', 'error'); return; }
+  if (!fechaLib)    { mostrarToast('Ingresa la fecha de liberación', 'error'); return; }
+  if (!tecnicoEnt)  { mostrarToast('Ingresa el técnico que entrega', 'error'); return; }
+
+  const datosCierre = {
+    descripcion_reparacion: descripcion,
+    fecha_liberacion:       fechaLib,
+    hora_entrega_equipo:    document.getElementById('c-hora-entrega').value,
+    tecnico_entrega:        tecnicoEnt,
+    nombre_firma_recibe:    document.getElementById('c-quien-recibe').value,
+    firma_conformidad:      document.getElementById('c-firma-conformidad').value,
+  };
+
+  // Actualizar en Sheets
+  const res = await cerrarOrden(folioSeleccionado, datosCierre);
+  
+  // Actualizar en localStorage también
+  const locales = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
+  const idx = locales.findIndex(o => o.folio === folioSeleccionado);
+  if (idx >= 0) {
+    locales[idx] = { ...locales[idx], ...datosCierre, estado: 'CERRADA', fecha_cierre: fechaLib };
+    localStorage.setItem('ordenes_local', JSON.stringify(locales));
+  }
+
+  cerrarModal('modal-cerrar');
+  mostrarToast(`Orden ${folioSeleccionado} cerrada correctamente`, 'success');
+  await cargarOrdenes();
+}
+
+// ── Imprimir ──────────────────────────────────
+function abrirOrdenImpresion(folio) {
+  window.open(`orden.html?folio=${folio}&modo=ver`, '_blank');
+}
+function imprimirOrden() {
+  abrirOrdenImpresion(folioSeleccionado);
+}
+
+// ── Helpers ───────────────────────────────────
+function cerrarModal(id) {
+  document.getElementById(id).classList.remove('visible');
+}
+function truncar(str, n) {
+  if (!str) return '—';
+  return str.length > n ? str.slice(0, n) + '…' : str;
+}
+function mostrarToast(msg, tipo = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${tipo}`;
+  setTimeout(() => t.className = 'toast', 3500);
+}
+</script>
+</body>
+</html>

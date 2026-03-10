@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orden de Trabajo para Mantenimiento Preventivo y Correctivo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .form-container {
+            width: 794px;
+            height: 1123px;
+            margin: 0 auto;
+            position: relative;
+            background-color: white;
+                        background-repeat: no-repeat;
+            background-size: 100% 100%;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+background-image: url('fondo-orden.jpg');
+background-size: 100% 100%;
+background-repeat: no-repeat;
+        }
+@page {
+    size: A4;
+    margin: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+.form-container {
+    width: 794px;
+    height: 1123px;
+    position: relative;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+@media print {
+    body * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    .form-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+}
+        .textarea-field {
+    position: absolute;
+    border: none;
+    background: transparent;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    color: #000;
+    outline: none;
+    resize: none;
+    overflow: hidden;
+    padding: 5px;
+    line-height: 1.4;
+    box-sizing: border-box; /* Asegura que el padding no afecte el tamaño total */
+}
+        .input-field {
+            position: absolute;
+            border: none;
+            background: transparent;
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            color: #000;
+            outline: none;
+        }
+        
+        .checkbox-field {
+            position: absolute;
+            width: 37px;  /* Ancho aumentado */
+            height: 14px;  /* Altura estándar */
+            margin: 0;
+            padding: 0;
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            border: 1px solid #666;
+            border-radius: 0px;
+            background-color: white;
+            vertical-align: middle;
+        }
+        
+        /* Estilo cuando el checkbox está marcado */
+        .checkbox-field:checked {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+               /* Marca de verificación personalizada */
+        .checkbox-field:checked::after {
+            content: "✓";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* FOLIO - Caja amarilla superior derecha */
+        #folio { top: 142px; left: 630px; width: 100px; height: 23px; text-align: center; font-weight: bold; }
+        
+        /* Checkboxes Centro de Negocios - Primera columna */
+        #cb-zinc { top: 184px; left: 201px; }
+        #cb-cromo { top: 200px; left: 201px; }
+        #cb-doblado { top: 216px; left: 201px; }
+        #cb-oficinas { top: 233px; left: 201px; }
+        
+        /* Checkboxes Centro de Negocios - Segunda columna */
+        #cb-pretratamiento { top: 184px; left: 451.5px; }
+        #cb-tratamiento { top: 200px; left: 451.5px; }
+        #cb-andenes { top: 216px; left: 451.5px; }
+        #cb-laboratorio { top: 233px; left: 451.5px; }
+        
+        /* Checkboxes Centro de Negocios - Tercera columna */
+        #cb-obra-civil { top: 184px; left: 664px; }
+        #cb-area-periferica { top: 200px; left: 664px; }
+        #cb-otros1 { top: 216px; left: 664px; }
+        
+        /* Checkboxes Tipo de Mantenimiento - Primera columna */
+        #cb-preventivo { top: 310px; left: 201px; }
+        #cb-correctivo { top: 326px; left: 201px; }
+        #cb-mejora { top: 343px; left: 201px; }
+        
+        /* Checkboxes Tipo de Mantenimiento - Segunda columna */
+        #cb-fabricacion { top: 310px; left: 451.5px; }
+        #cb-ajuste { top: 326px; left: 451.5px; }
+        #cb-cambio { top: 343px; left: 451.5px; }
+        
+        /* Checkboxes Tipo de Mantenimiento - Tercera columna */
+        #cb-otros2 { top: 310px; left: 593px; }
+        
+        /* Campos principales */
+        #equipo-reportado { top: 376px; left: 201px; width: 247px; height: 42px; }
+        #no-control { top: 376px; left: 597px; width: 131px; height: 42px; }
+        
+        /* Falla Reportada - Área de texto grande */
+        #falla-reportada { top: 449px; left: 64px; width: 674px; height: 64px; }
+        
+        /* Checkboxes Grado de Urgencia */
+        #cb-alto { top: 534px; left: 236.5px; }
+        #cb-medio { top: 534px; left: 341.5px; }
+        #cb-bajo { top: 534px; left: 452px; }
+        #cb-muy-urgente { top: 534px; left: 629px; }
+        
+        /* Checkboxes Frecuencia de la Falla */
+        #cb-primera { top: 551px; left: 236.5px; }
+        #cb-segunda { top: 551px; left: 341.5px; }
+        #cb-tercera { top: 551px; left: 452px; }
+        
+        /* Campos de fecha y hora - Primera fila */
+        #fecha-reporte { top: 580px; left: 158px; width: 100px; height: 15px; }
+        #hora-reporte { top: 580px; left: 365px; width: 100px; height: 15px; }
+        #quien-reporta { top: 578px; left: 570px; width: 150px; height: 15px; }
+        
+                
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 1000;
+        }
+        
+        .print-button:hover {
+            background: #0056b3;
+        }
+        
+        @media print {
+    .print-button { 
+        display: none; 
+    }
+    body { 
+        margin: 0; 
+        padding: 0; 
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    .form-container { 
+        margin: 0; 
+        box-shadow: none;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        background-image: url('fondo-orden.jpg') !important;
+        background-size: 100% 100% !important;
+        background-repeat: no-repeat !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+    input, textarea {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        background-color: transparent !important;
+    }
+}
+    </style>
+</head>
+<body>
+    <button class="print-button" disable>Generar</button>
+    
+    <div class="form-container">
+        <!-- FOLIO -->
+        <input type="text" id="folio" class="input-field" readonly>
+        
+        <!-- Checkboxes Centro de Negocios - Primera columna -->
+        <input type="checkbox" id="cb-zinc" class="checkbox-field">
+        <input type="checkbox" id="cb-cromo" class="checkbox-field">
+        <input type="checkbox" id="cb-doblado" class="checkbox-field">
+        <input type="checkbox" id="cb-oficinas" class="checkbox-field">
+        
+        <!-- Checkboxes Centro de Negocios - Segunda columna -->
+        <input type="checkbox" id="cb-pretratamiento" class="checkbox-field">
+        <input type="checkbox" id="cb-tratamiento" class="checkbox-field">
+        <input type="checkbox" id="cb-andenes" class="checkbox-field">
+        <input type="checkbox" id="cb-laboratorio" class="checkbox-field">
+        
+        <!-- Checkboxes Centro de Negocios - Tercera columna -->
+        <input type="checkbox" id="cb-obra-civil" class="checkbox-field">
+        <input type="checkbox" id="cb-area-periferica" class="checkbox-field">
+        <input type="checkbox" id="cb-otros1" class="checkbox-field">
+        
+        <!-- Checkboxes Tipo de Mantenimiento - Primera columna -->
+        <input type="checkbox" id="cb-preventivo" class="checkbox-field">
+        <input type="checkbox" id="cb-correctivo" class="checkbox-field">
+        <input type="checkbox" id="cb-mejora" class="checkbox-field">
+        
+        <!-- Checkboxes Tipo de Mantenimiento - Segunda columna -->
+        <input type="checkbox" id="cb-fabricacion" class="checkbox-field">
+        <input type="checkbox" id="cb-ajuste" class="checkbox-field">
+        <input type="checkbox" id="cb-cambio" class="checkbox-field">
+        
+        <!-- Checkboxes Tipo de Mantenimiento - Tercera columna -->
+        <input type="checkbox" id="cb-otros2" class="checkbox-field">
+        
+        <!-- Campos principales -->
+        <input type="text" id="equipo-reportado" class="input-field">
+        <input type="text" id="no-control" class="input-field">
+        
+        <!-- Falla Reportada -->
+        <textarea id="falla-reportada" class="textarea-field"></textarea>
+        
+        <!-- Checkboxes Grado de Urgencia -->
+        <input type="checkbox" id="cb-alto" class="checkbox-field">
+        <input type="checkbox" id="cb-medio" class="checkbox-field">
+        <input type="checkbox" id="cb-bajo" class="checkbox-field">
+        <input type="checkbox" id="cb-muy-urgente" class="checkbox-field">
+        
+        <!-- Checkboxes Frecuencia de la Falla -->
+        <input type="checkbox" id="cb-primera" class="checkbox-field">
+        <input type="checkbox" id="cb-segunda" class="checkbox-field">
+        <input type="checkbox" id="cb-tercera" class="checkbox-field">
+        
+        <!-- Campos de fecha y hora - Primera fila -->
+        <input type="date" id="fecha-reporte" class="input-field" readonly>
+<input type="time" id="hora-reporte" class="input-field" readonly>
+        <input type="text" id="quien-reporta" class="input-field">
+        
+        
+<!-- Checkboxes Centro de Negocios - Primera columna -->
+<input type="checkbox" id="cb-zinc" class="checkbox-field" data-abreviatura="Zn">
+<input type="checkbox" id="cb-cromo" class="checkbox-field" data-abreviatura="Cr">
+<input type="checkbox" id="cb-doblado" class="checkbox-field" data-abreviatura="Do">
+<input type="checkbox" id="cb-oficinas" class="checkbox-field" data-abreviatura="Of">
+
+<!-- Checkboxes Centro de Negocios - Segunda columna -->
+<input type="checkbox" id="cb-pretratamiento" class="checkbox-field" data-abreviatura="Pt">
+<input type="checkbox" id="cb-tratamiento" class="checkbox-field" data-abreviatura="Tr">
+<input type="checkbox" id="cb-andenes" class="checkbox-field" data-abreviatura="An">
+<input type="checkbox" id="cb-laboratorio" class="checkbox-field" data-abreviatura="Lb">
+
+<!-- Checkboxes Centro de Negocios - Tercera columna -->
+<input type="checkbox" id="cb-obra-civil" class="checkbox-field" data-abreviatura="Oc">
+<input type="checkbox" id="cb-area-periferica" class="checkbox-field" data-abreviatura="Ap">
+<input type="checkbox" id="cb-otros1" class="checkbox-field" data-abreviatura="Ot">
+        
+            </div>
+
+    <script>
+
+// Mover esto al inicio del script
+const contadorOrdenes = JSON.parse(localStorage.getItem('contadorOrdenes')) || {};
+
+// Función para actualizar el folio
+function actualizarFolio() {
+    const checkboxesCentros = document.querySelectorAll('.checkbox-field[data-abreviatura]');
+    let abreviaturaSeleccionada = '';
+    
+    // Buscar el checkbox de centro de negocio seleccionado
+    for (const checkbox of checkboxesCentros) {
+        if (checkbox.checked) {
+            abreviaturaSeleccionada = checkbox.dataset.abreviatura;
+            break;
+        }
+    }
+    
+    if (abreviaturaSeleccionada) {
+        const ahora = new Date();
+        
+        // Obtener número de semana del año (1-53)
+        const fecha = new Date(Date.UTC(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()));
+        const diaSemana = (fecha.getUTCDay() || 7) - 1;
+        fecha.setUTCDate(fecha.getUTCDate() + 3 - diaSemana);
+        const semana = getWeekNumber(ahora);
+        
+        // Día del mes (1-31)
+        const diaDelMes = ahora.getDate();
+        
+        // Inicializar el contador si no existe
+        if (!contadorOrdenes[abreviaturaSeleccionada]) {
+            contadorOrdenes[abreviaturaSeleccionada] = 1;
+        }
+        
+        // Formato: ABREVIATURA-SEMANA-DIADELMES-ORDEN
+        const folio = `${abreviaturaSeleccionada}-${semana}-${diaDelMes}-${contadorOrdenes[abreviaturaSeleccionada].toString().padStart(3, '0')}`;
+        document.getElementById('folio').value = folio;
+        
+        // Incrementar el contador solo cuando se genera un nuevo folio
+        contadorOrdenes[abreviaturaSeleccionada]++;
+        localStorage.setItem('contadorOrdenes', JSON.stringify(contadorOrdenes));
+    } else {
+        document.getElementById('folio').value = 'SELECCIONE CENTRO';
+    }
+}
+
+// Función para manejar checkboxes mutuamente excluyentes
+function setupMutuallyExclusive(checkboxIds) {
+    checkboxIds.forEach(id => {
+        const checkbox = document.getElementById(id);
+        if (checkbox) {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    checkboxIds.forEach(otherId => {
+                        if (otherId !== id) {
+                            const otherCheckbox = document.getElementById(otherId);
+                            if (otherCheckbox) {
+                                otherCheckbox.checked = false;
+                            }
+                        }
+                    });
+                    // Actualizar folio cuando se selecciona un centro
+                    if (this.hasAttribute('data-abreviatura')) {
+                        actualizarFolio();
+                    }
+                }
+            });
+        }
+    });
+}
+
+// Al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar contadores guardados
+    const contadoresGuardados = localStorage.getItem('contadorOrdenes');
+    if (contadoresGuardados) {
+        Object.assign(contadorOrdenes, JSON.parse(contadoresGuardados));
+    }
+    
+    // Configurar checkboxes mutuamente excluyentes
+    setupMutuallyExclusive(['cb-alto', 'cb-medio', 'cb-bajo', 'cb-muy-urgente']);
+    setupMutuallyExclusive(['cb-primera', 'cb-segunda', 'cb-tercera']);
+    setupMutuallyExclusive(['cb-refacciones-si', 'cb-refacciones-no']);
+    setupMutuallyExclusive(['cb-almacen-si', 'cb-almacen-no']);
+    
+    // Configurar checkboxes de centros
+    document.querySelectorAll('.checkbox-field[data-abreviatura]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                // Desmarcar otros centros
+                document.querySelectorAll('.checkbox-field[data-abreviatura]').forEach(cb => {
+                    if (cb !== this) cb.checked = false;
+                });
+                actualizarFolio();
+            }
+        });
+        
+        // Verificar si hay un centro ya seleccionado al cargar
+        if (checkbox.checked) {
+            actualizarFolio();
+        }
+    });
+
+    // Configurar fecha y hora
+    actualizarFechaHora();
+    setInterval(actualizarFechaHora, 60000);
+});
+// Función para formatear la fecha como YYYY-MM-DD
+function formatDate(date) {
+    const d = new Date(date);
+    let month = '' + (d.getMonth() + 1);
+    let day = '' + d.getDate();
+    const year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
+// Función para formatear la hora como HH:MM
+function formatTime(date) {
+    const d = new Date(date);
+    let hours = '' + d.getHours();
+    let minutes = '' + d.getMinutes();
+
+    if (hours.length < 2) hours = '0' + hours;
+    if (minutes.length < 2) minutes = '0' + minutes;
+
+    return [hours, minutes].join(':');
+}
+
+// Función para actualizar fecha y hora
+function actualizarFechaHora() {
+    const ahora = new Date();
+    document.getElementById('fecha-reporte').value = formatDate(ahora);
+    document.getElementById('hora-reporte').value = formatTime(ahora);
+}
+function getWeekNumber(d) {
+    // Crear una copia de la fecha para no modificar la original
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    
+    // Establecer al jueves de esta semana
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    
+    // 4 de enero siempre está en la semana 1
+    const week1 = new Date(Date.UTC(d.getUTCFullYear(), 0, 4));
+    
+    // Ajustar al lunes de la semana 1
+    week1.setUTCDate(week1.getUTCDate() + 1 - (week1.getUTCDay() || 7));
+    
+    // Calcular la diferencia en días
+    const diff = d - week1;
+    
+    // Calcular número de semana
+    return Math.ceil((diff / 86400000 + 1) / 7);
+}
+
+// Al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    // Configurar fecha y hora
+    actualizarFechaHora();
+    setInterval(actualizarFechaHora, 60000);  // Actualizar cada minuto
+
+    });
+    </script>
+</body>
+</html>
