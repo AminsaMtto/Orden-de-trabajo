@@ -15,59 +15,58 @@ const ENCABEZADOS = [
 
 function doGet(e) {
   try {
-    const accion   = e.parameter.accion;
-    const callback = e.parameter.callback; // para JSONP
-
-    let resultado;
-
-    if (accion === 'listar') {
-      resultado = listarOrdenes_data();
-    } else if (accion === 'guardar' && e.parameter.datos) {
-      const datos = JSON.parse(e.parameter.datos);
-      resultado = guardarOrden_data(datos);
-    } else if (accion === 'cerrar' && e.parameter.folio) {
-      const folio       = e.parameter.folio;
-      const datosCierre = JSON.parse(e.parameter.datosCierre || '{}');
-      resultado = cerrarOrden_data(folio, datosCierre);
-    } else {
-      resultado = { ok: false, error: 'Accion no reconocida: ' + accion };
-    }
-
-    // Si viene callback = JSONP
-    if (callback) {
-      return ContentService
-        .createTextOutput(callback + '(' + JSON.stringify(resultado) + ')')
-        .setMimeType(ContentService.MimeType.JAVASCRIPT);
-    }
-
-    return ContentService
-      .createTextOutput(JSON.stringify(resultado))
-      .setMimeType(ContentService.MimeType.JSON);
-
+    const accion = e.parameter.accion;
+    if (accion === 'listar') return respuesta(listarOrdenes_data());
+    return respuesta({ ok: false, error: 'Accion no reconocida' });
   } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, error: err.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return respuesta({ ok: false, error: err.toString() });
   }
 }
 
 function doPost(e) {
   try {
-    const body      = JSON.parse(e.postData.contents);
-    const accion    = body.accion;
-    let resultado;
+    let accion, datos, folio, datosCierre;
 
-    if (accion === 'guardar') resultado = guardarOrden_data(body.datos);
-    else if (accion === 'cerrar') resultado = cerrarOrden_data(body.folio, body.datosCierre);
-    else resultado = { ok: false, error: 'Accion no reconocida' };
+    // Intenta leer como JSON directo
+    if (e.postData && e.postData.type === 'application/json') {
+      const body = JSON.parse(e.postData.contents);
+      accion      = body.accion;
+      datos       = body.datos;
+      folio       = body.folio;
+      datosCierre = body.datosCierre;
+    }
+    // Leer campo "payload" enviado por el form/iframe
+    else if (e.parameter && e.parameter.payload) {
+      const body  = JSON.parse(e.parameter.payload);
+      accion      = body.accion;
+      datos       = body.datos;
+      folio       = body.folio;
+      datosCierre = body.datosCierre;
+    }
+    // Fallback: leer postData como form-urlencoded
+    else if (e.postData && e.postData.contents) {
+      // Intentar parsear como JSON de todas formas
+      try {
+        const body = JSON.parse(e.postData.contents);
+        accion      = body.accion;
+        datos       = body.datos;
+        folio       = body.folio;
+        datosCierre = body.datosCierre;
+      } catch(_) {
+        // Leer parámetros del form
+        accion = e.parameter.accion;
+        if (e.parameter.datos)       datos       = JSON.parse(e.parameter.datos);
+        if (e.parameter.folio)       folio       = e.parameter.folio;
+        if (e.parameter.datosCierre) datosCierre = JSON.parse(e.parameter.datosCierre);
+      }
+    }
 
-    return ContentService
-      .createTextOutput(JSON.stringify(resultado))
-      .setMimeType(ContentService.MimeType.JSON);
+    if (accion === 'guardar') return respuesta(guardarOrden_data(datos));
+    if (accion === 'cerrar')  return respuesta(cerrarOrden_data(folio, datosCierre));
+
+    return respuesta({ ok: false, error: 'Accion no reconocida: ' + accion });
   } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, error: err.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return respuesta({ ok: false, error: err.toString() });
   }
 }
 
@@ -149,4 +148,10 @@ function cerrarOrden_data(folio, datosCierre) {
     }
   }
   return { ok: false, error: 'Folio no encontrado: ' + folio };
+}
+
+function respuesta(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
 }
