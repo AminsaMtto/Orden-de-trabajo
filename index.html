@@ -692,48 +692,173 @@
   </div>
 </div>
 
-<!-- Modal Cerrar Orden -->
+<!-- Modal Cerrar Orden — COMPLETO -->
 <div class="modal-overlay" id="modal-cerrar">
-  <div class="modal">
+  <div class="modal" style="max-width:720px">
     <div class="modal-header">
       <h2>Cerrar Orden — <span id="modal-cerrar-folio"></span></h2>
       <button class="modal-close" onclick="cerrarModal('modal-cerrar')">✕</button>
     </div>
     <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group span2">
-          <label>Descripción de la Reparación *</label>
-          <textarea id="c-descripcion" rows="4" placeholder="Describe el trabajo realizado…"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Fecha de Liberación *</label>
-          <input type="date" id="c-fecha-lib">
-        </div>
-        <div class="form-group">
-          <label>Hora de Entrega</label>
-          <input type="time" id="c-hora-entrega">
-        </div>
-        <div class="form-group">
-          <label>Técnico que Entrega *</label>
-          <input type="text" id="c-tecnico-entrega" placeholder="Nombre del técnico">
-        </div>
-        <div class="form-group">
-          <label>Nombre Persona que Recibe</label>
-          <input type="text" id="c-quien-recibe" placeholder="Nombre y firma">
-        </div>
-        <div class="form-group span2">
-          <label>Firma de Conformidad (36 hrs)</label>
-          <input type="text" id="c-firma-conformidad" placeholder="Nombre / observaciones">
+
+      <!-- Datos del reporte (lectura) -->
+      <div style="margin-bottom:20px">
+        <div style="font-family:'Inconsolata',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--texto-ter);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--borde-suave)">Datos del Reporte</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Equipo Reportado</label>
+            <input type="text" id="c-equipo" readonly style="background:var(--fondo-alt);color:var(--texto-sec)">
+          </div>
+          <div class="form-group">
+            <label>No. de Control</label>
+            <input type="text" id="c-no-control" readonly style="background:var(--fondo-alt);color:var(--texto-sec)">
+          </div>
+          <div class="form-group span2">
+            <label>Falla Reportada</label>
+            <textarea id="c-falla" rows="2" readonly style="background:var(--fondo-alt);color:var(--texto-sec);resize:none"></textarea>
+          </div>
         </div>
       </div>
+
+      <!-- Diagnóstico y atención -->
+      <div style="margin-bottom:20px">
+        <div style="font-family:'Inconsolata',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--texto-ter);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--borde-suave)">Diagnóstico y Atención</div>
+        <div class="form-grid">
+          <div class="form-group span2">
+            <label>Diagnóstico Inicial de la Falla</label>
+            <textarea id="c-diagnostico" rows="3" placeholder="Diagnóstico inicial de la falla…"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Hora del Recibo del Reporte</label>
+            <input type="time" id="c-hora-recibo">
+          </div>
+          <div class="form-group">
+            <label>Fecha de Atención</label>
+            <input type="date" id="c-fecha-atencion">
+          </div>
+          <div class="form-group span2">
+            <label>Técnico(s) que Atiende(n)</label>
+            <input type="text" id="c-tecnicos" placeholder="Nombres de los técnicos">
+          </div>
+        </div>
+      </div>
+
+      <!-- Refacciones -->
+      <div style="margin-bottom:20px">
+        <div style="font-family:'Inconsolata',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--texto-ter);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--borde-suave)">Refacciones</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Se Requieren Refacciones</label>
+            <select id="c-ref-req">
+              <option value="">— Seleccionar —</option>
+              <option value="SI">SI</option>
+              <option value="NO">NO</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Refacciones en Almacén</label>
+            <select id="c-ref-alm">
+              <option value="">— Seleccionar —</option>
+              <option value="SI">SI</option>
+              <option value="NO">NO</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tiempo de Entrega de Refacciones</label>
+            <input type="text" id="c-tiempo-ref" placeholder="Ej. 2 días hábiles">
+          </div>
+          <div class="form-group">
+            <label>Costo Aprox. de Refacciones</label>
+            <input type="text" id="c-costo" placeholder="$ 0.00">
+          </div>
+          <div class="form-group">
+            <label>Actividades Previas para Mantenimiento</label>
+            <input type="text" id="c-act-previas" placeholder="Actividades previas necesarias">
+          </div>
+          <div class="form-group">
+            <label>Inicio de Reparación / Instalación</label>
+            <input type="text" id="c-inicio-rep" placeholder="dd/mm/aaaa">
+          </div>
+          <div class="form-group">
+            <label>Fecha Estimada de Entrega</label>
+            <input type="date" id="c-fecha-est">
+          </div>
+          <div class="form-group">
+            <label>Hora de Inicio de Reparación</label>
+            <input type="time" id="c-hora-inicio">
+          </div>
+        </div>
+      </div>
+
+      <!-- Reparación -->
+      <div style="margin-bottom:20px">
+        <div style="font-family:'Inconsolata',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--texto-ter);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--borde-suave)">Descripción de la Reparación</div>
+        <div class="form-grid">
+          <div class="form-group span2">
+            <label>Descripción de la Reparación *</label>
+            <textarea id="c-descripcion" rows="4" placeholder="Describe detalladamente el trabajo realizado…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Liberación y firmas -->
+      <div>
+        <div style="font-family:'Inconsolata',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--texto-ter);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--borde-suave)">Liberación y Firmas</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Fecha de Liberación *</label>
+            <input type="date" id="c-fecha-lib">
+          </div>
+          <div class="form-group">
+            <label>Hora de Entrega del Equipo</label>
+            <input type="time" id="c-hora-entrega">
+          </div>
+          <div class="form-group">
+            <label>Técnico que Entrega *</label>
+            <input type="text" id="c-tecnico-entrega" placeholder="Nombre del técnico">
+          </div>
+          <div class="form-group">
+            <label>Nombre y Firma de quien Recibe</label>
+            <input type="text" id="c-quien-recibe" placeholder="Nombre completo">
+          </div>
+          <div class="form-group span2">
+            <label>Firma de Conformidad (después de 36 hrs)</label>
+            <input type="text" id="c-firma-conformidad" placeholder="Nombre / observaciones de conformidad">
+          </div>
+        </div>
+      </div>
+
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="cerrarModal('modal-cerrar')">Cancelar</button>
       <button class="btn btn-success" onclick="ejecutarCierre()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <polyline points="20 6 9 17 4 12"/>
-        </svg>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
         Cerrar Orden
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Eliminar Orden -->
+<div class="modal-overlay" id="modal-eliminar">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header" style="background:var(--rojo)">
+      <h2>Eliminar Orden</h2>
+      <button class="modal-close" onclick="cerrarModal('modal-eliminar')">✕</button>
+    </div>
+    <div class="modal-body" style="text-align:center;padding:36px 28px">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--rojo-clar)" stroke-width="1.5" style="margin-bottom:16px">
+        <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+      </svg>
+      <p style="font-family:'Cormorant SC',serif;font-size:17px;letter-spacing:1.5px;margin-bottom:10px">¿Eliminar esta orden?</p>
+      <p style="font-family:'Inconsolata',monospace;font-size:12px;color:var(--texto-sec);letter-spacing:1px;margin-bottom:4px">Folio: <strong id="modal-eliminar-folio" style="color:var(--negro)"></strong></p>
+      <p style="font-family:'Inconsolata',monospace;font-size:11px;color:var(--texto-ter);letter-spacing:1px;margin-top:8px">Esta acción eliminará la orden del registro local.<br>En Google Sheets deberás eliminarla manualmente.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cerrarModal('modal-eliminar')">Cancelar</button>
+      <button class="btn btn-danger" onclick="ejecutarEliminar()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m5 0V4h4v2"/></svg>
+        Eliminar
       </button>
     </div>
   </div>
@@ -743,6 +868,7 @@
 
 <script src="sheets.js"></script>
 <script>
+const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyB9vWEI2Ct2Wn_eUF2dt6EN9_Aso19yXxowqrIBtIuaVnXDYvDrbgbnxQA2RlKlnfPuw/exec';
 let todasLasOrdenes = [];
 let filtroActual = 'todos';
 let folioSeleccionado = '';
@@ -835,6 +961,9 @@ function renderTabla(ordenes) {
           ${estado !== 'CERRADA'
             ? `<button class="btn btn-success btn-sm" onclick="abrirModalCerrar('${o.folio}')">Cerrar</button>`
             : ''}
+          <button class="btn btn-danger btn-sm" onclick="abrirModalEliminar('${o.folio}')" title="Eliminar">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m5 0V4h4v2"/></svg>
+          </button>
         </div>
       </td>
     </tr>`;
@@ -903,8 +1032,34 @@ function verOrden(folio) {
 
 function abrirModalCerrar(folio) {
   folioSeleccionado = folio;
+  const o = todasLasOrdenes.find(x => x.folio === folio);
   document.getElementById('modal-cerrar-folio').textContent = folio;
+  // Pre-llenar fecha hoy
   document.getElementById('c-fecha-lib').value = new Date().toISOString().split('T')[0];
+  // Pre-llenar datos del reporte (lectura)
+  if (o) {
+    document.getElementById('c-equipo').value     = o.equipo_reportado || '';
+    document.getElementById('c-no-control').value = o.no_control || '';
+    document.getElementById('c-falla').value       = o.falla_reportada || '';
+    // Pre-llenar campos si ya tenían datos
+    document.getElementById('c-diagnostico').value  = o.diagnostico_inicial || '';
+    document.getElementById('c-hora-recibo').value  = o.hora_recibo || '';
+    document.getElementById('c-fecha-atencion').value = o.fecha_atencion ? 
+      (o.fecha_atencion.includes('/') ? o.fecha_atencion.split('/').reverse().join('-') : o.fecha_atencion) : '';
+    document.getElementById('c-tecnicos').value     = o.tecnicos || '';
+    document.getElementById('c-ref-req').value      = o.refacciones_requeridas || '';
+    document.getElementById('c-ref-alm').value      = o.refacciones_almacen || '';
+    document.getElementById('c-tiempo-ref').value   = o.tiempo_entrega_refacciones || '';
+    document.getElementById('c-costo').value        = o.costo_refacciones || '';
+    document.getElementById('c-act-previas').value  = o.actividades_previas || '';
+    document.getElementById('c-inicio-rep').value   = o.inicio_reparacion || '';
+    document.getElementById('c-hora-inicio').value  = o.hora_inicio || '';
+    document.getElementById('c-descripcion').value  = o.descripcion_reparacion || '';
+    document.getElementById('c-hora-entrega').value = o.hora_entrega_equipo || '';
+    document.getElementById('c-tecnico-entrega').value = o.tecnico_entrega || '';
+    document.getElementById('c-quien-recibe').value    = o.nombre_firma_recibe || '';
+    document.getElementById('c-firma-conformidad').value = o.firma_conformidad || '';
+  }
   document.getElementById('modal-cerrar').classList.add('visible');
 }
 
@@ -918,15 +1073,28 @@ async function ejecutarCierre() {
   if (!tecnicoEnt)  { mostrarToast('Ingresa el técnico que entrega', 'error'); return; }
 
   const datosCierre = {
-    descripcion_reparacion: descripcion,
-    fecha_liberacion:       fechaLib,
-    hora_entrega_equipo:    document.getElementById('c-hora-entrega').value,
-    tecnico_entrega:        tecnicoEnt,
-    nombre_firma_recibe:    document.getElementById('c-quien-recibe').value,
-    firma_conformidad:      document.getElementById('c-firma-conformidad').value,
+    diagnostico_inicial:          document.getElementById('c-diagnostico').value,
+    hora_recibo:                  document.getElementById('c-hora-recibo').value,
+    fecha_atencion:               document.getElementById('c-fecha-atencion').value,
+    tecnicos:                     document.getElementById('c-tecnicos').value,
+    refacciones_requeridas:       document.getElementById('c-ref-req').value,
+    refacciones_almacen:          document.getElementById('c-ref-alm').value,
+    tiempo_entrega_refacciones:   document.getElementById('c-tiempo-ref').value,
+    costo_refacciones:            document.getElementById('c-costo').value,
+    actividades_previas:          document.getElementById('c-act-previas').value,
+    inicio_reparacion:            document.getElementById('c-inicio-rep').value,
+    hora_inicio:                  document.getElementById('c-hora-inicio').value,
+    descripcion_reparacion:       descripcion,
+    fecha_liberacion:             fechaLib,
+    hora_entrega_equipo:          document.getElementById('c-hora-entrega').value,
+    tecnico_entrega:              tecnicoEnt,
+    nombre_firma_recibe:          document.getElementById('c-quien-recibe').value,
+    firma_conformidad:            document.getElementById('c-firma-conformidad').value,
   };
 
-  const res = await cerrarOrden(folioSeleccionado, datosCierre);
+  await cerrarOrden(folioSeleccionado, datosCierre);
+
+  // Actualizar en localStorage
   const locales = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
   const idx = locales.findIndex(o => o.folio === folioSeleccionado);
   if (idx >= 0) {
@@ -935,8 +1103,34 @@ async function ejecutarCierre() {
   }
 
   cerrarModal('modal-cerrar');
-  mostrarToast(`Orden ${folioSeleccionado} cerrada`, 'success');
+  mostrarToast(`Orden ${folioSeleccionado} cerrada correctamente`, 'success');
   await cargarOrdenes();
+}
+
+function abrirModalEliminar(folio) {
+  folioSeleccionado = folio;
+  document.getElementById('modal-eliminar-folio').textContent = folio;
+  document.getElementById('modal-eliminar').classList.add('visible');
+}
+
+async function ejecutarEliminar() {
+  // Eliminar del localStorage
+  const locales = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
+  const nuevos  = locales.filter(o => o.folio !== folioSeleccionado);
+  localStorage.setItem('ordenes_local', JSON.stringify(nuevos));
+
+  // También intentar eliminar de Sheets via Apps Script
+  try {
+    const url = SHEETS_WEBAPP_URL + '?accion=eliminar&folio=' + encodeURIComponent(folioSeleccionado);
+    await fetch(url, { method: 'GET' });
+  } catch(e) { /* silencioso si falla */ }
+
+  cerrarModal('modal-eliminar');
+  mostrarToast(`Orden ${folioSeleccionado} eliminada`, 'success');
+  // Quitar del array en memoria también
+  todasLasOrdenes = todasLasOrdenes.filter(o => o.folio !== folioSeleccionado);
+  actualizarStats();
+  renderTabla(aplicarFiltro(todasLasOrdenes));
 }
 
 function abrirOrdenImpresion(folio) {
