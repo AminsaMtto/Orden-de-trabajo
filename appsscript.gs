@@ -15,9 +15,66 @@ const ENCABEZADOS = [
 
 function doGet(e) {
   try {
-    const accion = e.parameter.accion;
-    if (accion === 'listar') return respuesta(listarOrdenes_data());
-    return respuesta({ ok: false, error: 'Accion no reconocida' });
+    const p      = e.parameter;
+    const accion = p.accion;
+
+    if (accion === 'listar') {
+      return respuesta(listarOrdenes_data());
+    }
+
+    if (accion === 'guardar') {
+      // Leer campos individuales
+      const datos = {
+        folio:                      p.folio        || '',
+        fecha_reporte:              p.fecha_reporte || '',
+        hora_reporte:               p.hora_reporte  || '',
+        quien_reporta:              p.quien_reporta || '',
+        centro_negocio:             p.centro_negocio || '',
+        tipo_mantenimiento:         p.tipo_mant     || '',
+        equipo_reportado:           p.equipo        || '',
+        no_control:                 p.no_control    || '',
+        falla_reportada:            p.falla         || '',
+        grado_urgencia:             p.urgencia      || '',
+        frecuencia_falla:           p.frecuencia    || '',
+        hora_recibo:                p.hora_recibo   || '',
+        fecha_atencion:             p.fecha_atencion || '',
+        tecnicos:                   p.tecnicos      || '',
+        diagnostico_inicial:        p.diagnostico   || '',
+        refacciones_requeridas:     p.ref_req       || '',
+        refacciones_almacen:        p.ref_alm       || '',
+        tiempo_entrega_refacciones: p.tiempo_ref    || '',
+        actividades_previas:        p.act_previas   || '',
+        inicio_reparacion:          p.inicio_rep    || '',
+        hora_inicio:                p.hora_inicio   || '',
+        fecha_estimada_entrega:     p.fecha_est     || '',
+        costo_refacciones:          p.costo         || '',
+        descripcion_reparacion:     p.descripcion   || '',
+        fecha_liberacion:           p.fecha_lib     || '',
+        hora_entrega_equipo:        p.hora_entrega  || '',
+        tecnico_entrega:            p.tec_entrega   || '',
+        nombre_firma_recibe:        p.firma_recibe  || '',
+        firma_conformidad:          p.firma_conf    || ''
+      };
+      return respuesta(guardarOrden_data(datos));
+    }
+
+    if (accion === 'cerrar') {
+      const datosCierre = {
+        descripcion_reparacion: p.descripcion  || '',
+        fecha_liberacion:       p.fecha_lib    || '',
+        hora_entrega_equipo:    p.hora_entrega || '',
+        tecnico_entrega:        p.tec_entrega  || '',
+        nombre_firma_recibe:    p.firma_recibe || '',
+        firma_conformidad:      p.firma_conf   || ''
+      };
+      return respuesta(cerrarOrden_data(p.folio, datosCierre));
+    }
+
+    if (accion === 'eliminar' && p.folio) {
+      return respuesta(eliminarOrden_data(p.folio));
+    }
+
+    return respuesta({ ok: false, error: 'Accion no reconocida: ' + accion });
   } catch (err) {
     return respuesta({ ok: false, error: err.toString() });
   }
@@ -25,46 +82,10 @@ function doGet(e) {
 
 function doPost(e) {
   try {
-    let accion, datos, folio, datosCierre;
-
-    // Intenta leer como JSON directo
-    if (e.postData && e.postData.type === 'application/json') {
-      const body = JSON.parse(e.postData.contents);
-      accion      = body.accion;
-      datos       = body.datos;
-      folio       = body.folio;
-      datosCierre = body.datosCierre;
-    }
-    // Leer campo "payload" enviado por el form/iframe
-    else if (e.parameter && e.parameter.payload) {
-      const body  = JSON.parse(e.parameter.payload);
-      accion      = body.accion;
-      datos       = body.datos;
-      folio       = body.folio;
-      datosCierre = body.datosCierre;
-    }
-    // Fallback: leer postData como form-urlencoded
-    else if (e.postData && e.postData.contents) {
-      // Intentar parsear como JSON de todas formas
-      try {
-        const body = JSON.parse(e.postData.contents);
-        accion      = body.accion;
-        datos       = body.datos;
-        folio       = body.folio;
-        datosCierre = body.datosCierre;
-      } catch(_) {
-        // Leer parámetros del form
-        accion = e.parameter.accion;
-        if (e.parameter.datos)       datos       = JSON.parse(e.parameter.datos);
-        if (e.parameter.folio)       folio       = e.parameter.folio;
-        if (e.parameter.datosCierre) datosCierre = JSON.parse(e.parameter.datosCierre);
-      }
-    }
-
-    if (accion === 'guardar') return respuesta(guardarOrden_data(datos));
-    if (accion === 'cerrar')  return respuesta(cerrarOrden_data(folio, datosCierre));
-
-    return respuesta({ ok: false, error: 'Accion no reconocida: ' + accion });
+    const body = JSON.parse(e.postData.contents);
+    if (body.accion === 'guardar') return respuesta(guardarOrden_data(body.datos));
+    if (body.accion === 'cerrar')  return respuesta(cerrarOrden_data(body.folio, body.datosCierre));
+    return respuesta({ ok: false, error: 'Accion no reconocida' });
   } catch (err) {
     return respuesta({ ok: false, error: err.toString() });
   }
@@ -88,18 +109,18 @@ function inicializarHoja() {
 function guardarOrden_data(datos) {
   const hoja = inicializarHoja();
   const fila = [
-    datos.folio || '', datos.fecha_reporte || '', datos.hora_reporte || '',
-    datos.quien_reporta || '', datos.centro_negocio || '', datos.tipo_mantenimiento || '',
-    datos.equipo_reportado || '', datos.no_control || '', datos.falla_reportada || '',
-    datos.grado_urgencia || '', datos.frecuencia_falla || '', datos.hora_recibo || '',
-    datos.fecha_atencion || '', datos.tecnicos || '', datos.diagnostico_inicial || '',
-    datos.refacciones_requeridas || '', datos.refacciones_almacen || '',
-    datos.tiempo_entrega_refacciones || '', datos.actividades_previas || '',
-    datos.inicio_reparacion || '', datos.hora_inicio || '',
-    datos.fecha_estimada_entrega || '', datos.costo_refacciones || '',
-    datos.descripcion_reparacion || '', datos.fecha_liberacion || '',
-    datos.hora_entrega_equipo || '', datos.tecnico_entrega || '',
-    datos.nombre_firma_recibe || '', datos.firma_conformidad || '',
+    datos.folio, datos.fecha_reporte, datos.hora_reporte,
+    datos.quien_reporta, datos.centro_negocio, datos.tipo_mantenimiento,
+    datos.equipo_reportado, datos.no_control, datos.falla_reportada,
+    datos.grado_urgencia, datos.frecuencia_falla, datos.hora_recibo,
+    datos.fecha_atencion, datos.tecnicos, datos.diagnostico_inicial,
+    datos.refacciones_requeridas, datos.refacciones_almacen,
+    datos.tiempo_entrega_refacciones, datos.actividades_previas,
+    datos.inicio_reparacion, datos.hora_inicio,
+    datos.fecha_estimada_entrega, datos.costo_refacciones,
+    datos.descripcion_reparacion, datos.fecha_liberacion,
+    datos.hora_entrega_equipo, datos.tecnico_entrega,
+    datos.nombre_firma_recibe, datos.firma_conformidad,
     'ABIERTA', ''
   ];
   hoja.appendRow(fila);
@@ -128,9 +149,8 @@ function cerrarOrden_data(folio, datosCierre) {
   const datos = hoja.getDataRange().getValues();
   for (let i = 1; i < datos.length; i++) {
     if (String(datos[i][0]) === String(folio)) {
-      const fila   = i + 1;
+      const fila = i + 1;
       const campos = {
-        14: datosCierre.diagnostico_inicial    || datos[i][14],
         23: datosCierre.descripcion_reparacion || datos[i][23],
         24: datosCierre.fecha_liberacion       || '',
         25: datosCierre.hora_entrega_equipo    || '',
@@ -145,6 +165,18 @@ function cerrarOrden_data(folio, datosCierre) {
       });
       hoja.getRange(fila, 1, 1, datos[i].length).setBackground('#e8f5e9');
       return { ok: true };
+    }
+  }
+  return { ok: false, error: 'Folio no encontrado: ' + folio };
+}
+
+function eliminarOrden_data(folio) {
+  const hoja  = inicializarHoja();
+  const datos = hoja.getDataRange().getValues();
+  for (let i = 1; i < datos.length; i++) {
+    if (String(datos[i][0]) === String(folio)) {
+      hoja.deleteRow(i + 1);
+      return { ok: true, folio: folio };
     }
   }
   return { ok: false, error: 'Folio no encontrado: ' + folio };
