@@ -5,7 +5,7 @@
  * y leemos via GET normal que sí funciona sin CORS
  */
 
-const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyB9vWEI2Ct2Wn_eUF2dt6EN9_Aso19yXxowqrIBtIuaVnXDYvDrbgbnxQA2RlKlnfPuw/exec';
+const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwTN0BlFLNxWegmm8REE5IwCIVNuqjGqfQSwjhhNGij1IyXGf0DRH6mMX7lNAMinxnYGg/exec';
 
 // ── Guardar orden ──────────────────────────────────────────────
 // Divide los datos en campos individuales para no exceder el límite de URL
