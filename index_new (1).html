@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AMINSA — Sistema de Órdenes de Trabajo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Cormorant+SC:wght@300;400;500;600;700&family=IM+Fell+DW+Pica&family=Inconsolata:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --negro:       #0e0e0e;
+      --carbono:     #111111;
+      --gris-osc:    #1a1a1a;
+      --gris:        #2e2e2e;
+      --gris-med:    #4a4a4a;
+      --gris-clar:   #7a7a7a;
+      --borde:       #d8d4ce;
+      --borde-suave: #e8e4de;
+      --fondo:       #faf9f7;
+      --fondo-alt:   #f4f2ee;
+      --blanco:      #ffffff;
+      --acento:      #1a1a1a;
+      --acento2:     #8b1a1a;
+      --rojo:        #8b1a1a;
+      --rojo-clar:   #b52020;
+      --verde:       #1a4a2a;
+      --verde-clar:  #1e6b35;
+      --texto:       #1a1a1a;
+      --texto-sec:   #4a4a4a;
+      --texto-ter:   #7a7a7a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Cormorant Garamond', serif;
+      background: var(--fondo);
+      color: var(--texto);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--negro);
+      padding: 0 48px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #2e2e2e;
+      position: relative;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .header-logo {
+      width: 42px;
+      height: 42px;
+      background: var(--blanco);
+      color: var(--negro);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant SC', serif;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 1px;
+      flex-shrink: 0;
+    }
+    .header-divider {
+      width: 1px;
+      height: 32px;
+      background: rgba(255,255,255,0.2);
+    }
+    .header-text {}
+    .header-title {
+      font-family: 'Cormorant SC', serif;
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: 3px;
+      color: #ffffff;
+    }
+    .header-sub {
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px;
+      color: #666;
+      margin-top: 3px;
+      letter-spacing: 1px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .header-doc-ref {
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px;
+      color: #555;
+      border: 1px solid #333;
+      padding: 4px 10px;
+      letter-spacing: 1.5px;
+    }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      background: var(--blanco);
+      padding: 0 48px;
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--borde);
+    }
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 40px 18px 0;
+      margin-right: 40px;
+      border-right: 1px solid var(--borde-suave);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-icon {
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--fondo-alt);
+      border: 1px solid var(--borde);
+    }
+    .stat-icon svg { width: 15px; height: 15px; color: var(--gris-med); }
+    .stat-data {}
+    .stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 30px;
+      font-weight: 600;
+      color: var(--negro);
+      line-height: 1;
+    }
+    .stat-num.amarillo { color: #7a5500; }
+    .stat-num.rojo     { color: var(--rojo-clar); }
+    .stat-num.verde    { color: var(--verde-clar); }
+    .stat-label {
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px;
+      color: var(--texto-ter);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 400;
+    }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      padding: 18px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      background: var(--fondo-alt);
+      border-bottom: 1px solid var(--borde);
+    }
+    .toolbar-left { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      font-family: 'Inconsolata', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--negro);
+      color: var(--blanco);
+      border-color: var(--negro);
+    }
+    .btn-primary:hover {
+      background: #333;
+      border-color: #333;
+    }
+    .btn-danger {
+      background: transparent;
+      color: var(--rojo-clar);
+      border: 1px solid var(--rojo);
+    }
+    .btn-danger:hover { background: var(--rojo); color: var(--blanco); }
+    .btn-success {
+      background: transparent;
+      color: var(--verde-clar);
+      border: 1px solid var(--verde);
+    }
+    .btn-success:hover { background: var(--verde); color: var(--blanco); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--texto-sec);
+      border: 1px solid var(--borde);
+    }
+    .btn-ghost:hover { background: var(--blanco); border-color: #aaa; color: var(--negro); }
+
+    /* Filtros */
+    .filtros { display: flex; gap: 0; align-items: center; border: 1px solid var(--borde); }
+    .filtro-btn {
+      padding: 7px 18px;
+      font-family: 'Inconsolata', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      border-right: 1px solid var(--borde);
+      background: transparent;
+      color: var(--texto-ter);
+      transition: all 0.2s;
+    }
+    .filtro-btn:last-child { border-right: none; }
+    .filtro-btn.activo {
+      background: var(--negro);
+      color: var(--blanco);
+    }
+    .filtro-btn:hover:not(.activo) { background: var(--blanco); color: var(--negro); }
+
+    .search-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 12px;
+      width: 13px;
+      height: 13px;
+      color: var(--texto-ter);
+      pointer-events: none;
+    }
+    .search-input {
+      padding: 8px 14px 8px 34px;
+      border: 1px solid var(--borde);
+      background: var(--blanco);
+      font-family: 'Inconsolata', monospace;
+      font-size: 12px;
+      width: 280px;
+      color: var(--negro);
+      letter-spacing: 0.5px;
+      transition: border-color 0.2s;
+    }
+    .search-input::placeholder { color: var(--texto-ter); }
+    .search-input:focus { outline: none; border-color: var(--negro); }
+
+    /* ── TABLA ── */
+    .table-wrap {
+      margin: 28px 48px;
+      background: var(--blanco);
+      border: 1px solid var(--borde);
+      overflow: auto;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    thead tr {
+      background: var(--negro);
+    }
+    th {
+      padding: 13px 18px;
+      text-align: left;
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: rgba(255,255,255,0.6);
+      white-space: nowrap;
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+    th:last-child { border-right: none; }
+    td {
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--borde-suave);
+      border-right: 1px solid rgba(216,212,206,0.4);
+      vertical-align: middle;
+      color: var(--texto);
+      font-size: 14px;
+      font-family: 'Cormorant Garamond', serif;
+    }
+    td:last-child { border-right: none; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: var(--fondo-alt); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 10px;
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border: 1px solid;
+    }
+    .badge-abierta  { background: #fdf6e3; color: #7a5500; border-color: #e0c870; }
+    .badge-cerrada  { background: #f0faf4; color: #1a5c30; border-color: #a0d8b0; }
+    .badge-urgente  { background: #fdf0f0; color: var(--rojo); border-color: #e0a0a0; }
+    .badge-alto     { background: #fdf6e3; color: #7a5500; border-color: #e0c870; }
+    .badge-medio    { background: #f0f4fd; color: #1a3a7a; border-color: #a0b8e0; }
+    .badge-bajo     { background: #f0faf4; color: #1a5c30; border-color: #a0d8b0; }
+
+    .folio-tag {
+      font-family: 'Inconsolata', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--negro);
+      letter-spacing: 0.5px;
+    }
+
+    .acciones { display: flex; gap: 5px; }
+    .btn-sm {
+      padding: 4px 12px;
+      font-size: 10px;
+      letter-spacing: 1px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 80px 32px;
+      color: var(--texto-ter);
+    }
+    .empty-state svg { width: 36px; height: 36px; margin-bottom: 16px; opacity: 0.25; color: var(--negro); }
+    .empty-state p { font-family: 'Cormorant SC', serif; font-size: 18px; letter-spacing: 2px; color: var(--texto-sec); margin-bottom: 8px; }
+    .empty-state small { font-family: 'Inconsolata', monospace; font-size: 11px; color: var(--texto-ter); letter-spacing: 1px; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10,10,10,0.6);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(3px);
+    }
+    .modal-overlay.visible { display: flex; }
+
+    .modal {
+      background: var(--blanco);
+      border: 1px solid var(--borde);
+      width: 100%;
+      max-width: 620px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      background: var(--negro);
+      color: var(--blanco);
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-header h2 {
+      font-family: 'Cormorant SC', serif;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 2.5px;
+      color: #fff;
+    }
+    .modal-header h2 span {
+      color: rgba(255,255,255,0.5);
+      font-family: 'Inconsolata', monospace;
+      font-size: 13px;
+    }
+    .modal-close {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      width: 28px;
+      height: 28px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.4); }
+    .modal-body { padding: 28px; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-grid.full { grid-template-columns: 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.span2 { grid-column: span 2; }
+    label {
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--texto-ter);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    input[type="text"], input[type="date"], input[type="time"], textarea, select {
+      padding: 9px 12px;
+      border: 1px solid var(--borde);
+      font-size: 14px;
+      font-family: 'Cormorant Garamond', serif;
+      background: var(--fondo);
+      color: var(--negro);
+      transition: border-color 0.2s;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--negro);
+      background: var(--blanco);
+    }
+    textarea { resize: vertical; min-height: 80px; }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--borde-suave);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      background: var(--fondo-alt);
+    }
+
+    /* ── DETALLE CAMPOS ── */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--borde);
+      border: 1px solid var(--borde);
+    }
+    .detail-field {
+      background: var(--blanco);
+      padding: 12px 16px;
+    }
+    .detail-field.full { grid-column: span 2; }
+    .detail-field-label {
+      font-family: 'Inconsolata', monospace;
+      font-size: 9px;
+      font-weight: 500;
+      color: var(--texto-ter);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+    }
+    .detail-field-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px;
+      color: var(--negro);
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: var(--negro);
+      color: var(--blanco);
+      padding: 12px 20px 12px 16px;
+      font-family: 'Inconsolata', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      border-left: 3px solid rgba(255,255,255,0.3);
+      transform: translateX(120%);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 9999;
+      max-width: 340px;
+    }
+    .toast.show { transform: translateX(0); opacity: 1; }
+    .toast.error   { border-left-color: var(--rojo-clar); }
+    .toast.success { border-left-color: var(--verde-clar); }
+
+    /* ── SYNC INDICATOR ── */
+    .sync-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px;
+      color: #666;
+      letter-spacing: 1px;
+    }
+    .sync-dot {
+      width: 6px; height: 6px;
+      background: #444;
+    }
+    .sync-dot.online {
+      background: var(--verde-clar);
+      box-shadow: 0 0 8px rgba(30,107,53,0.5);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: var(--fondo); }
+    ::-webkit-scrollbar-thumb { background: var(--borde); }
+    ::-webkit-scrollbar-thumb:hover { background: #aaa; }
+
+    /* ── SECTION HEADER ── */
+    .section-header {
+      margin: 24px 48px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-label {
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--texto-ter);
+    }
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, var(--borde), transparent);
+    }
+    .section-count {
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px;
+      color: var(--texto-ter);
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-brand">
+    <div class="header-logo">AM</div>
+    <div class="header-divider"></div>
+    <div class="header-text">
+      <div class="header-title">AMINSA — Órdenes de Trabajo</div>
+      <div class="header-sub">MANTENIMIENTO PREVENTIVO Y CORRECTIVO</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="header-doc-ref">AM-MA-FO-7.1.3.-08</div>
+    <div class="sync-indicator" id="sync-indicator">
+      <div class="sync-dot" id="sync-dot"></div>
+      <span id="sync-label">VERIFICANDO…</span>
+    </div>
+  </div>
+</header>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+      </svg>
+    </div>
+    <div class="stat-data">
+      <div class="stat-num" id="stat-total">0</div>
+      <div class="stat-label">Total</div>
+    </div>
+  </div>
+  <div class="stat">
+    <div class="stat-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="9"/><path d="M12 8v4l2 2"/>
+      </svg>
+    </div>
+    <div class="stat-data">
+      <div class="stat-num amarillo" id="stat-abiertas">0</div>
+      <div class="stat-label">Abiertas</div>
+    </div>
+  </div>
+  <div class="stat">
+    <div class="stat-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+    </div>
+    <div class="stat-data">
+      <div class="stat-num verde" id="stat-cerradas">0</div>
+      <div class="stat-label">Cerradas</div>
+    </div>
+  </div>
+  <div class="stat">
+    <div class="stat-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+      </svg>
+    </div>
+    <div class="stat-data">
+      <div class="stat-num rojo" id="stat-urgentes">0</div>
+      <div class="stat-label">Muy Urgentes</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <a href="orden.html" class="btn btn-primary">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+      Nueva Orden
+    </a>
+    <button class="btn btn-ghost" onclick="cargarOrdenes()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+      </svg>
+      Actualizar
+    </button>
+    <div class="filtros">
+      <button class="filtro-btn activo" onclick="filtrar('todos', this)">Todas</button>
+      <button class="filtro-btn" onclick="filtrar('ABIERTA', this)">Abiertas</button>
+      <button class="filtro-btn" onclick="filtrar('CERRADA', this)">Cerradas</button>
+    </div>
+  </div>
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input class="search-input" type="text" placeholder="BUSCAR FOLIO / EQUIPO / TÉCNICO" oninput="buscar(this.value)">
+  </div>
+</div>
+
+<!-- TABLE -->
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Folio</th>
+        <th>Fecha</th>
+        <th>Centro</th>
+        <th>Equipo</th>
+        <th>Tipo</th>
+        <th>Urgencia</th>
+        <th>Técnico(s)</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="tabla-body">
+      <tr>
+        <td colspan="9">
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <p>Cargando órdenes</p>
+            <small>CONECTANDO CON GOOGLE SHEETS…</small>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal Ver Detalles -->
+<div class="modal-overlay" id="modal-ver">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Detalle de Orden — <span id="modal-ver-folio"></span></h2>
+      <button class="modal-close" onclick="cerrarModal('modal-ver')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-ver-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cerrarModal('modal-ver')">Cerrar</button>
+      <button class="btn btn-primary" onclick="imprimirOrden()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+        </svg>
+        Imprimir
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Cerrar Orden -->
+<div class="modal-overlay" id="modal-cerrar">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Cerrar Orden — <span id="modal-cerrar-folio"></span></h2>
+      <button class="modal-close" onclick="cerrarModal('modal-cerrar')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group span2">
+          <label>Descripción de la Reparación *</label>
+          <textarea id="c-descripcion" rows="4" placeholder="Describe el trabajo realizado…"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Fecha de Liberación *</label>
+          <input type="date" id="c-fecha-lib">
+        </div>
+        <div class="form-group">
+          <label>Hora de Entrega</label>
+          <input type="time" id="c-hora-entrega">
+        </div>
+        <div class="form-group">
+          <label>Técnico que Entrega *</label>
+          <input type="text" id="c-tecnico-entrega" placeholder="Nombre del técnico">
+        </div>
+        <div class="form-group">
+          <label>Nombre Persona que Recibe</label>
+          <input type="text" id="c-quien-recibe" placeholder="Nombre y firma">
+        </div>
+        <div class="form-group span2">
+          <label>Firma de Conformidad (36 hrs)</label>
+          <input type="text" id="c-firma-conformidad" placeholder="Nombre / observaciones">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cerrarModal('modal-cerrar')">Cancelar</button>
+      <button class="btn btn-success" onclick="ejecutarCierre()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Cerrar Orden
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="sheets.js"></script>
+<script>
+let todasLasOrdenes = [];
+let filtroActual = 'todos';
+let folioSeleccionado = '';
+
+document.addEventListener('DOMContentLoaded', () => {
+  cargarOrdenes();
+  verificarConexion();
+});
+
+async function verificarConexion() {
+  const dot   = document.getElementById('sync-dot');
+  const label = document.getElementById('sync-label');
+  const ordenes = await obtenerOrdenes();
+  if (ordenes.length >= 0) {
+    dot.className = 'sync-dot online';
+    label.textContent = 'SHEETS CONECTADO';
+  } else {
+    label.textContent = 'SIN CONEXIÓN (LOCAL)';
+  }
+}
+
+async function cargarOrdenes() {
+  const remotas = await obtenerOrdenes();
+  const locales = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
+  const foliosRemotos = new Set(remotas.map(o => o.folio));
+  const soloLocales = locales.filter(o => !foliosRemotos.has(o.folio));
+  todasLasOrdenes = [...remotas, ...soloLocales].sort((a, b) => {
+    return new Date(b.fecha_reporte || 0) - new Date(a.fecha_reporte || 0);
+  });
+  actualizarStats();
+  renderTabla(aplicarFiltro(todasLasOrdenes));
+}
+
+function actualizarStats() {
+  const total    = todasLasOrdenes.length;
+  const abiertas = todasLasOrdenes.filter(o => (o.estado || 'ABIERTA') === 'ABIERTA').length;
+  const cerradas = todasLasOrdenes.filter(o => o.estado === 'CERRADA').length;
+  const urgentes = todasLasOrdenes.filter(o =>
+    (o.grado_urgencia || '').toLowerCase().includes('urgente') && o.estado !== 'CERRADA'
+  ).length;
+  document.getElementById('stat-total').textContent    = total;
+  document.getElementById('stat-abiertas').textContent = abiertas;
+  document.getElementById('stat-cerradas').textContent = cerradas;
+  document.getElementById('stat-urgentes').textContent = urgentes;
+}
+
+function renderTabla(ordenes) {
+  const tbody = document.getElementById('tabla-body');
+  if (!ordenes.length) {
+    tbody.innerHTML = `
+      <tr><td colspan="9">
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <p>No hay órdenes registradas</p>
+          <small>HAZ CLIC EN "NUEVA ORDEN" PARA COMENZAR</small>
+        </div>
+      </td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = ordenes.map(o => {
+    const estado  = o.estado || 'ABIERTA';
+    const urgencia = o.grado_urgencia || '—';
+    const badgeEstado = estado === 'CERRADA' ? 'badge-cerrada' : 'badge-abierta';
+    let badgeUrg = 'badge-medio';
+    if (urgencia.toLowerCase().includes('urgente')) badgeUrg = 'badge-urgente';
+    else if (urgencia.toLowerCase() === 'alto') badgeUrg = 'badge-alto';
+    else if (urgencia.toLowerCase() === 'bajo') badgeUrg = 'badge-bajo';
+
+    return `
+    <tr>
+      <td><span class="folio-tag">${o.folio || '—'}</span></td>
+      <td style="font-family:'Inconsolata',monospace;font-size:11px;color:var(--texto-ter)">${o.fecha_reporte || '—'}</td>
+      <td>${o.centro_negocio || '—'}</td>
+      <td>${truncar(o.equipo_reportado, 28)}</td>
+      <td style="color:var(--texto-sec)">${truncar(o.tipo_mantenimiento, 20)}</td>
+      <td><span class="badge ${badgeUrg}">${urgencia}</span></td>
+      <td>${truncar(o.tecnicos || o.quien_reporta || '—', 20)}</td>
+      <td><span class="badge ${badgeEstado}">${estado}</span></td>
+      <td>
+        <div class="acciones">
+          <button class="btn btn-ghost btn-sm" onclick="verOrden('${o.folio}')">Ver</button>
+          <button class="btn btn-ghost btn-sm" onclick="abrirOrdenImpresion('${o.folio}')" title="Imprimir">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+            </svg>
+          </button>
+          ${estado !== 'CERRADA'
+            ? `<button class="btn btn-success btn-sm" onclick="abrirModalCerrar('${o.folio}')">Cerrar</button>`
+            : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filtrar(tipo, btn) {
+  filtroActual = tipo;
+  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('activo'));
+  btn.classList.add('activo');
+  renderTabla(aplicarFiltro(todasLasOrdenes));
+}
+
+function aplicarFiltro(ordenes) {
+  if (filtroActual === 'todos') return ordenes;
+  return ordenes.filter(o => (o.estado || 'ABIERTA') === filtroActual);
+}
+
+function buscar(query) {
+  const q = query.toLowerCase();
+  const filtradas = todasLasOrdenes.filter(o =>
+    (o.folio || '').toLowerCase().includes(q) ||
+    (o.equipo_reportado || '').toLowerCase().includes(q) ||
+    (o.tecnicos || '').toLowerCase().includes(q) ||
+    (o.centro_negocio || '').toLowerCase().includes(q)
+  );
+  renderTabla(aplicarFiltro(filtradas));
+}
+
+function verOrden(folio) {
+  const o = todasLasOrdenes.find(x => x.folio === folio);
+  if (!o) return;
+
+  document.getElementById('modal-ver-folio').textContent = folio;
+
+  const campos = [
+    ['Folio', o.folio], ['Fecha Reporte', o.fecha_reporte],
+    ['Hora Reporte', o.hora_reporte], ['Quién Reporta', o.quien_reporta],
+    ['Centro de Negocio', o.centro_negocio], ['Tipo Mantenimiento', o.tipo_mantenimiento],
+    ['Equipo Reportado', o.equipo_reportado, true], ['No. Control', o.no_control],
+    ['Grado Urgencia', o.grado_urgencia], ['Frecuencia Falla', o.frecuencia_falla],
+    ['Falla Reportada', o.falla_reportada, true],
+    ['Diagnóstico Inicial', o.diagnostico_inicial, true],
+    ['Técnico(s)', o.tecnicos], ['Fecha Atención', o.fecha_atencion],
+    ['Refacciones Requeridas', o.refacciones_requeridas], ['Refacciones en Almacén', o.refacciones_almacen],
+    ['Fecha Est. Entrega', o.fecha_estimada_entrega], ['Costo Aprox.', o.costo_refacciones],
+    ['Descripción Reparación', o.descripcion_reparacion, true],
+    ['Fecha Liberación', o.fecha_liberacion], ['Hora Entrega', o.hora_entrega_equipo],
+    ['Estado', o.estado || 'ABIERTA'],
+  ];
+  if (o.fecha_cierre) campos.push(['Fecha Cierre', o.fecha_cierre]);
+
+  document.getElementById('modal-ver-body').innerHTML = `
+    <div class="detail-grid">
+      ${campos.map(([label, val, full]) => `
+        <div class="detail-field${full ? ' full' : ''}">
+          <div class="detail-field-label">${label}</div>
+          <div class="detail-field-value">${val || '—'}</div>
+        </div>
+      `).join('')}
+    </div>`;
+
+  folioSeleccionado = folio;
+  document.getElementById('modal-ver').classList.add('visible');
+}
+
+function abrirModalCerrar(folio) {
+  folioSeleccionado = folio;
+  document.getElementById('modal-cerrar-folio').textContent = folio;
+  document.getElementById('c-fecha-lib').value = new Date().toISOString().split('T')[0];
+  document.getElementById('modal-cerrar').classList.add('visible');
+}
+
+async function ejecutarCierre() {
+  const descripcion = document.getElementById('c-descripcion').value.trim();
+  const fechaLib    = document.getElementById('c-fecha-lib').value;
+  const tecnicoEnt  = document.getElementById('c-tecnico-entrega').value.trim();
+
+  if (!descripcion) { mostrarToast('Ingresa la descripción de la reparación', 'error'); return; }
+  if (!fechaLib)    { mostrarToast('Ingresa la fecha de liberación', 'error'); return; }
+  if (!tecnicoEnt)  { mostrarToast('Ingresa el técnico que entrega', 'error'); return; }
+
+  const datosCierre = {
+    descripcion_reparacion: descripcion,
+    fecha_liberacion:       fechaLib,
+    hora_entrega_equipo:    document.getElementById('c-hora-entrega').value,
+    tecnico_entrega:        tecnicoEnt,
+    nombre_firma_recibe:    document.getElementById('c-quien-recibe').value,
+    firma_conformidad:      document.getElementById('c-firma-conformidad').value,
+  };
+
+  const res = await cerrarOrden(folioSeleccionado, datosCierre);
+  const locales = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
+  const idx = locales.findIndex(o => o.folio === folioSeleccionado);
+  if (idx >= 0) {
+    locales[idx] = { ...locales[idx], ...datosCierre, estado: 'CERRADA', fecha_cierre: fechaLib };
+    localStorage.setItem('ordenes_local', JSON.stringify(locales));
+  }
+
+  cerrarModal('modal-cerrar');
+  mostrarToast(`Orden ${folioSeleccionado} cerrada`, 'success');
+  await cargarOrdenes();
+}
+
+function abrirOrdenImpresion(folio) {
+  window.open(`orden.html?folio=${folio}&modo=ver`, '_blank');
+}
+function imprimirOrden() {
+  abrirOrdenImpresion(folioSeleccionado);
+}
+
+function cerrarModal(id) {
+  document.getElementById(id).classList.remove('visible');
+}
+function truncar(str, n) {
+  if (!str) return '—';
+  return str.length > n ? str.slice(0, n) + '…' : str;
+}
+function mostrarToast(msg, tipo = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${tipo}`;
+  setTimeout(() => t.className = 'toast', 3500);
+}
+</script>
+</body>
+</html>
