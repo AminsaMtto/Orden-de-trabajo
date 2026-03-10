@@ -13,56 +13,61 @@ const ENCABEZADOS = [
   'Nombre/Firma Recibe', 'Firma Conformidad', 'Estado', 'Fecha Cierre'
 ];
 
-// GET — listar órdenes o recibir datos por parámetro
 function doGet(e) {
   try {
-    const accion = e.parameter.accion;
+    const accion   = e.parameter.accion;
+    const callback = e.parameter.callback; // para JSONP
 
-    // Guardar via GET (método alternativo para evitar CORS)
-    if (accion === 'guardar' && e.parameter.datos) {
-      const datos = JSON.parse(decodeURIComponent(e.parameter.datos));
-      return guardarOrden(datos);
-    }
-
-    if (accion === 'cerrar' && e.parameter.folio) {
-      const folio       = e.parameter.folio;
-      const datosCierre = JSON.parse(decodeURIComponent(e.parameter.datosCierre || '{}'));
-      return cerrarOrden(folio, datosCierre);
-    }
+    let resultado;
 
     if (accion === 'listar') {
-      return listarOrdenes();
+      resultado = listarOrdenes_data();
+    } else if (accion === 'guardar' && e.parameter.datos) {
+      const datos = JSON.parse(e.parameter.datos);
+      resultado = guardarOrden_data(datos);
+    } else if (accion === 'cerrar' && e.parameter.folio) {
+      const folio       = e.parameter.folio;
+      const datosCierre = JSON.parse(e.parameter.datosCierre || '{}');
+      resultado = cerrarOrden_data(folio, datosCierre);
+    } else {
+      resultado = { ok: false, error: 'Accion no reconocida: ' + accion };
     }
 
-    return respuesta({ ok: false, error: 'Accion no reconocida' });
+    // Si viene callback = JSONP
+    if (callback) {
+      return ContentService
+        .createTextOutput(callback + '(' + JSON.stringify(resultado) + ')')
+        .setMimeType(ContentService.MimeType.JAVASCRIPT);
+    }
+
+    return ContentService
+      .createTextOutput(JSON.stringify(resultado))
+      .setMimeType(ContentService.MimeType.JSON);
+
   } catch (err) {
-    return respuesta({ ok: false, error: err.toString() });
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: false, error: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
 function doPost(e) {
   try {
-    let accion, datos, folio, datosCierre;
-    const ct = (e.postData && e.postData.type) ? e.postData.type : '';
+    const body      = JSON.parse(e.postData.contents);
+    const accion    = body.accion;
+    let resultado;
 
-    if (ct.indexOf('application/json') >= 0) {
-      const body = JSON.parse(e.postData.contents);
-      accion      = body.accion;
-      datos       = body.datos;
-      folio       = body.folio;
-      datosCierre = body.datosCierre;
-    } else {
-      accion = e.parameter.accion;
-      if (e.parameter.datos)       datos       = JSON.parse(e.parameter.datos);
-      if (e.parameter.folio)       folio       = e.parameter.folio;
-      if (e.parameter.datosCierre) datosCierre = JSON.parse(e.parameter.datosCierre);
-    }
+    if (accion === 'guardar') resultado = guardarOrden_data(body.datos);
+    else if (accion === 'cerrar') resultado = cerrarOrden_data(body.folio, body.datosCierre);
+    else resultado = { ok: false, error: 'Accion no reconocida' };
 
-    if (accion === 'guardar') return guardarOrden(datos);
-    if (accion === 'cerrar')  return cerrarOrden(folio, datosCierre);
-    return respuesta({ ok: false, error: 'Accion no reconocida' });
+    return ContentService
+      .createTextOutput(JSON.stringify(resultado))
+      .setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
-    return respuesta({ ok: false, error: err.toString() });
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: false, error: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
@@ -81,7 +86,7 @@ function inicializarHoja() {
   return hoja;
 }
 
-function guardarOrden(datos) {
+function guardarOrden_data(datos) {
   const hoja = inicializarHoja();
   const fila = [
     datos.folio || '', datos.fecha_reporte || '', datos.hora_reporte || '',
@@ -99,15 +104,14 @@ function guardarOrden(datos) {
     'ABIERTA', ''
   ];
   hoja.appendRow(fila);
-  const uf = hoja.getLastRow();
-  hoja.getRange(uf, 1, 1, fila.length).setBackground('#fff8e1');
-  return respuesta({ ok: true, folio: datos.folio });
+  hoja.getRange(hoja.getLastRow(), 1, 1, fila.length).setBackground('#fff8e1');
+  return { ok: true, folio: datos.folio };
 }
 
-function listarOrdenes() {
+function listarOrdenes_data() {
   const hoja  = inicializarHoja();
   const datos = hoja.getDataRange().getValues();
-  if (datos.length <= 1) return respuesta({ ok: true, ordenes: [] });
+  if (datos.length <= 1) return { ok: true, ordenes: [] };
   const enc = datos[0].map(h =>
     h.toLowerCase().replace(/ /g,'_').replace(/[()\/]/g,'').replace(/\./g,'')
      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
@@ -117,10 +121,10 @@ function listarOrdenes() {
     enc.forEach((e, i) => { obj[e] = fila[i]; });
     return obj;
   });
-  return respuesta({ ok: true, ordenes });
+  return { ok: true, ordenes };
 }
 
-function cerrarOrden(folio, datosCierre) {
+function cerrarOrden_data(folio, datosCierre) {
   const hoja  = inicializarHoja();
   const datos = hoja.getDataRange().getValues();
   for (let i = 1; i < datos.length; i++) {
@@ -141,14 +145,8 @@ function cerrarOrden(folio, datosCierre) {
         hoja.getRange(fila, parseInt(col) + 1).setValue(val);
       });
       hoja.getRange(fila, 1, 1, datos[i].length).setBackground('#e8f5e9');
-      return respuesta({ ok: true });
+      return { ok: true };
     }
   }
-  return respuesta({ ok: false, error: 'Folio no encontrado: ' + folio });
-}
-
-function respuesta(obj) {
-  return ContentService
-    .createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
+  return { ok: false, error: 'Folio no encontrado: ' + folio };
 }
