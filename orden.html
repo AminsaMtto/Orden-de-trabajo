@@ -8,248 +8,74 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Cormorant+SC:wght@300;400;500;600;700&family=Inconsolata:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --negro:       #0e0e0e;
-      --fondo:       #faf9f7;
-      --fondo-alt:   #f4f2ee;
-      --blanco:      #ffffff;
-      --borde:       #d8d4ce;
-      --borde-suave: #e8e4de;
-      --texto:       #1a1a1a;
-      --texto-sec:   #4a4a4a;
-      --texto-ter:   #7a7a7a;
-      --rojo:        #8b1a1a;
-      --rojo-clar:   #b52020;
-      --verde:       #1a4a2a;
-      --verde-clar:  #1e6b35;
+      --negro:#0e0e0e;--fondo:#faf9f7;--fondo-alt:#f4f2ee;--blanco:#ffffff;
+      --borde:#d8d4ce;--borde-suave:#e8e4de;--texto:#1a1a1a;--texto-sec:#4a4a4a;
+      --texto-ter:#7a7a7a;--rojo:#8b1a1a;--rojo-clar:#b52020;--verde:#1a4a2a;--verde-clar:#1e6b35;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Cormorant Garamond', serif;
-      background: var(--fondo);
-      padding: 24px 20px 40px;
-    }
-
-    .action-bar {
-      width: 794px;
-      margin: 0 auto 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
+    body { font-family: 'Cormorant Garamond', serif; background: var(--fondo); padding: 24px 20px 40px; }
+    .action-bar { width: 794px; margin: 0 auto 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
     .action-bar-left { display: flex; gap: 8px; align-items: center; }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 8px 20px;
-      font-family: 'Inconsolata', monospace;
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: all 0.2s;
-      text-decoration: none;
-    }
+    .btn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 20px; font-family: 'Inconsolata', monospace; font-size: 12px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; border: 1px solid transparent; transition: all 0.2s; text-decoration: none; }
     .btn-primary { background: var(--negro); color: var(--blanco); border-color: var(--negro); }
-    .btn-primary:hover { background: #333; border-color: #333; }
+    .btn-primary:hover { background: #333; }
     .btn-success { background: var(--verde); color: var(--blanco); border-color: var(--verde); }
     .btn-success:hover { background: #145c28; }
     .btn-ghost { background: var(--blanco); color: var(--texto-sec); border: 1px solid var(--borde); }
     .btn-ghost:hover { background: var(--fondo-alt); border-color: #aaa; color: var(--negro); }
-
-    .label-folio {
-      font-family: 'Inconsolata', monospace;
-      font-size: 12px;
-      color: var(--texto-ter);
-      letter-spacing: 1px;
-      border: 1px solid var(--borde);
-      padding: 4px 12px;
-      background: var(--blanco);
-    }
-
-    .form-container {
-      width: 794px;
-      height: 1123px;
-      margin: 0 auto;
-      position: relative;
-      background-color: white;
-      background-image: url('fondo-orden.jpg.jpeg');
-      background-size: 100% 100%;
-      background-repeat: no-repeat;
-      box-shadow: 0 4px 32px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.06);
-      border: 1px solid var(--borde);
-    }
-
-    .input-field {
-      position: absolute;
-      border: none;
-      background: transparent;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 15px;
-      color: #111;
-      outline: none;
-    }
-    .input-field:focus {
-      background: rgba(14,14,14,0.05);
-      border-radius: 1px;
-    }
-
-    .textarea-field {
-      position: absolute;
-      border: none;
-      background: transparent;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 12px;
-      color: #111;
-      outline: none;
-      resize: none;
-      overflow: hidden;
-      padding: 4px 5px;
-      line-height: 1.4;
-      box-sizing: border-box;
-    }
-    .textarea-field:focus {
-      background: rgba(14,14,14,0.05);
-      border-radius: 1px;
-    }
-
-    .checkbox-field {
-      position: absolute;
-      width: 35px;
-      height: 15px;
-      margin: 0;
-      padding: 0;
-      cursor: pointer;
-      -webkit-appearance: none;
-      appearance: none;
-      border: 1.5px solid #aaa;
-      border-radius: 1px;
-      background-color: white;
-      transition: all 0.15s;
-    }
-    .checkbox-field:checked {
-      background-color: var(--negro);
-      border-color: var(--negro);
-    }
-    .checkbox-field:checked::after {
-      content: "✓";
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      color: white;
-      font-size: 9px;
-      font-weight: bold;
-      font-family: 'Inconsolata', monospace;
-    }
-
-    /* Campos ocultos hasta el cierre */
+    .label-folio { font-family: 'Inconsolata', monospace; font-size: 12px; color: var(--texto-ter); letter-spacing: 1px; border: 1px solid var(--borde); padding: 4px 12px; background: var(--blanco); }
+    .form-container { width: 794px; height: 1123px; margin: 0 auto; position: relative; background-color: white; background-image: url('fondo-orden.jpg.jpeg'); background-size: 100% 100%; background-repeat: no-repeat; box-shadow: 0 4px 32px rgba(0,0,0,0.12); border: 1px solid var(--borde); }
+    .input-field { position: absolute; border: none; background: transparent; font-family: 'Cormorant Garamond', serif; font-size: 15px; color: #111; outline: none; }
+    .input-field:focus { background: rgba(14,14,14,0.05); border-radius: 1px; }
+    .textarea-field { position: absolute; border: none; background: transparent; font-family: 'Cormorant Garamond', serif; font-size: 12px; color: #111; outline: none; resize: none; overflow: hidden; padding: 4px 5px; line-height: 1.4; box-sizing: border-box; }
+    .textarea-field:focus { background: rgba(14,14,14,0.05); border-radius: 1px; }
+    .checkbox-field { position: absolute; width: 35px; height: 15px; margin: 0; padding: 0; cursor: pointer; -webkit-appearance: none; appearance: none; border: 1.5px solid #aaa; border-radius: 1px; background-color: white; transition: all 0.15s; }
+    .checkbox-field:checked { background-color: var(--negro); border-color: var(--negro); }
+    .checkbox-field:checked::after { content: "✓"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); color: white; font-size: 9px; font-weight: bold; font-family: 'Inconsolata', monospace; }
     .campo-cierre { display: none !important; }
 
-    /* ── POSICIONES ── */
-    #folio { top: 141px; left: 629px; width: 102px; height: 22px; text-align: center; font-family: 'Inconsolata', monospace; font-weight: 500; font-size: 12px; letter-spacing: 0.5px; }
+    #folio { top:141px;left:629px;width:102px;height:22px;text-align:center;font-family:'Inconsolata',monospace;font-weight:500;font-size:12px;letter-spacing:0.5px; }
+    #cb-zinc{top:182.8px;left:201.15px} #cb-cromo{top:198.8px;left:201.15px} #cb-doblado{top:214.9px;left:201.15px} #cb-oficinas{top:232px;left:201.15px}
+    #cb-pretratamiento{top:182.8px;left:451.4px} #cb-tratamiento{top:198.8px;left:451.4px} #cb-andenes{top:214.9px;left:451.4px} #cb-laboratorio{top:232px;left:451.4px}
+    #cb-obra-civil{top:182.8px;left:663.4px} #cb-area-periferica{top:198.8px;left:663.4px} #cb-otros1{top:214.9px;left:663.4px}
+    #cb-preventivo{top:308.9px;left:201.15px} #cb-correctivo{top:325px;left:201.15px} #cb-mejora{top:341.15px;left:201.15px}
+    #cb-fabricacion{top:308.8px;left:451.4px} #cb-ajuste{top:325.2px;left:451.4px} #cb-cambio{top:341.2px;left:451.4px} #cb-otros2{top:308.85px;left:593.5px}
+    #equipo-reportado{top:375.29px;left:201.28px;width:249px;height:47px} #no-control{top:375.29px;left:596px;width:135px;height:47px}
+    #falla-reportada{top:449px;left:63px;width:675px;height:69px}
+    #cb-alto{top:532px;left:236.4px} #cb-medio{top:532px;left:341.8px} #cb-bajo{top:532px;left:451.5px} #cb-muy-urgente{top:532px;left:628.3px}
+    #cb-primera{top:549px;left:236.4px} #cb-segunda{top:549px;left:341.8px} #cb-tercera{top:549px;left:451.5px}
+    #fecha-reporte{top:579px;left:178px;width:70px;height:15px} #hora-reporte{top:579px;left:402px;width:50px;height:15px} #quien-reporta{top:577px;left:569px;width:162px;height:15px}
+    #hora-recibo{top:609px;left:219px;width:35px;height:15px} #fecha-atencion{top:609px;left:391px;width:75px;height:15px} #tecnicos{top:606px;left:588px;width:155px;height:28px}
+    #diagnostico-inicial{top:659px;left:60px;width:675px;height:69px}
+    #cb-refacciones-si{top:742.5px;left:271.1px} #cb-refacciones-no{top:742.5px;left:378.1px}
+    #cb-almacen-si{top:759px;left:271.1px} #cb-almacen-no{top:759px;left:378.1px}
+    #tiempo-entrega{top:773px;left:254px;width:150px;height:15px} #actividades-previas{top:808px;left:308px;width:425px;height:15px}
+    #inicio-reparacion{top:824px;left:304px;width:170px;height:15px} #hora-inicio{top:824px;left:530px;width:80px;height:15px}
+    #fecha-estimada-entrega{top:853px;left:255px;width:135px;height:15px} #costo-refacciones{top:853px;left:635px;width:160px;height:15px}
+    #descripcion-reparacion{top:902px;left:60px;width:675px;height:70px}
+    #fecha-liberacion{top:985px;left:186px;width:115px;height:15px} #hora-entrega-equipo{top:983px;left:430px;width:40px;height:15px}
+    #tecnico-entrega{top:984px;left:596px;width:140px;height:15px} #nombre-firma-recibe{top:1017px;left:386px;width:438px;height:15px}
+    #firma-conformidad{top:1045px;left:438px;width:368px;height:15px}
 
-    #cb-zinc           { top: 182.8px; left: 201.15px; }
-    #cb-cromo          { top: 198.8px; left: 201.15px; }
-    #cb-doblado        { top: 214.9px; left: 201.15px; }
-    #cb-oficinas       { top: 232px;   left: 201.15px; }
-    #cb-pretratamiento { top: 182.8px; left: 451.4px; }
-    #cb-tratamiento    { top: 198.8px; left: 451.4px; }
-    #cb-andenes        { top: 214.9px; left: 451.4px; }
-    #cb-laboratorio    { top: 232px;   left: 451.4px; }
-    #cb-obra-civil     { top: 182.8px; left: 663.4px; }
-    #cb-area-periferica{ top: 198.8px; left: 663.4px; }
-    #cb-otros1         { top: 214.9px; left: 663.4px; }
-
-    #cb-preventivo  { top: 308.9px;  left: 201.15px; }
-    #cb-correctivo  { top: 325px;    left: 201.15px; }
-    #cb-mejora      { top: 341.15px; left: 201.15px; }
-    #cb-fabricacion { top: 308.8px;  left: 451.4px; }
-    #cb-ajuste      { top: 325.2px;  left: 451.4px; }
-    #cb-cambio      { top: 341.2px;  left: 451.4px; }
-    #cb-otros2      { top: 308.85px; left: 593.5px; }
-
-    #equipo-reportado { top: 375.29px; left: 201.28px; width: 249px; height: 47px; }
-    #no-control       { top: 375.29px; left: 596px;    width: 135px; height: 47px; }
-
-    #falla-reportada { top: 449px; left: 63px; width: 675px; height: 69px; }
-
-    #cb-alto        { top: 532px; left: 236.4px; }
-    #cb-medio       { top: 532px; left: 341.8px; }
-    #cb-bajo        { top: 532px; left: 451.5px; }
-    #cb-muy-urgente { top: 532px; left: 628.3px; }
-
-    #cb-primera { top: 549px; left: 236.4px; }
-    #cb-segunda { top: 549px; left: 341.8px; }
-    #cb-tercera { top: 549px; left: 451.5px; }
-
-    #fecha-reporte { top: 579px; left: 178px; width: 70px;  height: 15px; }
-    #hora-reporte  { top: 579px; left: 402px; width: 50px;  height: 15px; }
-    #quien-reporta { top: 577px; left: 569px; width: 162px; height: 15px; }
-
-    /* Posiciones conservadas para campos de cierre */
-    #hora-recibo            { top: 609px;  left: 219px; width: 35px;  height: 15px; }
-    #fecha-atencion         { top: 609px;  left: 391px; width: 75px; height: 15px; }
-    #tecnicos               { top: 606px;  left: 588px; width: 155px; height: 28px; }
-    #diagnostico-inicial    { top: 659px;  left: 60px;  width: 675px; height: 69px; }
-    #cb-refacciones-si      { top: 742.5px;  left: 271.1px; }
-    #cb-refacciones-no      { top: 742.5px;  left: 378.1px; }
-    #cb-almacen-si          { top: 759px;  left: 271.1px; }
-    #cb-almacen-no          { top: 759px;  left: 378.1px; }
-    #tiempo-entrega         { top: 773px;  left: 254px; width: 150px; height: 15px; }
-    #actividades-previas    { top: 808px;  left: 308px; width: 425px; height: 15px; }
-    #inicio-reparacion      { top: 824px;  left: 304px; width: 170px; height: 15px; }
-    #hora-inicio            { top: 824px;  left: 530px; width: 80px;  height: 15px; }
-    #fecha-estimada-entrega { top: 853px;  left: 255px; width: 135px; height: 15px; }
-    #costo-refacciones      { top: 853px;  left: 635px; width: 160px; height: 15px; }
-    #descripcion-reparacion { top: 902px;  left: 60px;  width: 675px; height: 70px; }
-    #fecha-liberacion       { top: 985px;  left: 186px; width: 115px; height: 15px; }
-    #hora-entrega-equipo    { top: 983px;  left: 430px; width: 40px; height: 15px; }
-    #tecnico-entrega        { top: 984px;  left: 596px; width: 140px; height: 15px; }
-    #nombre-firma-recibe    { top: 1017px;  left: 386px; width: 438px; height: 15px; }
-    #firma-conformidad      { top: 1045px;  left: 438px; width: 368px; height: 15px; }
-
-    .modo-ver .input-field,
-    .modo-ver .textarea-field,
-    .modo-ver .checkbox-field { pointer-events: none; }
+    .modo-ver .input-field,.modo-ver .textarea-field,.modo-ver .checkbox-field { pointer-events: none; }
 
     @page { size: A4; margin: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     @media print {
       body { margin: 0; padding: 0; background: none; }
       .action-bar { display: none !important; }
-      .form-container {
-        box-shadow: none; position: absolute; top: 0; left: 0;
-        width: 100%; height: 100%; margin: 0; border: none;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-      }
+      .form-container { box-shadow: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; margin: 0; border: none; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      /* Ocultar placeholders al imprimir */
+      .input-field::placeholder, .textarea-field::placeholder { color: transparent !important; opacity: 0 !important; }
+      .input-field:placeholder-shown, .textarea-field:placeholder-shown { color: transparent !important; }
+      /* Checkboxes sin marcar: invisibles */
+      .checkbox-field:not(:checked) { border-color: transparent !important; background: transparent !important; }
     }
 
-    .toast {
-      position: fixed; bottom: 28px; right: 28px;
-      background: var(--negro); color: var(--blanco);
-      padding: 12px 20px 12px 16px;
-      font-family: 'Inconsolata', monospace; font-size: 13px;
-      font-weight: 500; letter-spacing: 1px;
-      border-left: 3px solid rgba(255,255,255,0.3);
-      transform: translateX(120%); opacity: 0;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      z-index: 9999; max-width: 340px;
-    }
+    .toast { position: fixed; bottom: 28px; right: 28px; background: var(--negro); color: var(--blanco); padding: 12px 20px 12px 16px; font-family: 'Inconsolata', monospace; font-size: 13px; font-weight: 500; letter-spacing: 1px; border-left: 3px solid rgba(255,255,255,0.3); transform: translateX(120%); opacity: 0; transition: all 0.3s cubic-bezier(0.16,1,0.3,1); z-index: 9999; max-width: 340px; }
     .toast.show { transform: translateX(0); opacity: 1; }
-    .toast.error   { border-left-color: var(--rojo-clar); }
+    .toast.error { border-left-color: var(--rojo-clar); }
     .toast.success { border-left-color: var(--verde-clar); }
-
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: var(--fondo); }
-    ::-webkit-scrollbar-thumb { background: var(--borde); }
-    ::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: var(--fondo); } ::-webkit-scrollbar-thumb { background: var(--borde); }
   </style>
 </head>
 <body>
@@ -267,7 +93,7 @@
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       Limpiar
     </button>
-    <button class="btn btn-primary" onclick="window.print()">
+    <button class="btn btn-primary" onclick="imprimirOrden()">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
       Imprimir
     </button>
@@ -279,10 +105,8 @@
 </div>
 
 <div class="form-container" id="form-container">
-
   <input type="text" id="folio" class="input-field" readonly placeholder="—">
 
-  <!-- Centro de Negocios -->
   <input type="checkbox" id="cb-zinc"            class="checkbox-field" data-grupo="centro" data-abreviatura="Zn">
   <input type="checkbox" id="cb-cromo"           class="checkbox-field" data-grupo="centro" data-abreviatura="Cr">
   <input type="checkbox" id="cb-doblado"         class="checkbox-field" data-grupo="centro" data-abreviatura="Do">
@@ -295,7 +119,6 @@
   <input type="checkbox" id="cb-area-periferica" class="checkbox-field" data-grupo="centro" data-abreviatura="Ap">
   <input type="checkbox" id="cb-otros1"          class="checkbox-field" data-grupo="centro" data-abreviatura="Ot">
 
-  <!-- Tipo de Mantenimiento -->
   <input type="checkbox" id="cb-preventivo"  class="checkbox-field" data-grupo="tipo" data-label="Preventivo">
   <input type="checkbox" id="cb-correctivo"  class="checkbox-field" data-grupo="tipo" data-label="Correctivo">
   <input type="checkbox" id="cb-mejora"      class="checkbox-field" data-grupo="tipo" data-label="Mejora de Equipo">
@@ -304,30 +127,23 @@
   <input type="checkbox" id="cb-cambio"      class="checkbox-field" data-grupo="tipo" data-label="Cambio Equipo">
   <input type="checkbox" id="cb-otros2"      class="checkbox-field" data-grupo="tipo" data-label="Otros">
 
-  <!-- Equipo -->
   <input type="text" id="equipo-reportado" class="input-field" placeholder="Nombre del equipo">
   <input type="text" id="no-control"       class="input-field" placeholder="No. control">
-
-  <!-- Falla Reportada -->
   <textarea id="falla-reportada" class="textarea-field" placeholder="Describe la falla reportada…"></textarea>
 
-  <!-- Grado de Urgencia -->
   <input type="checkbox" id="cb-alto"        class="checkbox-field" data-grupo="urgencia" data-label="Alto">
   <input type="checkbox" id="cb-medio"       class="checkbox-field" data-grupo="urgencia" data-label="Medio">
   <input type="checkbox" id="cb-bajo"        class="checkbox-field" data-grupo="urgencia" data-label="Bajo">
   <input type="checkbox" id="cb-muy-urgente" class="checkbox-field" data-grupo="urgencia" data-label="Muy Urgente">
 
-  <!-- Frecuencia -->
   <input type="checkbox" id="cb-primera" class="checkbox-field" data-grupo="frecuencia" data-label="1a Vez">
   <input type="checkbox" id="cb-segunda" class="checkbox-field" data-grupo="frecuencia" data-label="2a Vez">
   <input type="checkbox" id="cb-tercera" class="checkbox-field" data-grupo="frecuencia" data-label="3a Vez">
 
-  <!-- VISIBLES al crear la orden -->
   <input type="text" id="fecha-reporte" class="input-field" readonly>
   <input type="text" id="hora-reporte"  class="input-field" readonly>
   <input type="text" id="quien-reporta" class="input-field" placeholder="Nombre">
 
-  <!-- OCULTOS — solo visibles al ver orden cerrada -->
   <input type="text"     id="hora-recibo"           class="input-field   campo-cierre" placeholder="HH:MM">
   <input type="text"     id="fecha-atencion"         class="input-field   campo-cierre" placeholder="dd/mm/aaaa">
   <textarea              id="tecnicos"               class="textarea-field campo-cierre" placeholder="Técnico(s)"></textarea>
@@ -348,7 +164,6 @@
   <input type="text"     id="tecnico-entrega"        class="input-field   campo-cierre" placeholder="Nombre del técnico">
   <input type="text"     id="nombre-firma-recibe"    class="input-field   campo-cierre" placeholder="Nombre y firma">
   <input type="text"     id="firma-conformidad"      class="input-field   campo-cierre" placeholder="Firma de conformidad">
-
 </div>
 
 <div class="toast" id="toast"></div>
@@ -361,7 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
   actualizarFechaHora();
   setInterval(actualizarFechaHora, 60000);
   setupGrupos();
-
   const params = new URLSearchParams(window.location.search);
   const folio  = params.get('folio');
   const modo   = params.get('modo');
@@ -373,12 +187,8 @@ function actualizarFechaHora() {
   document.getElementById('fecha-reporte').value = formatFecha(ahora);
   document.getElementById('hora-reporte').value  = formatHora(ahora);
 }
-function formatFecha(d) {
-  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
-}
-function formatHora(d) {
-  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-}
+function formatFecha(d) { return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`; }
+function formatHora(d)  { return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
 
 function setupGrupos() {
   document.querySelectorAll('.checkbox-field[data-grupo]').forEach(cb => {
@@ -421,52 +231,44 @@ function leerFormulario() {
   const frecCB   = document.querySelector('.checkbox-field[data-grupo="frecuencia"]:checked');
   const refSiCB  = document.getElementById('cb-refacciones-si');
   const almSiCB  = document.getElementById('cb-almacen-si');
-
   const centroMap = {
-    'cb-zinc': 'Zinc', 'cb-cromo': 'Cromo', 'cb-doblado': 'Doblado de Tubo',
-    'cb-oficinas': 'Oficinas', 'cb-pretratamiento': 'Planta Pre-Tratamiento',
-    'cb-tratamiento': 'Planta de Tratamiento', 'cb-andenes': 'Andenes y Patio de Maniobras',
-    'cb-laboratorio': 'Laboratorio', 'cb-obra-civil': 'Obra Civil',
-    'cb-area-periferica': 'Área Periférica', 'cb-otros1': 'Otros'
+    'cb-zinc':'Zinc','cb-cromo':'Cromo','cb-doblado':'Doblado de Tubo','cb-oficinas':'Oficinas',
+    'cb-pretratamiento':'Planta Pre-Tratamiento','cb-tratamiento':'Planta de Tratamiento',
+    'cb-andenes':'Andenes y Patio de Maniobras','cb-laboratorio':'Laboratorio',
+    'cb-obra-civil':'Obra Civil','cb-area-periferica':'Área Periférica','cb-otros1':'Otros'
   };
-
   return {
-    folio:                      val('folio'),
-    fecha_reporte:              val('fecha-reporte'),
-    hora_reporte:               val('hora-reporte'),
-    quien_reporta:              val('quien-reporta'),
-    centro_negocio:             centroCB ? (centroMap[centroCB.id] || centroCB.dataset.abreviatura) : '',
-    tipo_mantenimiento:         tipoCB   ? tipoCB.dataset.label   : '',
-    equipo_reportado:           val('equipo-reportado'),
-    no_control:                 val('no-control'),
-    falla_reportada:            val('falla-reportada'),
-    grado_urgencia:             urgCB    ? urgCB.dataset.label    : '',
-    frecuencia_falla:           frecCB   ? frecCB.dataset.label   : '',
-    hora_recibo:                val('hora-recibo'),
-    fecha_atencion:             val('fecha-atencion'),
-    tecnicos:                   val('tecnicos'),
-    diagnostico_inicial:        val('diagnostico-inicial'),
-    refacciones_requeridas:     refSiCB.checked ? 'SI' : 'NO',
-    refacciones_almacen:        almSiCB.checked ? 'SI' : 'NO',
-    tiempo_entrega_refacciones: val('tiempo-entrega'),
-    actividades_previas:        val('actividades-previas'),
-    inicio_reparacion:          val('inicio-reparacion'),
-    hora_inicio:                val('hora-inicio'),
-    fecha_estimada_entrega:     val('fecha-estimada-entrega'),
-    costo_refacciones:          val('costo-refacciones'),
-    descripcion_reparacion:     val('descripcion-reparacion'),
-    fecha_liberacion:           val('fecha-liberacion'),
-    hora_entrega_equipo:        val('hora-entrega-equipo'),
-    tecnico_entrega:            val('tecnico-entrega'),
-    nombre_firma_recibe:        val('nombre-firma-recibe'),
-    firma_conformidad:          val('firma-conformidad'),
-    estado:                     'ABIERTA',
+    folio: val('folio'), fecha_reporte: val('fecha-reporte'), hora_reporte: val('hora-reporte'),
+    quien_reporta: val('quien-reporta'),
+    centro_negocio: centroCB ? (centroMap[centroCB.id] || centroCB.dataset.abreviatura) : '',
+    tipo_mantenimiento: tipoCB ? tipoCB.dataset.label : '',
+    equipo_reportado: val('equipo-reportado'), no_control: val('no-control'),
+    falla_reportada: val('falla-reportada'),
+    grado_urgencia: urgCB ? urgCB.dataset.label : '',
+    frecuencia_falla: frecCB ? frecCB.dataset.label : '',
+    hora_recibo: val('hora-recibo'), fecha_atencion: val('fecha-atencion'),
+    tecnicos: val('tecnicos'), diagnostico_inicial: val('diagnostico-inicial'),
+    refacciones_requeridas: refSiCB && refSiCB.checked ? 'SI' : 'NO',
+    refacciones_almacen: almSiCB && almSiCB.checked ? 'SI' : 'NO',
+    tiempo_entrega_refacciones: val('tiempo-entrega'), actividades_previas: val('actividades-previas'),
+    inicio_reparacion: val('inicio-reparacion'), hora_inicio: val('hora-inicio'),
+    fecha_estimada_entrega: val('fecha-estimada-entrega'), costo_refacciones: val('costo-refacciones'),
+    descripcion_reparacion: val('descripcion-reparacion'), fecha_liberacion: val('fecha-liberacion'),
+    hora_entrega_equipo: val('hora-entrega-equipo'), tecnico_entrega: val('tecnico-entrega'),
+    nombre_firma_recibe: val('nombre-firma-recibe'), firma_conformidad: val('firma-conformidad'),
+    estado: 'ABIERTA',
   };
 }
 
-function val(id) {
-  const el = document.getElementById(id);
-  return el ? el.value.trim() : '';
+function val(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+// ── Imprimir sin placeholders ──────────────────────────────────
+function imprimirOrden() {
+  const campos = document.querySelectorAll('.input-field, .textarea-field');
+  const phs = [];
+  campos.forEach((el, i) => { phs[i] = el.placeholder; el.placeholder = ''; });
+  window.print();
+  setTimeout(() => { campos.forEach((el, i) => { el.placeholder = phs[i]; }); }, 500);
 }
 
 async function guardarOrdenLocal() {
@@ -478,29 +280,20 @@ async function guardarOrdenLocal() {
 
   const locales = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
   const existeIdx = locales.findIndex(o => o.folio === datos.folio);
-  if (existeIdx >= 0) {
-    locales[existeIdx] = datos;
-  } else {
+  if (existeIdx >= 0) { locales[existeIdx] = datos; }
+  else {
     locales.push(datos);
     const abr = document.querySelector('.checkbox-field[data-grupo="centro"]:checked')?.dataset.abreviatura;
-    if (abr) {
-      contadorOrdenes[abr] = (contadorOrdenes[abr] || 1) + 1;
-      localStorage.setItem('contadorOrdenes', JSON.stringify(contadorOrdenes));
-    }
+    if (abr) { contadorOrdenes[abr] = (contadorOrdenes[abr] || 1) + 1; localStorage.setItem('contadorOrdenes', JSON.stringify(contadorOrdenes)); }
   }
   localStorage.setItem('ordenes_local', JSON.stringify(locales));
 
   const res = await guardarOrden(datos);
-  if (res.ok) {
-    mostrarToast(`Orden ${datos.folio} guardada en Google Sheets`, 'success');
-  } else {
-    mostrarToast(`Guardada localmente. (${res.error || 'Sheets no configurado'})`, '');
-  }
+  if (res.ok) { mostrarToast(`Orden ${datos.folio} guardada en Google Sheets`, 'success'); }
+  else { mostrarToast(`Guardada localmente. (${res.error || 'Sheets no configurado'})`, ''); }
 
   const btn = document.getElementById('btn-guardar');
-  btn.textContent = '✓ Guardado';
-  btn.disabled = true;
-  btn.style.opacity = '0.5';
+  btn.textContent = '✓ Guardado'; btn.disabled = true; btn.style.opacity = '0.5';
 }
 
 function cargarOrdenExistente(folio) {
@@ -511,17 +304,14 @@ function cargarOrdenExistente(folio) {
   for (const [key, value] of Object.entries(orden)) {
     const id = key.replace(/_/g, '-');
     const el = document.getElementById(id);
-    if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') && el.type !== 'checkbox') {
-      el.value = value;
-    }
+    if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') && el.type !== 'checkbox') el.value = value;
   }
 
   const centroReverso = {
-    'Zinc': 'cb-zinc', 'Cromo': 'cb-cromo', 'Doblado de Tubo': 'cb-doblado',
-    'Oficinas': 'cb-oficinas', 'Planta Pre-Tratamiento': 'cb-pretratamiento',
-    'Planta de Tratamiento': 'cb-tratamiento', 'Andenes y Patio de Maniobras': 'cb-andenes',
-    'Laboratorio': 'cb-laboratorio', 'Obra Civil': 'cb-obra-civil',
-    'Área Periférica': 'cb-area-periferica', 'Otros': 'cb-otros1'
+    'Zinc':'cb-zinc','Cromo':'cb-cromo','Doblado de Tubo':'cb-doblado','Oficinas':'cb-oficinas',
+    'Planta Pre-Tratamiento':'cb-pretratamiento','Planta de Tratamiento':'cb-tratamiento',
+    'Andenes y Patio de Maniobras':'cb-andenes','Laboratorio':'cb-laboratorio',
+    'Obra Civil':'cb-obra-civil','Área Periférica':'cb-area-periferica','Otros':'cb-otros1'
   };
   if (centroReverso[orden.centro_negocio]) {
     const cb = document.getElementById(centroReverso[orden.centro_negocio]);
@@ -529,11 +319,10 @@ function cargarOrdenExistente(folio) {
   }
 
   document.querySelectorAll('.checkbox-field[data-label]').forEach(cb => {
-    const grupo = cb.dataset.grupo;
-    const label = cb.dataset.label;
-    if (grupo === 'tipo'       && label === orden.tipo_mantenimiento) cb.checked = true;
-    if (grupo === 'urgencia'   && label === orden.grado_urgencia)     cb.checked = true;
-    if (grupo === 'frecuencia' && label === orden.frecuencia_falla)   cb.checked = true;
+    const g = cb.dataset.grupo, l = cb.dataset.label;
+    if (g === 'tipo'       && l === orden.tipo_mantenimiento) cb.checked = true;
+    if (g === 'urgencia'   && l === orden.grado_urgencia)     cb.checked = true;
+    if (g === 'frecuencia' && l === orden.frecuencia_falla)   cb.checked = true;
   });
 
   if (orden.refacciones_requeridas === 'SI') document.getElementById('cb-refacciones-si').checked = true;
@@ -543,12 +332,8 @@ function cargarOrdenExistente(folio) {
 
   document.getElementById('label-folio').textContent = folio;
 
-  // Si está CERRADA, mostrar todos los campos de cierre con sus datos
   if (orden.estado === 'CERRADA') {
-    document.querySelectorAll('.campo-cierre').forEach(el => {
-      el.classList.remove('campo-cierre');
-      el.style.display = '';
-    });
+    document.querySelectorAll('.campo-cierre').forEach(el => { el.classList.remove('campo-cierre'); el.style.display = ''; });
     document.getElementById('btn-guardar').style.display = 'none';
     document.getElementById('form-container').classList.add('modo-ver');
   }
@@ -560,16 +345,14 @@ function limpiarFormulario() {
   document.querySelectorAll('.checkbox-field').forEach(cb => cb.checked = false);
   const btn = document.getElementById('btn-guardar');
   btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Guardar Orden';
-  btn.disabled = false;
-  btn.style.opacity = '1';
+  btn.disabled = false; btn.style.opacity = '1';
   document.getElementById('label-folio').textContent = 'Nueva Orden';
   actualizarFechaHora();
 }
 
 function mostrarToast(msg, tipo = '') {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = `toast show ${tipo}`;
+  t.textContent = msg; t.className = `toast show ${tipo}`;
   setTimeout(() => t.className = 'toast', 4000);
 }
 </script>
