@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AMINSA — Acceso al Sistema</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Cormorant+SC:wght@300;400;500;600;700&family=Inconsolata:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --negro:      #0e0e0e;
+      --gris:       #2e2e2e;
+      --borde:      #d8d4ce;
+      --fondo:      #faf9f7;
+      --fondo-alt:  #f4f2ee;
+      --blanco:     #ffffff;
+      --rojo:       #8b1a1a;
+      --rojo-clar:  #b52020;
+      --verde:      #1a4a2a;
+      --verde-clar: #1e6b35;
+      --texto:      #1a1a1a;
+      --texto-sec:  #4a4a4a;
+      --texto-ter:  #7a7a7a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Cormorant Garamond', serif;
+      background: var(--negro);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Fondo con textura sutil */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.015) 40px, rgba(255,255,255,0.015) 41px),
+        repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.015) 40px, rgba(255,255,255,0.015) 41px);
+      pointer-events: none;
+    }
+
+    .login-wrap {
+      width: 100%;
+      max-width: 440px;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Logo / marca */
+    .brand {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .brand-logo {
+      width: 64px;
+      height: 64px;
+      background: var(--blanco);
+      color: var(--negro);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant SC', serif;
+      font-weight: 700;
+      font-size: 22px;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+    }
+    .brand-title {
+      font-family: 'Cormorant SC', serif;
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: 4px;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+    .brand-sub {
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px;
+      color: #555;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* Caja de login */
+    .login-box {
+      background: var(--blanco);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .login-header {
+      background: var(--negro);
+      border-bottom: 1px solid #2a2a2a;
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .login-header-title {
+      font-family: 'Inconsolata', monospace;
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+    }
+    .login-header-code {
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px;
+      color: #444;
+      letter-spacing: 1px;
+    }
+
+    .login-body {
+      padding: 36px 28px 28px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+    label {
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--texto-ter);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    input {
+      padding: 11px 14px;
+      border: 1px solid var(--borde);
+      font-size: 15px;
+      font-family: 'Cormorant Garamond', serif;
+      background: var(--fondo);
+      color: var(--negro);
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--negro);
+      background: var(--blanco);
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 13px;
+      background: var(--negro);
+      color: var(--blanco);
+      border: none;
+      font-family: 'Inconsolata', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn-login:hover { background: #333; }
+    .btn-login:disabled { background: #888; cursor: not-allowed; }
+
+    .error-msg {
+      background: #fdf0f0;
+      border: 1px solid #e0a0a0;
+      color: var(--rojo);
+      font-family: 'Inconsolata', monospace;
+      font-size: 11px;
+      letter-spacing: 1px;
+      padding: 10px 14px;
+      margin-bottom: 18px;
+      display: none;
+    }
+    .error-msg.visible { display: block; }
+
+    .login-footer {
+      padding: 14px 28px;
+      border-top: 1px solid var(--borde);
+      background: var(--fondo-alt);
+      text-align: center;
+    }
+    .login-footer p {
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px;
+      color: var(--texto-ter);
+      letter-spacing: 1px;
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .spinner.visible { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Líneas decorativas */
+    .deco-line {
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+      margin: 28px 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-wrap">
+  <div class="brand">
+    <div class="brand-logo">AM</div>
+    <div class="brand-title">AMINSA</div>
+    <div class="brand-sub">Sistema de Gestión de Mantenimiento</div>
+  </div>
+
+  <div class="login-box">
+    <div class="login-header">
+      <span class="login-header-title">Acceso al Sistema</span>
+      <span class="login-header-code">AM-MA-FO-7.1.3.-08</span>
+    </div>
+    <div class="login-body">
+      <div class="error-msg" id="error-msg">Usuario o contraseña incorrectos</div>
+
+      <div class="form-group">
+        <label>Usuario</label>
+        <input type="text" id="inp-usuario" placeholder="Ingresa tu usuario" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="inp-password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+
+      <button class="btn-login" id="btn-login" onclick="iniciarSesion()">
+        <span id="btn-text">Ingresar al Sistema</span>
+        <div class="spinner" id="spinner"></div>
+      </button>
+    </div>
+    <div class="login-footer">
+      <p>Contacta al administrador si no tienes acceso</p>
+    </div>
+  </div>
+</div>
+
+<script src="sheets.js"></script>
+<script>
+// Verificar si ya hay sesión activa
+window.addEventListener('DOMContentLoaded', () => {
+  const sesion = sessionStorage.getItem('aminsa_sesion');
+  if (sesion) {
+    window.location.href = 'index.html';
+  }
+
+  // Enter en password = login
+  document.getElementById('inp-password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') iniciarSesion();
+  });
+  document.getElementById('inp-usuario').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('inp-password').focus();
+  });
+});
+
+async function iniciarSesion() {
+  const usuario  = document.getElementById('inp-usuario').value.trim();
+  const password = document.getElementById('inp-password').value.trim();
+  const errorEl  = document.getElementById('error-msg');
+  const btnText  = document.getElementById('btn-text');
+  const spinner  = document.getElementById('spinner');
+  const btn      = document.getElementById('btn-login');
+
+  errorEl.classList.remove('visible');
+
+  if (!usuario || !password) {
+    errorEl.textContent = 'Ingresa usuario y contraseña';
+    errorEl.classList.add('visible');
+    return;
+  }
+
+  // Mostrar loading
+  btn.disabled = true;
+  btnText.textContent = 'Verificando…';
+  spinner.classList.add('visible');
+
+  try {
+    const url = SHEETS_WEBAPP_URL
+      + '?accion=login'
+      + '&usuario=' + encodeURIComponent(usuario)
+      + '&password=' + encodeURIComponent(password);
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
+    const res  = await fetch(url, { signal: controller.signal });
+    clearTimeout(timer);
+    const data = await res.json();
+
+    if (data.ok && data.usuario) {
+      // Guardar sesión
+      sessionStorage.setItem('aminsa_sesion', JSON.stringify({
+        usuario: data.usuario.usuario,
+        nombre:  data.usuario.nombre,
+        rol:     data.usuario.rol,
+      }));
+      window.location.href = 'index.html';
+    } else {
+      errorEl.textContent = data.error || 'Usuario o contraseña incorrectos';
+      errorEl.classList.add('visible');
+    }
+  } catch(e) {
+    // Si no hay conexión, buscar en usuarios hardcoded de emergencia
+    const emergencia = verificarUsuarioLocal(usuario, password);
+    if (emergencia) {
+      sessionStorage.setItem('aminsa_sesion', JSON.stringify(emergencia));
+      window.location.href = 'index.html';
+    } else {
+      errorEl.textContent = 'No se pudo conectar. Verifica tu conexión.';
+      errorEl.classList.add('visible');
+    }
+  } finally {
+    btn.disabled = false;
+    btnText.textContent = 'Ingresar al Sistema';
+    spinner.classList.remove('visible');
+  }
+}
+
+// Usuario administrador de emergencia (solo si Sheets no responde)
+function verificarUsuarioLocal(usuario, password) {
+  const admins = [
+    { usuario: 'admin', password: 'aminsa2025', nombre: 'Administrador', rol: 'Administrador' }
+  ];
+  const found = admins.find(u => u.usuario === usuario && u.password === password);
+  if (!found) return null;
+  return { usuario: found.usuario, nombre: found.nombre, rol: found.rol };
+}
+</script>
+</body>
+</html>
