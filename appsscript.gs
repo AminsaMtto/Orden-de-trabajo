@@ -74,6 +74,12 @@ function doGet(e) {
       return respuesta(eliminarOrden_data(p.folio));
     }
 
+    if (accion === 'login') {
+      const u = p.usuario;
+      const pw = p.password;
+      return respuesta(verificarLogin(u, pw));
+    }
+
     return respuesta({ ok: false, error: 'Accion no reconocida: ' + accion });
   } catch (err) {
     return respuesta({ ok: false, error: err.toString() });
@@ -168,6 +174,40 @@ function cerrarOrden_data(folio, datosCierre) {
     }
   }
   return { ok: false, error: 'Folio no encontrado: ' + folio };
+}
+
+function verificarLogin(usuario, password) {
+  try {
+    const ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
+    let hoja   = ss.getSheetByName('Usuarios');
+    if (!hoja) {
+      // Crear hoja de usuarios si no existe con admin por defecto
+      hoja = ss.insertSheet('Usuarios');
+      hoja.appendRow(['Nombre', 'Usuario', 'Password', 'Rol', 'Activo']);
+      hoja.appendRow(['Administrador', 'admin', 'aminsa2025', 'Administrador', 'SI']);
+      const h = hoja.getRange(1, 1, 1, 5);
+      h.setBackground('#1a3a5c');
+      h.setFontColor('#ffffff');
+      h.setFontWeight('bold');
+    }
+    const datos = hoja.getDataRange().getValues();
+    for (let i = 1; i < datos.length; i++) {
+      const fila = datos[i];
+      const uNombre  = fila[0];
+      const uUsuario = String(fila[1]).trim().toLowerCase();
+      const uPass    = String(fila[2]).trim();
+      const uRol     = fila[3];
+      const uActivo  = String(fila[4]).trim().toUpperCase();
+      if (uUsuario === String(usuario).trim().toLowerCase() &&
+          uPass    === String(password).trim() &&
+          uActivo  === 'SI') {
+        return { ok: true, usuario: { nombre: uNombre, usuario: uUsuario, rol: uRol } };
+      }
+    }
+    return { ok: false, error: 'Usuario o contraseña incorrectos' };
+  } catch(err) {
+    return { ok: false, error: err.toString() };
+  }
 }
 
 function eliminarOrden_data(folio) {
