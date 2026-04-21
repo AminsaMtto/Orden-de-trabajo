@@ -77,10 +77,8 @@
         background-size: 210mm 297mm !important;
         transform-origin: top left;
       }
-      /* Ocultar placeholders al imprimir */
       .input-field::placeholder, .textarea-field::placeholder { color: transparent !important; opacity: 0 !important; }
       .input-field:placeholder-shown, .textarea-field:placeholder-shown { color: transparent !important; }
-      /* Checkboxes sin marcar: invisibles */
       .checkbox-field:not(:checked) { border-color: transparent !important; background: transparent !important; }
     }
 
@@ -224,14 +222,16 @@ async function generarFolio() {
   const dia    = String(ahora.getDate()).padStart(2, '0');
   const prefijo = `${abr}-${semana}-${dia}-`;
 
-  // Mostrar folio provisional mientras se consulta
+  // Mes y año actuales para filtrar solo órdenes del mes en curso
+  const anio = ahora.getFullYear();
+  const mes  = String(ahora.getMonth() + 1).padStart(2, '0');
+
   const folioInput = document.getElementById('folio');
   const labelFolio = document.getElementById('label-folio');
   folioInput.value = '…';
   labelFolio.textContent = 'Generando…';
 
   try {
-    // Consultar todas las órdenes en Sheets
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 6000);
     const res    = await fetch(SHEETS_WEBAPP_URL + '?accion=listar', { signal: controller.signal });
@@ -239,18 +239,19 @@ async function generarFolio() {
     const data   = await res.json();
     const remotas = data.ordenes || [];
 
-    // También considerar las que están solo en localStorage (aún no sincronizadas)
     const locales = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
 
-    // Unir ambas listas (sin duplicados por folio)
     const foliosRemotos = new Set(remotas.map(o => o.folio));
     const todasOrdenes  = [...remotas, ...locales.filter(o => !foliosRemotos.has(o.folio))];
 
-    // Contar cuántos folios con el mismo prefijo (ABR-semana-día) existen
+    // ── CAMBIO: filtrar por prefijo Y por mes/año de la fecha de reporte ──
     const consecutivos = todasOrdenes
-      .map(o => o.folio || '')
-      .filter(f => f.startsWith(prefijo))
-      .map(f => parseInt(f.replace(prefijo, '')) || 0)
+      .filter(o => {
+        const folioOk = (o.folio || '').startsWith(prefijo);
+        const fechaOk = (o.fecha_reporte || '').endsWith(`/${mes}/${anio}`);
+        return folioOk && fechaOk;
+      })
+      .map(o => parseInt((o.folio || '').replace(prefijo, '')) || 0)
       .filter(n => !isNaN(n) && n > 0);
 
     const siguiente = consecutivos.length > 0 ? Math.max(...consecutivos) + 1 : 1;
@@ -262,10 +263,15 @@ async function generarFolio() {
   } catch (e) {
     // Sin conexión: usar solo localStorage como fallback
     const locales  = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
+
+    // ── CAMBIO: mismo filtro doble en el bloque offline ──
     const consecutivos = locales
-      .map(o => o.folio || '')
-      .filter(f => f.startsWith(prefijo))
-      .map(f => parseInt(f.replace(prefijo, '')) || 0)
+      .filter(o => {
+        const folioOk = (o.folio || '').startsWith(prefijo);
+        const fechaOk = (o.fecha_reporte || '').endsWith(`/${mes}/${anio}`);
+        return folioOk && fechaOk;
+      })
+      .map(o => parseInt((o.folio || '').replace(prefijo, '')) || 0)
       .filter(n => !isNaN(n) && n > 0);
 
     const siguiente = consecutivos.length > 0 ? Math.max(...consecutivos) + 1 : 1;
@@ -323,7 +329,6 @@ function leerFormulario() {
 
 function val(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
 
-// ── Imprimir sin placeholders ──────────────────────────────────
 function imprimirOrden() {
   const campos = document.querySelectorAll('.input-field, .textarea-field');
   const phs = [];
