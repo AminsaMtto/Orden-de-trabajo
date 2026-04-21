@@ -183,8 +183,6 @@
 
 <script src="sheets.js"></script>
 <script>
-const contadorOrdenes = JSON.parse(localStorage.getItem('contadorOrdenes') || '{}');
-
 document.addEventListener('DOMContentLoaded', () => {
   actualizarFechaHora();
   setInterval(actualizarFechaHora, 60000);
@@ -216,17 +214,67 @@ function setupGrupos() {
   });
 }
 
-function generarFolio() {
+async function generarFolio() {
   const centroCB = document.querySelector('.checkbox-field[data-grupo="centro"]:checked');
   if (!centroCB) { document.getElementById('folio').value = ''; return; }
+
   const abr    = centroCB.dataset.abreviatura;
   const ahora  = new Date();
   const semana = getWeekNumber(ahora);
-  const dia    = ahora.getDate();
-  if (!contadorOrdenes[abr]) contadorOrdenes[abr] = 1;
-  const folio = `${abr}-${semana}-${String(dia).padStart(2,'0')}-${String(contadorOrdenes[abr]).padStart(3,'0')}`;
-  document.getElementById('folio').value = folio;
-  document.getElementById('label-folio').textContent = folio;
+  const dia    = String(ahora.getDate()).padStart(2, '0');
+  const prefijo = `${abr}-${semana}-${dia}-`;
+
+  // Mostrar folio provisional mientras se consulta
+  const folioInput = document.getElementById('folio');
+  const labelFolio = document.getElementById('label-folio');
+  folioInput.value = '…';
+  labelFolio.textContent = 'Generando…';
+
+  try {
+    // Consultar todas las órdenes en Sheets
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 6000);
+    const res    = await fetch(SHEETS_WEBAPP_URL + '?accion=listar', { signal: controller.signal });
+    clearTimeout(timer);
+    const data   = await res.json();
+    const remotas = data.ordenes || [];
+
+    // También considerar las que están solo en localStorage (aún no sincronizadas)
+    const locales = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
+
+    // Unir ambas listas (sin duplicados por folio)
+    const foliosRemotos = new Set(remotas.map(o => o.folio));
+    const todasOrdenes  = [...remotas, ...locales.filter(o => !foliosRemotos.has(o.folio))];
+
+    // Contar cuántos folios con el mismo prefijo (ABR-semana-día) existen
+    const consecutivos = todasOrdenes
+      .map(o => o.folio || '')
+      .filter(f => f.startsWith(prefijo))
+      .map(f => parseInt(f.replace(prefijo, '')) || 0)
+      .filter(n => !isNaN(n) && n > 0);
+
+    const siguiente = consecutivos.length > 0 ? Math.max(...consecutivos) + 1 : 1;
+    const folio = `${prefijo}${String(siguiente).padStart(3, '0')}`;
+
+    folioInput.value = folio;
+    labelFolio.textContent = folio;
+
+  } catch (e) {
+    // Sin conexión: usar solo localStorage como fallback
+    const locales  = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
+    const consecutivos = locales
+      .map(o => o.folio || '')
+      .filter(f => f.startsWith(prefijo))
+      .map(f => parseInt(f.replace(prefijo, '')) || 0)
+      .filter(n => !isNaN(n) && n > 0);
+
+    const siguiente = consecutivos.length > 0 ? Math.max(...consecutivos) + 1 : 1;
+    const folio = `${prefijo}${String(siguiente).padStart(3, '0')}`;
+
+    folioInput.value = folio;
+    labelFolio.textContent = folio + ' (local)';
+    mostrarToast('Sin conexión a Sheets — folio generado desde datos locales', '');
+  }
 }
 
 function getWeekNumber(d) {
@@ -294,11 +342,7 @@ async function guardarOrdenLocal() {
   const locales = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
   const existeIdx = locales.findIndex(o => o.folio === datos.folio);
   if (existeIdx >= 0) { locales[existeIdx] = datos; }
-  else {
-    locales.push(datos);
-    const abr = document.querySelector('.checkbox-field[data-grupo="centro"]:checked')?.dataset.abreviatura;
-    if (abr) { contadorOrdenes[abr] = (contadorOrdenes[abr] || 1) + 1; localStorage.setItem('contadorOrdenes', JSON.stringify(contadorOrdenes)); }
-  }
+  else { locales.push(datos); }
   localStorage.setItem('ordenes_local', JSON.stringify(locales));
 
   const res = await guardarOrden(datos);
