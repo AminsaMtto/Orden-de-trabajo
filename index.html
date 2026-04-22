@@ -881,7 +881,7 @@
         <th>Equipo</th>
         <th>Tipo</th>
         <th>Urgencia</th>
-        <th>¿Quien reporta?</th>
+        <th>Técnico(s)</th>
         <th>Estado</th>
         <th>Acciones</th>
       </tr>
@@ -1238,8 +1238,8 @@ function renderTabla(ordenes) {
     return `
     <tr>
       <td><span class="folio-tag">${o.folio || '—'}</span></td>
-      <td style="font-family:'Inconsolata',monospace;font-size:11px;color:var(--texto-ter)">${o.fecha_reporte || '—'}</td>
-      <td>${o.centro_negocio || '—'}</td>
+      <td style="font-family:'Inconsolata',monospace;font-size:11px;color:var(--texto-ter)">${formatearFecha(o.fecha_reporte)}</td>
+      <td>${o.centro_de_negocio || '—'}</td>
       <td>${truncar(o.equipo_reportado, 28)}</td>
       <td style="color:var(--texto-sec)">${truncar(o.tipo_mantenimiento, 20)}</td>
       <td><span class="badge ${badgeUrg}">${urgencia}</span></td>
@@ -1283,7 +1283,7 @@ function buscar(query) {
     (o.folio || '').toLowerCase().includes(q) ||
     (o.equipo_reportado || '').toLowerCase().includes(q) ||
     (o.tecnicos || '').toLowerCase().includes(q) ||
-    (o.centro_negocio || '').toLowerCase().includes(q)
+    (o.centro_de_negocio || '').toLowerCase().includes(q)
   );
   renderTabla(aplicarFiltro(filtradas));
 }
@@ -1297,7 +1297,7 @@ function verOrden(folio) {
   const campos = [
     ['Folio', o.folio], ['Fecha Reporte', o.fecha_reporte],
     ['Hora Reporte', o.hora_reporte], ['Quién Reporta', o.quien_reporta],
-    ['Centro de Negocio', o.centro_negocio], ['Tipo Mantenimiento', o.tipo_mantenimiento],
+    ['Centro de Negocio', o.centro_de_negocio], ['Tipo Mantenimiento', o.tipo_mantenimiento],
     ['Equipo Reportado', o.equipo_reportado, true], ['No. Control', o.no_control],
     ['Grado Urgencia', o.grado_urgencia], ['Frecuencia Falla', o.frecuencia_falla],
     ['Falla Reportada', o.falla_reportada, true],
@@ -1442,6 +1442,20 @@ function truncar(str, n) {
   if (!str) return '—';
   return str.length > n ? str.slice(0, n) + '…' : str;
 }
+
+// Normaliza fechas ISO (2026-04-22T06:00:00.000Z) o dd/mm/yyyy
+function formatearFecha(str) {
+  if (!str) return '—';
+  str = String(str).trim();
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(str)) return str;
+  try {
+    const d = new Date(str);
+    if (isNaN(d.getTime())) return str;
+    return String(d.getDate()).padStart(2,'0') + '/' +
+           String(d.getMonth()+1).padStart(2,'0') + '/' +
+           d.getFullYear();
+  } catch(e) { return str; }
+}
 function mostrarToast(msg, tipo = '') {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -1484,7 +1498,7 @@ function parseFecha(str) {
 function actualizarMetricas() {
   const anio = new Date().getFullYear();
   const ordenesDelCentro = todasLasOrdenes.filter(o =>
-    (o.centro_negocio || '').trim() === centroActual.trim()
+    (o.centro_de_negocio || '').trim() === centroActual.trim()
   );
 
   // ── MTTR por mes ──────────────────────────────────────────
