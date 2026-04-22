@@ -3,7 +3,7 @@ const HOJA_NOMBRE = 'Ordenes';
 
 const ENCABEZADOS = [
   'Folio', 'Fecha Reporte', 'Hora Reporte', 'Quién Reporta',
-  'Centro de Negocio', 'Tipo Mantenimiento', 'Equipo Reportado',
+  'Centro Negocio', 'Tipo Mantenimiento', 'Equipo Reportado',
   'No. Control', 'Falla Reportada', 'Grado Urgencia', 'Frecuencia Falla',
   'Hora Recibo', 'Fecha Atención', 'Técnico(s)', 'Diagnóstico Inicial',
   'Refacciones Requeridas', 'Refacciones en Almacén', 'Tiempo Entrega Refacciones',
@@ -134,19 +134,39 @@ function guardarOrden_data(datos) {
   return { ok: true, folio: datos.folio };
 }
 
+// Convierte cualquier valor de celda a string limpio
+function celda(val) {
+  if (val === null || val === undefined || val === '') return '';
+  if (val instanceof Date) {
+    // Fechas → dd/mm/yyyy
+    const d = val;
+    if (isNaN(d.getTime())) return '';
+    return String(d.getDate()).padStart(2,'0') + '/' +
+           String(d.getMonth()+1).padStart(2,'0') + '/' +
+           d.getFullYear();
+  }
+  return String(val);
+}
+
 function listarOrdenes_data() {
   const hoja  = inicializarHoja();
   const datos = hoja.getDataRange().getValues();
   if (datos.length <= 1) return { ok: true, ordenes: [] };
+
   const enc = datos[0].map(h =>
-    h.toLowerCase().replace(/ /g,'_').replace(/[()\/]/g,'').replace(/\./g,'')
-     .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    String(h).toLowerCase()
+      .replace(/ /g,'_')
+      .replace(/[()\/]/g,'')
+      .replace(/\./g,'')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
   );
+
   const ordenes = datos.slice(1).map(fila => {
     const obj = {};
-    enc.forEach((e, i) => { obj[e] = fila[i]; });
+    enc.forEach((e, i) => { obj[e] = celda(fila[i]); });
     return obj;
   });
+
   return { ok: true, ordenes };
 }
 
