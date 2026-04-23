@@ -809,7 +809,7 @@
     <button class="centro-tab" onclick="cambiarCentro('Cromo', this)">Cromo</button>
     <button class="centro-tab" onclick="cambiarCentro('Doblado de Tubo', this)">Doblado</button>
     <button class="centro-tab" onclick="cambiarCentro('Oficinas', this)">Oficinas</button>
-    <button class="centro-tab" onclick="cambiarCentro('Planta de Pre-Tratamiento', this)">Pre-Trat.</button>
+    <button class="centro-tab" onclick="cambiarCentro('Planta Pre-Tratamiento', this)">Pre-Trat.</button>
     <button class="centro-tab" onclick="cambiarCentro('Planta de Tratamiento', this)">Tratamiento</button>
     <button class="centro-tab" onclick="cambiarCentro('Andenes y Patio de Maniobras', this)">Andenes</button>
     <button class="centro-tab" onclick="cambiarCentro('Laboratorio', this)">Laboratorio</button>
@@ -1172,9 +1172,49 @@ async function verificarConexion() {
   }
 }
 
+// ── Normaliza campos de una orden (locales o remotas) ─────────
+// Garantiza que siempre existan los mismos nombres de clave
+function normalizarOrden(o) {
+  return {
+    folio:                      o.folio               || '',
+    fecha_reporte:              o.fecha_reporte        || '',
+    hora_reporte:               o.hora_reporte         || '',
+    quien_reporta:              o.quien_reporta        || '',
+    // Sheets devuelve 'centro_negocio'; local guarda 'centro_de_negocio'
+    centro_de_negocio:          o.centro_de_negocio    || o.centro_negocio || '',
+    tipo_mantenimiento:         o.tipo_mantenimiento   || o.tipo_mant || '',
+    equipo_reportado:           o.equipo_reportado     || o.equipo || '',
+    no_control:                 o.no_control           || '',
+    falla_reportada:            o.falla_reportada      || o.falla || '',
+    grado_urgencia:             o.grado_urgencia       || o.urgencia || '',
+    frecuencia_falla:           o.frecuencia_falla     || o.frecuencia || '',
+    hora_recibo:                o.hora_recibo          || '',
+    fecha_atencion:             o.fecha_atencion       || '',
+    tecnicos:                   o.tecnicos             || o['tecnicoss_atiende'] || o['tecnicos_atiende'] || '',
+    diagnostico_inicial:        o.diagnostico_inicial  || o.diagnostico || '',
+    refacciones_requeridas:     o.refacciones_requeridas || o.ref_req || '',
+    refacciones_almacen:        o.refacciones_almacen  || o.ref_alm || '',
+    tiempo_entrega_refacciones: o.tiempo_entrega_refacciones || o.tiempo_ref || '',
+    actividades_previas:        o.actividades_previas  || o.act_previas || '',
+    inicio_reparacion:          o.inicio_reparacion    || o.inicio_rep || '',
+    hora_inicio:                o.hora_inicio          || '',
+    fecha_estimada_entrega:     o.fecha_estimada_entrega || o.fecha_est || '',
+    costo_refacciones:          o.costo_refacciones    || o.costo || '',
+    descripcion_reparacion:     o.descripcion_reparacion || o.descripcion || '',
+    fecha_liberacion:           o.fecha_liberacion     || o.fecha_lib || '',
+    hora_entrega_equipo:        o.hora_entrega_equipo  || o.hora_entrega || '',
+    tecnico_entrega:            o.tecnico_entrega      || o.tec_entrega || '',
+    nombre_firma_recibe:        o.nombre_firma_recibe  || o.firma_recibe || o['nombrefirma_recibe'] || '',
+    firma_conformidad:          o.firma_conformidad    || o.firma_conf || '',
+    estado:                     o.estado               || 'ABIERTA',
+    fecha_cierre:               o.fecha_cierre         || '',
+  };
+}
+
 async function cargarOrdenes() {
-  // 1. Mostrar locales de inmediato
-  const locales = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
+  // 1. Mostrar locales de inmediato (también normalizadas)
+  const localesCrudos = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
+  const locales = localesCrudos.map(normalizarOrden);
   todasLasOrdenes = [...locales];
   actualizarStats();
   renderTabla(aplicarFiltro(todasLasOrdenes));
@@ -1184,7 +1224,7 @@ async function cargarOrdenes() {
   try {
     const res     = await fetchConTimeout(SHEETS_WEBAPP_URL + '?accion=listar', 8000);
     const result  = await res.json();
-    const remotas = result.ordenes || [];
+    const remotas = (result.ordenes || []).map(normalizarOrden);
     const foliosRemotos = new Set(remotas.map(o => o.folio));
     const soloLocales   = locales.filter(o => !foliosRemotos.has(o.folio));
     todasLasOrdenes = [...remotas, ...soloLocales].sort((a, b) =>
@@ -1390,11 +1430,11 @@ async function ejecutarCierre() {
 
   await cerrarOrden(folioSeleccionado, datosCierre);
 
-  // Actualizar en localStorage
+  // Actualizar en localStorage (normalizando para consistencia)
   const locales = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
   const idx = locales.findIndex(o => o.folio === folioSeleccionado);
   if (idx >= 0) {
-    locales[idx] = { ...locales[idx], ...datosCierre, estado: 'CERRADA', fecha_cierre: fechaLib };
+    locales[idx] = normalizarOrden({ ...locales[idx], ...datosCierre, estado: 'CERRADA', fecha_cierre: fechaLib });
     localStorage.setItem('ordenes_local', JSON.stringify(locales));
   }
 
