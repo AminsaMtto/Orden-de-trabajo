@@ -1542,8 +1542,8 @@ function actualizarMetricas() {
     (o.centro_de_negocio || '').trim() === centroActual.trim()
   );
 
-  // ── MTTR por mes ──────────────────────────────────────────
-  const mttrPorMes = Array(12).fill(null).map(() => ({ suma: 0, count: 0 }));
+// ── MTTR por mes ──────────────────────────────────────────
+const mttrPorMes = Array(12).fill(null).map(() => ({ suma: 0, count: 0 }));
 
 ordenesDelCentro.forEach(o => {
   if ((o.estado || '') !== 'CERRADA') return;
@@ -1551,7 +1551,7 @@ ordenesDelCentro.forEach(o => {
   if (!fecha || fecha.getFullYear() !== anio) return;
   const mes = fecha.getMonth();
 
-  // ── Combinar fecha + hora ──
+  // Combinar fecha + hora para inicio y fin
   const fechaRecibo     = parseFecha(o.fecha_reporte);
   const fechaLiberacion = parseFecha(o.fecha_liberacion);
 
@@ -1575,6 +1575,17 @@ ordenesDelCentro.forEach(o => {
     mttrPorMes[mes].count += 1;
   }
 });
+
+const mttrVals    = mttrPorMes.map(m => m.count > 0 ? +(m.suma / m.count).toFixed(1) : 0);
+const mttrValidos = mttrVals.filter(v => v > 0);
+const mttrProm    = mttrValidos.length ? +(mttrValidos.reduce((a, b) => a + b, 0) / mttrValidos.length).toFixed(1) : 0;
+const mttrMax     = mttrValidos.length ? Math.max(...mttrValidos) : 0;
+const mttrFallas  = mttrPorMes.reduce((a, m) => a + m.count, 0);
+
+document.getElementById('mttr-prom').textContent   = mttrProm   ? mttrProm  + 'h' : '—';
+document.getElementById('mttr-max').textContent    = mttrMax    ? mttrMax   + 'h' : '—';
+document.getElementById('mttr-fallas').textContent = mttrFallas || '—';
+  
   // ── MTBF por mes ──────────────────────────────────────────
   // Agrupa fechas de fallas por mes, calcula días entre fallas consecutivas
   const fechasFallas = ordenesDelCentro
