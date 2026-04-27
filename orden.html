@@ -278,11 +278,7 @@ async function generarFolio() {
     const data  = await res.json();
     const remotas = data.ordenes || [];
 
-    const locales = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
-    const foliosRemotos = new Set(remotas.map(o => o.folio));
-    const todasOrdenes  = [...remotas, ...locales.filter(o => !foliosRemotos.has(o.folio))];
-
-    const consecutivos = extraerConsecutivos(todasOrdenes, abr, semanasEsteMes);
+    const consecutivos = extraerConsecutivos(remotas, abr, semanasEsteMes);
     const siguiente    = consecutivos.length > 0 ? Math.max(...consecutivos) + 1 : 1;
     const folio        = `${prefijo}${String(siguiente).padStart(3, '0')}`;
 
@@ -290,14 +286,9 @@ async function generarFolio() {
     labelFolio.textContent = folio;
 
   } catch (e) {
-    const locales      = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
-    const consecutivos = extraerConsecutivos(locales, abr, semanasEsteMes);
-    const siguiente    = consecutivos.length > 0 ? Math.max(...consecutivos) + 1 : 1;
-    const folio        = `${prefijo}${String(siguiente).padStart(3, '0')}`;
-
-    folioInput.value       = folio;
-    labelFolio.textContent = folio + ' (local)';
-    mostrarToast('Sin conexión a Sheets — folio generado desde datos locales', '');
+    folioInput.value       = '';
+    labelFolio.textContent = 'Sin conexión';
+    mostrarToast('Sin conexión a Google Sheets. No se puede generar folio.', 'error');
   }
 }
 
@@ -354,24 +345,22 @@ async function guardarOrdenLocal() {
   if (!datos.falla_reportada)  { mostrarToast('Describe la falla reportada', 'error'); return; }
   if (!datos.quien_reporta)    { mostrarToast('Indica quién reporta', 'error'); return; }
 
-  const locales = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
-  const existeIdx = locales.findIndex(o => o.folio === datos.folio);
-  if (existeIdx >= 0) { locales[existeIdx] = datos; }
-  else { locales.push(datos); }
-  localStorage.setItem('ordenes_local', JSON.stringify(locales));
-
   const res = await guardarOrden(datos);
-  if (res.ok) { mostrarToast(`Orden ${datos.folio} guardada en Google Sheets`, 'success'); }
-  else { mostrarToast(`Guardada localmente. (${res.error || 'Sheets no configurado'})`, ''); }
+  if (res && res.ok) { mostrarToast(`Orden ${datos.folio} guardada en Google Sheets`, 'success'); }
+  else { mostrarToast(`Error al guardar en Sheets: ${res ? res.error : 'sin conexión'}`, 'error'); return; }
 
   const btn = document.getElementById('btn-guardar');
   btn.textContent = '✓ Guardado'; btn.disabled = true; btn.style.opacity = '0.5';
 }
 
-function cargarOrdenExistente(folio) {
-  const locales = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
-  const orden = locales.find(o => o.folio === folio);
-  if (!orden) { mostrarToast('Orden no encontrada localmente', 'error'); return; }
+async function cargarOrdenExistente(folio) {
+  let orden = null;
+  try {
+    const res    = await fetch(SHEETS_WEBAPP_URL + '?accion=listar');
+    const result = await res.json();
+    orden = (result.ordenes || []).find(o => o.folio === folio) || null;
+  } catch(e) { /* sin conexión */ }
+  if (!orden) { mostrarToast('Orden no encontrada en Google Sheets', 'error'); return; }
 
   for (const [key, value] of Object.entries(orden)) {
     const id = key.replace(/_/g, '-');
