@@ -1500,20 +1500,32 @@ function cambiarCentro(centro, btn) {
 
 function parseHora(str) {
   if (!str) return null;
-  const parts = String(str).trim().split(':');
+  str = String(str).trim();
+  // Ignorar placeholders comunes
+  if (!str || str === 'HH:MM' || str === 'HH:MM' || !/\d/.test(str)) return null;
+  const parts = str.split(':');
   if (parts.length < 2) return null;
-  return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+  const h = parseInt(parts[0]);
+  const m = parseInt(parts[1]);
+  if (isNaN(h) || isNaN(m)) return null;
+  return h * 60 + m;
 }
 
 function parseFecha(str) {
   if (!str) return null;
-  // Soporta dd/mm/yyyy y yyyy-mm-dd
   str = String(str).trim();
-  if (str.includes('/')) {
+  // Formato dd/mm/yyyy
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(str)) {
     const [d, m, y] = str.split('/');
-    return new Date(y, m - 1, d);
+    return new Date(+y, +m - 1, +d);
   }
-  return new Date(str);
+  // Formato yyyy-mm-dd (con o sin hora/timezone) — parsear solo la parte de fecha
+  // para evitar desplazamiento por zona horaria
+  const isoMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (isoMatch) {
+    return new Date(+isoMatch[1], +isoMatch[2] - 1, +isoMatch[3]);
+  }
+  return null;
 }
 
 function actualizarMetricas() {
