@@ -791,7 +791,7 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
     </svg>
-    <input class="search-input" type="text" placeholder="   BUSCAR FOLIO / EQUIPO" oninput="buscar(this.value)">
+    <input class="search-input" type="text" placeholder="BUSCAR FOLIO / EQUIPO / TÉCNICO" oninput="buscar(this.value)">
   </div>
 </div>
 
@@ -1212,30 +1212,19 @@ function normalizarOrden(o) {
 }
 
 async function cargarOrdenes() {
-  // 1. Mostrar locales de inmediato (también normalizadas)
-  const localesCrudos = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
-  const locales = localesCrudos.map(normalizarOrden);
-  todasLasOrdenes = [...locales];
+  try {
+    const res    = await fetchConTimeout(SHEETS_WEBAPP_URL + '?accion=listar', 8000);
+    const result = await res.json();
+    todasLasOrdenes = (result.ordenes || []).map(normalizarOrden)
+      .sort((a, b) => new Date(b.fecha_reporte || 0) - new Date(a.fecha_reporte || 0));
+  } catch(e) {
+    console.warn('No se pudo conectar a Sheets:', e.message);
+    todasLasOrdenes = [];
+    mostrarToast('No se pudo conectar a Google Sheets', 'error');
+  }
   actualizarStats();
   renderTabla(aplicarFiltro(todasLasOrdenes));
   actualizarMetricas();
-
-  // 2. Intentar cargar remotas con timeout
-  try {
-    const res     = await fetchConTimeout(SHEETS_WEBAPP_URL + '?accion=listar', 8000);
-    const result  = await res.json();
-    const remotas = (result.ordenes || []).map(normalizarOrden);
-    const foliosRemotos = new Set(remotas.map(o => o.folio));
-    const soloLocales   = locales.filter(o => !foliosRemotos.has(o.folio));
-    todasLasOrdenes = [...remotas, ...soloLocales].sort((a, b) =>
-      new Date(b.fecha_reporte || 0) - new Date(a.fecha_reporte || 0)
-    );
-    actualizarStats();
-    renderTabla(aplicarFiltro(todasLasOrdenes));
-    actualizarMetricas();
-  } catch(e) {
-    console.warn('No se pudo conectar a Sheets, mostrando datos locales');
-  }
 }
 
 function actualizarStats() {
@@ -1428,14 +1417,10 @@ async function ejecutarCierre() {
     firma_conformidad:            document.getElementById('c-firma-conformidad').value,
   };
 
-  await cerrarOrden(folioSeleccionado, datosCierre);
-
-  // Actualizar en localStorage (normalizando para consistencia)
-  const locales = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
-  const idx = locales.findIndex(o => o.folio === folioSeleccionado);
-  if (idx >= 0) {
-    locales[idx] = normalizarOrden({ ...locales[idx], ...datosCierre, estado: 'CERRADA', fecha_cierre: fechaLib });
-    localStorage.setItem('ordenes_local', JSON.stringify(locales));
+  const resultCierre = await cerrarOrden(folioSeleccionado, datosCierre);
+  if (resultCierre && resultCierre.ok === false) {
+    mostrarToast('Error al cerrar en Sheets: ' + (resultCierre.error || 'desconocido'), 'error');
+    return;
   }
 
   cerrarModal('modal-cerrar');
@@ -1450,20 +1435,15 @@ function abrirModalEliminar(folio) {
 }
 
 async function ejecutarEliminar() {
-  // Eliminar del localStorage
-  const locales = JSON.parse(localStorage.getItem('ordenes_local') || '[]');
-  const nuevos  = locales.filter(o => o.folio !== folioSeleccionado);
-  localStorage.setItem('ordenes_local', JSON.stringify(nuevos));
-
-  // También intentar eliminar de Sheets via Apps Script
   try {
     const url = SHEETS_WEBAPP_URL + '?accion=eliminar&folio=' + encodeURIComponent(folioSeleccionado);
     await fetch(url, { method: 'GET' });
-  } catch(e) { /* silencioso si falla */ }
+  } catch(e) {
+    mostrarToast('Error al eliminar de Sheets', 'error');
+  }
 
   cerrarModal('modal-eliminar');
   mostrarToast(`Orden ${folioSeleccionado} eliminada`, 'success');
-  // Quitar del array en memoria también
   todasLasOrdenes = todasLasOrdenes.filter(o => o.folio !== folioSeleccionado);
   actualizarStats();
   renderTabla(aplicarFiltro(todasLasOrdenes));
@@ -1542,50 +1522,38 @@ function actualizarMetricas() {
     (o.centro_de_negocio || '').trim() === centroActual.trim()
   );
 
-// ── MTTR por mes ──────────────────────────────────────────
-const mttrPorMes = Array(12).fill(null).map(() => ({ suma: 0, count: 0 }));
+  // ── MTTR por mes ──────────────────────────────────────────
+  const mttrPorMes = Array(12).fill(null).map(() => ({ suma: 0, count: 0 }));
 
-ordenesDelCentro.forEach(o => {
-  if ((o.estado || '') !== 'CERRADA') return;
-  const fecha = parseFecha(o.fecha_reporte);
-  if (!fecha || fecha.getFullYear() !== anio) return;
-  const mes = fecha.getMonth();
+  ordenesDelCentro.forEach(o => {
+    if ((o.estado || '') !== 'CERRADA') return;
+    const fecha = parseFecha(o.fecha_reporte);
+    if (!fecha || fecha.getFullYear() !== anio) return;
+    const mes = fecha.getMonth();
 
-  // Combinar fecha + hora para inicio y fin
-  const fechaRecibo     = parseFecha(o.fecha_reporte);
-  const fechaLiberacion = parseFecha(o.fecha_liberacion);
+    const recibo  = parseHora(o.hora_recibo);
+    const entrega = parseHora(o.hora_entrega_equipo || o.hora_entrega);
+    if (recibo === null || entrega === null) return;
 
-  const horaRecibo  = parseHora(o.hora_recibo);
-  const horaEntrega = parseHora(o.hora_entrega_equipo || o.hora_entrega);
+    let diff = entrega - recibo;
+    if (diff < 0) diff += 24 * 60; // cruzó medianoche
+    const horas = diff / 60;
+    if (horas > 0 && horas < 1000) {
+      mttrPorMes[mes].suma  += horas;
+      mttrPorMes[mes].count += 1;
+    }
+  });
 
-  if (!fechaRecibo || !fechaLiberacion || horaRecibo === null || horaEntrega === null) return;
+  const mttrVals = mttrPorMes.map(m => m.count > 0 ? +(m.suma / m.count).toFixed(1) : 0);
+  const mttrValidos = mttrVals.filter(v => v > 0);
+  const mttrProm  = mttrValidos.length ? +(mttrValidos.reduce((a,b) => a+b, 0) / mttrValidos.length).toFixed(1) : 0;
+  const mttrMax   = mttrValidos.length ? Math.max(...mttrValidos) : 0;
+  const mttrFallas = mttrPorMes.reduce((a, m) => a + m.count, 0);
 
-  // Date completo de recibo
-  const dtRecibo = new Date(fechaRecibo);
-  dtRecibo.setHours(Math.floor(horaRecibo / 60), horaRecibo % 60, 0, 0);
+  document.getElementById('mttr-prom').textContent  = mttrProm  ? mttrProm + 'h'  : '—';
+  document.getElementById('mttr-max').textContent   = mttrMax   ? mttrMax  + 'h'  : '—';
+  document.getElementById('mttr-fallas').textContent = mttrFallas || '—';
 
-  // Date completo de liberación
-  const dtLiberacion = new Date(fechaLiberacion);
-  dtLiberacion.setHours(Math.floor(horaEntrega / 60), horaEntrega % 60, 0, 0);
-
-  const horas = (dtLiberacion - dtRecibo) / (1000 * 60 * 60);
-
-  if (horas > 0 && horas < 1000) {
-    mttrPorMes[mes].suma  += horas;
-    mttrPorMes[mes].count += 1;
-  }
-});
-
-const mttrVals    = mttrPorMes.map(m => m.count > 0 ? +(m.suma / m.count).toFixed(1) : 0);
-const mttrValidos = mttrVals.filter(v => v > 0);
-const mttrProm    = mttrValidos.length ? +(mttrValidos.reduce((a, b) => a + b, 0) / mttrValidos.length).toFixed(1) : 0;
-const mttrMax     = mttrValidos.length ? Math.max(...mttrValidos) : 0;
-const mttrFallas  = mttrPorMes.reduce((a, m) => a + m.count, 0);
-
-document.getElementById('mttr-prom').textContent   = mttrProm   ? mttrProm  + 'h' : '—';
-document.getElementById('mttr-max').textContent    = mttrMax    ? mttrMax   + 'h' : '—';
-document.getElementById('mttr-fallas').textContent = mttrFallas || '—';
-  
   // ── MTBF por mes ──────────────────────────────────────────
   // Agrupa fechas de fallas por mes, calcula días entre fallas consecutivas
   const fechasFallas = ordenesDelCentro
