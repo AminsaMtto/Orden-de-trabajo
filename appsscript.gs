@@ -60,12 +60,24 @@ function doGet(e) {
 
     if (accion === 'cerrar') {
       const datosCierre = {
-        descripcion_reparacion: p.descripcion  || '',
-        fecha_liberacion:       p.fecha_lib    || '',
-        hora_entrega_equipo:    p.hora_entrega || '',
-        tecnico_entrega:        p.tec_entrega  || '',
-        nombre_firma_recibe:    p.firma_recibe || '',
-        firma_conformidad:      p.firma_conf   || ''
+        hora_recibo:                  p.hora_recibo   || '',
+        fecha_atencion:               p.fecha_atencion|| '',
+        tecnicos:                     p.tecnicos      || '',
+        diagnostico_inicial:          p.diagnostico   || '',
+        refacciones_requeridas:       p.ref_req       || '',
+        refacciones_almacen:          p.ref_alm       || '',
+        tiempo_entrega_refacciones:   p.tiempo_ref    || '',
+        actividades_previas:          p.act_previas   || '',
+        inicio_reparacion:            p.inicio_rep    || '',
+        hora_inicio:                  p.hora_inicio   || '',
+        fecha_estimada_entrega:       p.fecha_est     || '',
+        costo_refacciones:            p.costo         || '',
+        descripcion_reparacion:       p.descripcion   || '',
+        fecha_liberacion:             p.fecha_lib     || '',
+        hora_entrega_equipo:          p.hora_entrega  || '',
+        tecnico_entrega:              p.tec_entrega   || '',
+        nombre_firma_recibe:          p.firma_recibe  || '',
+        firma_conformidad:            p.firma_conf    || ''
       };
       return respuesta(cerrarOrden_data(p.folio, datosCierre));
     }
@@ -138,12 +150,17 @@ function guardarOrden_data(datos) {
 function celda(val) {
   if (val === null || val === undefined || val === '') return '';
   if (val instanceof Date) {
-    // Fechas → dd/mm/yyyy
-    const d = val;
-    if (isNaN(d.getTime())) return '';
-    return String(d.getDate()).padStart(2,'0') + '/' +
-           String(d.getMonth()+1).padStart(2,'0') + '/' +
-           d.getFullYear();
+    if (isNaN(val.getTime())) return '';
+    // Google Sheets codifica horas como fechas en 1899-12-30
+    // Si el año es 1899, es una hora → HH:MM
+    if (val.getFullYear() === 1899) {
+      return String(val.getHours()).padStart(2,'0') + ':' +
+             String(val.getMinutes()).padStart(2,'0');
+    }
+    // Fecha normal → dd/mm/yyyy
+    return String(val.getDate()).padStart(2,'0') + '/' +
+           String(val.getMonth()+1).padStart(2,'0') + '/' +
+           val.getFullYear();
   }
   return String(val);
 }
@@ -177,12 +194,24 @@ function cerrarOrden_data(folio, datosCierre) {
     if (String(datos[i][0]) === String(folio)) {
       const fila = i + 1;
       const campos = {
-        23: datosCierre.descripcion_reparacion || datos[i][23],
-        24: datosCierre.fecha_liberacion       || '',
-        25: datosCierre.hora_entrega_equipo    || '',
-        26: datosCierre.tecnico_entrega        || '',
-        27: datosCierre.nombre_firma_recibe    || '',
-        28: datosCierre.firma_conformidad      || '',
+        11: datosCierre.hora_recibo               || celda(datos[i][11]),
+        12: datosCierre.fecha_atencion            || celda(datos[i][12]),
+        13: datosCierre.tecnicos                  || celda(datos[i][13]),
+        14: datosCierre.diagnostico_inicial       || celda(datos[i][14]),
+        15: datosCierre.refacciones_requeridas    || celda(datos[i][15]),
+        16: datosCierre.refacciones_almacen       || celda(datos[i][16]),
+        17: datosCierre.tiempo_entrega_refacciones|| celda(datos[i][17]),
+        18: datosCierre.actividades_previas       || celda(datos[i][18]),
+        19: datosCierre.inicio_reparacion         || celda(datos[i][19]),
+        20: datosCierre.hora_inicio               || celda(datos[i][20]),
+        21: datosCierre.fecha_estimada_entrega    || celda(datos[i][21]),
+        22: datosCierre.costo_refacciones         || celda(datos[i][22]),
+        23: datosCierre.descripcion_reparacion    || celda(datos[i][23]),
+        24: datosCierre.fecha_liberacion          || '',
+        25: datosCierre.hora_entrega_equipo       || '',
+        26: datosCierre.tecnico_entrega           || '',
+        27: datosCierre.nombre_firma_recibe       || '',
+        28: datosCierre.firma_conformidad         || '',
         29: 'CERRADA',
         30: new Date().toLocaleDateString('es-MX')
       };
