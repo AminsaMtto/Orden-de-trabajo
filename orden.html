@@ -177,12 +177,17 @@
 <script src="sheets.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  actualizarFechaHora();
-  setInterval(actualizarFechaHora, 60000);
-  setupGrupos();
   const params = new URLSearchParams(window.location.search);
   const folio  = params.get('folio');
   const modo   = params.get('modo');
+
+  // Solo poner fecha/hora actual si es una orden NUEVA (no en modo ver)
+  if (!(folio && modo === 'ver')) {
+    actualizarFechaHora();
+    setInterval(actualizarFechaHora, 60000);
+  }
+
+  setupGrupos();
   if (folio && modo === 'ver') cargarOrdenExistente(folio);
 });
 
