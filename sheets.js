@@ -74,14 +74,26 @@ async function obtenerOrdenes() {
 async function cerrarOrden(folio, datosCierre) {
   try {
     const params = new URLSearchParams();
-    params.set('accion',       'cerrar');
-    params.set('folio',        folio);
-    params.set('descripcion',  (datosCierre.descripcion_reparacion || '').substring(0, 200));
-    params.set('fecha_lib',    datosCierre.fecha_liberacion || '');
-    params.set('hora_entrega', datosCierre.hora_entrega_equipo || '');
-    params.set('tec_entrega',  datosCierre.tecnico_entrega || '');
-    params.set('firma_recibe', datosCierre.nombre_firma_recibe || '');
-    params.set('firma_conf',   datosCierre.firma_conformidad || '');
+    params.set('accion',        'cerrar');
+    params.set('folio',         folio);
+    params.set('hora_recibo',   datosCierre.hora_recibo || '');
+    params.set('fecha_atencion',datosCierre.fecha_atencion || '');
+    params.set('tecnicos',      datosCierre.tecnicos || '');
+    params.set('diagnostico',   (datosCierre.diagnostico_inicial || '').substring(0, 200));
+    params.set('ref_req',       datosCierre.refacciones_requeridas || '');
+    params.set('ref_alm',       datosCierre.refacciones_almacen || '');
+    params.set('tiempo_ref',    datosCierre.tiempo_entrega_refacciones || '');
+    params.set('act_previas',   datosCierre.actividades_previas || '');
+    params.set('inicio_rep',    datosCierre.inicio_reparacion || '');
+    params.set('hora_inicio',   datosCierre.hora_inicio || '');
+    params.set('fecha_est',     datosCierre.fecha_estimada_entrega || '');
+    params.set('costo',         datosCierre.costo_refacciones || '');
+    params.set('descripcion',   (datosCierre.descripcion_reparacion || '').substring(0, 200));
+    params.set('fecha_lib',     datosCierre.fecha_liberacion || '');
+    params.set('hora_entrega',  datosCierre.hora_entrega_equipo || '');
+    params.set('tec_entrega',   datosCierre.tecnico_entrega || '');
+    params.set('firma_recibe',  datosCierre.nombre_firma_recibe || '');
+    params.set('firma_conf',    datosCierre.firma_conformidad || '');
 
     const url = SHEETS_WEBAPP_URL + '?' + params.toString();
     const response = await fetch(url, { method: 'GET' });
