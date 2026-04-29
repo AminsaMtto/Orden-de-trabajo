@@ -1468,6 +1468,7 @@ async function ejecutarCierre() {
   cerrarModal('modal-cerrar');
   mostrarToast(`Orden ${folioSeleccionado} cerrada correctamente`, 'success');
   await cargarOrdenes(); // Recargar para mostrar el estado actualizado
+  actualizarMetricas(); // CORREGIDO: Actualizar métricas después de cerrar orden
 }
 
 function abrirModalEliminar(folio) {
