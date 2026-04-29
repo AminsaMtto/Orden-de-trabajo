@@ -791,7 +791,7 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
     </svg>
-    <input class="search-input" type="text" placeholder="BUSCAR FOLIO / EQUIPO / TÉCNICO" oninput="buscar(this.value)">
+    <input class="search-input" type="text" placeholder="BUSCAR FOLIO / EQUIPO / REPORTA" oninput="buscar(this.value)">
   </div>
 </div>
 
@@ -1123,8 +1123,11 @@ function verificarSesion() {
 function aplicarRestriccionesRol() {
   if (!sesionActual) return;
   const rol = sesionActual.rol;
-  // Ocultar eliminar para Técnico y Usuario
-  if (rol === 'Técnico' || rol === 'Usuario') {
+  // CORREGIDO: Administrador y Técnico pueden cerrar órdenes, solo Administrador puede eliminar
+  if (rol !== 'Administrador' && rol !== 'Técnico') {
+    document.querySelectorAll('.btn-cerrar-rol').forEach(b => b.style.display = 'none');
+  }
+  if (rol !== 'Administrador') {
     document.querySelectorAll('.btn-eliminar-rol').forEach(b => b.style.display = 'none');
   }
 }
@@ -1273,7 +1276,7 @@ function renderTabla(ordenes) {
       <td>${truncar(o.equipo_reportado, 28)}</td>
       <td style="color:var(--texto-sec)">${truncar(o.tipo_mantenimiento, 20)}</td>
       <td><span class="badge ${badgeUrg}">${urgencia}</span></td>
-      <td>${truncar(o.tecnicos || o.quien_reporta || '—', 20)}</td>
+      <td>${truncar(o.quien_reporta || '—', 20)}</td>
       <td><span class="badge ${badgeEstado}">${estado}</span></td>
       <td>
         <div class="acciones">
@@ -1284,9 +1287,9 @@ function renderTabla(ordenes) {
             </svg>
           </button>
           ${estado !== 'CERRADA'
-            ? `<button class="btn btn-success btn-sm" onclick="abrirModalCerrar('${o.folio}')">Cerrar</button>` 
+            ? `<button class="btn btn-success btn-sm btn-cerrar-rol" onclick="abrirModalCerrar('${o.folio}')" style="${(sesionActual && sesionActual.rol !== 'Administrador' && sesionActual.rol !== 'Técnico') ? 'display:none' : ''}">Cerrar</button>` 
             : ''}
-          <button class="btn btn-danger btn-sm btn-eliminar-rol" onclick="abrirModalEliminar('${o.folio}')" title="Eliminar" style="${(sesionActual && (sesionActual.rol==='Técnico'||sesionActual.rol==='Usuario')) ? 'display:none' : ''}">
+          <button class="btn btn-danger btn-sm btn-eliminar-rol" onclick="abrirModalEliminar('${o.folio}')" title="Eliminar" style="${(sesionActual && sesionActual.rol !== 'Administrador') ? 'display:none' : ''}">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m5 0V4h4v2"/></svg>
           </button>
         </div>
@@ -1312,7 +1315,7 @@ function buscar(query) {
   const filtradas = todasLasOrdenes.filter(o =>
     (o.folio || '').toLowerCase().includes(q) ||
     (o.equipo_reportado || '').toLowerCase().includes(q) ||
-    (o.tecnicos || '').toLowerCase().includes(q) ||
+    (o.quien_reporta || '').toLowerCase().includes(q) ||
     (o.centro_de_negocio || '').toLowerCase().includes(q)
   );
   renderTabla(aplicarFiltro(filtradas));
@@ -1431,6 +1434,11 @@ function abrirModalCerrar(folio) {
 }
 
 async function ejecutarCierre() {
+  // CORREGIDO: Verificar que sea Administrador o Técnico
+  if (!sesionActual || (sesionActual.rol !== 'Administrador' && sesionActual.rol !== 'Técnico')) {
+    mostrarToast('Solo el Administrador o Técnico pueden cerrar órdenes', 'error');
+    return;
+  }
   const descripcion = document.getElementById('c-descripcion').value.trim();
   const fechaLib    = document.getElementById('c-fecha-lib').value;
   const tecnicoEnt  = document.getElementById('c-tecnico-entrega').value.trim();
@@ -1478,6 +1486,11 @@ function abrirModalEliminar(folio) {
 }
 
 async function ejecutarEliminar() {
+  // CORREGIDO: Verificar que sea Administrador
+  if (!sesionActual || sesionActual.rol !== 'Administrador') {
+    mostrarToast('Solo el Administrador puede eliminar órdenes', 'error');
+    return;
+  }
   try {
     const url = SHEETS_WEBAPP_URL + '?accion=eliminar&folio=' + encodeURIComponent(folioSeleccionado);
     await fetch(url, { method: 'GET' });
