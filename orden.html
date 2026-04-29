@@ -336,11 +336,40 @@ function leerFormulario() {
 function val(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
 
 function imprimirOrden() {
+  // Guardar estado actual de los campos de cierre
+  const camposCierre = document.querySelectorAll('.campo-cierre');
+  const estadosOriginales = [];
+  
+  // Mostrar todos los campos de cierre temporalmente para impresión
+  camposCierre.forEach((el, i) => {
+    estadosOriginales[i] = {
+      display: el.style.display,
+      clase: el.classList.contains('campo-cierre')
+    };
+    el.style.display = '';
+    el.classList.remove('campo-cierre');
+  });
+
+  // Ocultar placeholders para impresión limpia
   const campos = document.querySelectorAll('.input-field, .textarea-field');
   const phs = [];
   campos.forEach((el, i) => { phs[i] = el.placeholder; el.placeholder = ''; });
+
+  // Ejecutar impresión
   window.print();
-  setTimeout(() => { campos.forEach((el, i) => { el.placeholder = phs[i]; }); }, 500);
+
+  // Restaurar placeholders
+  setTimeout(() => { 
+    campos.forEach((el, i) => { el.placeholder = phs[i]; }); 
+    
+    // Restaurar estado original de los campos de cierre
+    camposCierre.forEach((el, i) => {
+      el.style.display = estadosOriginales[i].display;
+      if (estadosOriginales[i].clase) {
+        el.classList.add('campo-cierre');
+      }
+    });
+  }, 500);
 }
 
 async function guardarOrdenLocal() {
