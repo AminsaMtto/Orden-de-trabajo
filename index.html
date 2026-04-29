@@ -848,7 +848,7 @@
     <div class="metrica-card">
       <div class="metrica-card-header">
         <span class="metrica-card-title">MTBF — Tiempo Medio Entre Fallas</span>
-        <span class="metrica-card-badge">DÍAS ENTRE FALLAS</span>
+        <span class="metrica-card-badge">HORAS ENTRE FALLAS</span>
       </div>
       <div class="metrica-kpis">
         <div class="metrica-kpi">
@@ -1544,14 +1544,33 @@ function cambiarCentro(centro, btn) {
 function parseHora(str) {
   if (!str) return null;
   str = String(str).trim();
+  
   // Ignorar placeholders comunes
   if (!str || str === 'HH:MM' || str === 'HH:MM' || !/\d/.test(str)) return null;
-  const parts = str.split(':');
-  if (parts.length < 2) return null;
-  const h = parseInt(parts[0]);
-  const m = parseInt(parts[1]);
-  if (isNaN(h) || isNaN(m)) return null;
-  return h * 60 + m;
+  
+  // Si ya está en formato HH:MM, procesar directamente
+  if (/^\d{1,2}:\d{2}$/.test(str)) {
+    const parts = str.split(':');
+    if (parts.length < 2) return null;
+    const h = parseInt(parts[0]);
+    const m = parseInt(parts[1]);
+    if (isNaN(h) || isNaN(m)) return null;
+    return h * 60 + m;
+  }
+  
+  // Si es formato ISO (como 1899-12-30T18:39:36.000Z), extraer hora
+  if (str.includes('T')) {
+    try {
+      const d = new Date(str);
+      if (isNaN(d.getTime())) return null;
+      return d.getHours() * 60 + d.getMinutes();
+    } catch(e) {
+      return null;
+    }
+  }
+  
+  // Formato desconocido
+  return null;
 }
 
 function parseFecha(str) {
@@ -1577,6 +1596,22 @@ function actualizarMetricas() {
     (o.centro_de_negocio || '').trim() === centroActual.trim()
   );
 
+  // DEPURACIÓN: Mostrar datos de órdenes cerradas
+  console.log('🔍 DEPURACIÓN MTTR - Centro:', centroActual);
+  console.log('🔍 Órdenes del centro:', ordenesDelCentro.length);
+  console.log('🔍 Órdenes cerradas:', ordenesDelCentro.filter(o => (o.estado || '') === 'CERRADA').length);
+  
+  ordenesDelCentro.forEach(o => {
+    if ((o.estado || '') === 'CERRADA') {
+      console.log('📋 Orden cerrada:', o.folio, {
+        estado: o.estado,
+        hora_recibo: o.hora_recibo,
+        hora_entrega_equipo: o.hora_entrega_equipo,
+        fecha_reporte: o.fecha_reporte
+      });
+    }
+  });
+
   // ── MTTR por mes ──────────────────────────────────────────
   const mttrPorMes = Array(12).fill(null).map(() => ({ suma: 0, count: 0 }));
 
@@ -1588,14 +1623,22 @@ function actualizarMetricas() {
 
     const recibo  = parseHora(o.hora_recibo);
     const entrega = parseHora(o.hora_entrega_equipo || o.hora_entrega);
-    if (recibo === null || entrega === null) return;
+    console.log('⏰ Parseo horas - Recibo:', recibo, 'Entrega:', entrega);
+    
+    if (recibo === null || entrega === null) {
+      console.log('❌ Horas inválidas para orden:', o.folio);
+      return;
+    }
 
     let diff = entrega - recibo;
     if (diff < 0) diff += 24 * 60; // cruzó medianoche
     const horas = diff / 60;
+    console.log('📊 Diferencia horas:', horas, 'para orden:', o.folio);
+    
     if (horas > 0 && horas < 1000) {
       mttrPorMes[mes].suma  += horas;
       mttrPorMes[mes].count += 1;
+      console.log('✅ MTTR actualizado - Mes', mes, ':', horas, 'horas');
     }
   });
 
@@ -1610,19 +1653,29 @@ function actualizarMetricas() {
   document.getElementById('mttr-fallas').textContent = mttrFallas || '—';
 
   // ── MTBF por mes ──────────────────────────────────────────
-  // Agrupa fechas de fallas por mes, calcula días entre fallas consecutivas
-  const fechasFallas = ordenesDelCentro
-    .map(o => parseFecha(o.fecha_reporte))
+  // CORREGIDO: Calcula horas entre fallas consecutivas (incluye fecha y hora)
+  const fechasHorasFallas = ordenesDelCentro
+    .map(o => {
+      const fecha = parseFecha(o.fecha_reporte);
+      const hora = parseHora(o.hora_reporte);
+      if (!fecha) return null;
+      // Combina fecha con hora (si hay hora válida)
+      if (hora !== null) {
+        fecha.setHours(Math.floor(hora / 60), hora % 60, 0, 0);
+      }
+      return fecha;
+    })
     .filter(f => f && f.getFullYear() === anio)
     .sort((a, b) => a - b);
 
   const mtbfPorMes = Array(12).fill(null).map(() => ({ suma: 0, count: 0 }));
 
-  for (let i = 1; i < fechasFallas.length; i++) {
-    const dias = (fechasFallas[i] - fechasFallas[i-1]) / (1000 * 60 * 60 * 24);
-    const mes  = fechasFallas[i].getMonth();
-    if (dias >= 0 && dias < 365) {
-      mtbfPorMes[mes].suma  += dias;
+  for (let i = 1; i < fechasHorasFallas.length; i++) {
+    // CORREGIDO: Calcula en horas en lugar de días
+    const horas = (fechasHorasFallas[i] - fechasHorasFallas[i-1]) / (1000 * 60 * 60);
+    const mes  = fechasHorasFallas[i].getMonth();
+    if (horas >= 0 && horas < 8760) { // Máximo 1 año en horas
+      mtbfPorMes[mes].suma  += horas;
       mtbfPorMes[mes].count += 1;
     }
   }
@@ -1635,14 +1688,15 @@ function actualizarMetricas() {
     parseFecha(o.fecha_reporte)?.getFullYear() === anio
   ).length;
 
-  document.getElementById('mtbf-prom').textContent  = mtbfProm ? mtbfProm + 'd' : '—';
-  document.getElementById('mtbf-max').textContent   = mtbfMax  ? mtbfMax  + 'd' : '—';
+  // CORREGIDO: Mostrar en horas en lugar de días
+  document.getElementById('mtbf-prom').textContent  = mtbfProm ? mtbfProm + 'h' : '—';
+  document.getElementById('mtbf-max').textContent   = mtbfMax  ? mtbfMax  + 'h' : '—';
   document.getElementById('mtbf-total').textContent = totalFallas || '—';
 
   // ── Renderizar gráficas ────────────────────────────────────
   renderChart('chart-mttr', chartMTTR, mttrVals, 'MTTR (horas)', '#b55a00', '#f0e0c0',
     (ctx, data) => { chartMTTR = ctx; });
-  renderChart('chart-mtbf', chartMTBF, mtbfVals, 'MTBF (días)', '#1a3a7a', '#c0d0f0',
+  renderChart('chart-mtbf', chartMTBF, mtbfVals, 'MTBF (horas)', '#1a3a7a', '#c0d0f0',
     (ctx, data) => { chartMTBF = ctx; });
 }
 
