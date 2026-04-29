@@ -1324,22 +1324,64 @@ function verOrden(folio) {
 
   document.getElementById('modal-ver-folio').textContent = folio;
 
+  // Función para formatear fecha ISO a formato local
+  function formatearFecha(fecha) {
+    if (!fecha) return fecha;
+    // Si ya está en formato dd/mm/yyyy, retornarla tal cual
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(fecha)) return fecha;
+    // Si es formato ISO, convertirla
+    try {
+      const d = new Date(fecha);
+      if (isNaN(d.getTime())) return fecha;
+      return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+    } catch(e) {
+      return fecha;
+    }
+  }
+
+  // Función para formatear hora ISO a formato HH:MM
+  function formatearHora(hora) {
+    if (!hora) return hora;
+    // Si ya está en formato HH:MM, retornarla tal cual
+    if (/^\d{2}:\d{2}$/.test(hora)) return hora;
+    // Si es formato ISO o date completo, extraer hora
+    try {
+      if (hora.includes('T')) {
+        const d = new Date(hora);
+        if (isNaN(d.getTime())) return hora;
+        return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      }
+      return hora;
+    } catch(e) {
+      return hora;
+    }
+  }
+
   const campos = [
-    ['Folio', o.folio], ['Fecha Reporte', o.fecha_reporte],
-    ['Hora Reporte', o.hora_reporte], ['Quién Reporta', o.quien_reporta],
-    ['Centro de Negocio', o.centro_de_negocio], ['Tipo Mantenimiento', o.tipo_mantenimiento],
-    ['Equipo Reportado', o.equipo_reportado, true], ['No. Control', o.no_control],
-    ['Grado Urgencia', o.grado_urgencia], ['Frecuencia Falla', o.frecuencia_falla],
+    ['Folio', o.folio], 
+    ['Fecha Reporte', formatearFecha(o.fecha_reporte)],
+    ['Hora Reporte', formatearHora(o.hora_reporte)], 
+    ['Quién Reporta', o.quien_reporta],
+    ['Centro de Negocio', o.centro_de_negocio], 
+    ['Tipo Mantenimiento', o.tipo_mantenimiento],
+    ['Equipo Reportado', o.equipo_reportado, true], 
+    ['No. Control', o.no_control],
+    ['Grado Urgencia', o.grado_urgencia], 
+    ['Frecuencia Falla', o.frecuencia_falla],
     ['Falla Reportada', o.falla_reportada, true],
     ['Diagnóstico Inicial', o.diagnostico_inicial, true],
-    ['Técnico(s)', o.tecnicos], ['Fecha Atención', o.fecha_atencion],
-    ['Refacciones Requeridas', o.refacciones_requeridas], ['Refacciones en Almacén', o.refacciones_almacen],
-    ['Fecha Est. Entrega', o.fecha_estimada_entrega], ['Costo Aprox.', o.costo_refacciones],
+    ['Técnico(s)', o.tecnicos], 
+    ['Fecha Atención', formatearFecha(o.fecha_atencion)],
+    ['Refacciones Requeridas', o.refacciones_requeridas], 
+    ['Refacciones en Almacén', o.refacciones_almacen],
+    ['Fecha Est. Entrega', formatearFecha(o.fecha_estimada_entrega)], 
+    ['Costo Aprox.', o.costo_refacciones],
     ['Descripción Reparación', o.descripcion_reparacion, true],
-    ['Fecha Liberación', o.fecha_liberacion], ['Hora Entrega', o.hora_entrega_equipo],
+    ['Fecha Liberación', formatearFecha(o.fecha_liberacion)], 
+    ['Hora Entrega', formatearHora(o.hora_entrega_equipo)],
     ['Estado', o.estado || 'ABIERTA'],
   ];
-  if (o.fecha_cierre) campos.push(['Fecha Cierre', o.fecha_cierre]);
+  if (o.fecha_cierre) campos.push(['Fecha Cierre', formatearFecha(o.fecha_cierre)]);
 
   document.getElementById('modal-ver-body').innerHTML = `
     <div class="detail-grid">
