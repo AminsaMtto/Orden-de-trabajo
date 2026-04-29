@@ -18,6 +18,14 @@ function doGet(e) {
     const p      = e.parameter;
     const accion = p.accion;
 
+    // DEPURACIÓN: Mostrar todos los parámetros recibidos
+    console.log('🔍 DEPURACIÓN BACKEND - Acción:', accion);
+    console.log('🔍 DEPURACIÓN BACKEND - Todos los parámetros:', p);
+    console.log('🔍 DEPURACIÓN BACKEND - Centro:', p.centro_de_negocio);
+    console.log('🔍 DEPURACIÓN BACKEND - Tipo:', p.tipo_mantenimiento);
+    console.log('🔍 DEPURACIÓN BACKEND - Equipo:', p.equipo_reportado);
+    console.log('🔍 DEPURACIÓN BACKEND - Folio:', p.folio);
+
     if (accion === 'listar') {
       return respuesta(listarOrdenes_data());
     }
@@ -55,6 +63,10 @@ function doGet(e) {
         nombre_firma_recibe:        p.nombre_firma_recibe || '',  // CORREGIDO: firma_recibe -> nombre_firma_recibe
         firma_conformidad:          p.firma_conformidad || ''   // CORREGIDO: firma_conf -> firma_conformidad
       };
+      
+      // DEPURACIÓN: Mostrar datos procesados
+      console.log('🔍 DEPURACIÓN BACKEND - Datos procesados:', datos);
+      
       return respuesta(guardarOrden_data(datos));
     }
 
@@ -80,6 +92,10 @@ function doGet(e) {
         nombre_firma_recibe:          p.nombre_firma_recibe || '',  // CORREGIDO: firma_recibe -> nombre_firma_recibe
         firma_conformidad:            p.firma_conformidad || ''   // CORREGIDO: firma_conf -> firma_conformidad
       };
+      
+      // DEPURACIÓN: Mostrar datos de cierre
+      console.log('🔍 DEPURACIÓN BACKEND - Datos de cierre:', datosCierre);
+      
       return respuesta(cerrarOrden_data(p.folio, datosCierre));
     }
 
@@ -95,6 +111,7 @@ function doGet(e) {
 
     return respuesta({ ok: false, error: 'Accion no reconocida: ' + accion });
   } catch (err) {
+    console.error('🔍 DEPURACIÓN BACKEND - Error:', err);
     return respuesta({ ok: false, error: err.toString() });
   }
 }
@@ -126,6 +143,9 @@ function inicializarHoja() {
 }
 
 function guardarOrden_data(datos) {
+  // DEPURACIÓN: Mostrar datos que se van a guardar
+  console.log('🔍 DEPURACIÓN BACKEND - guardarOrden_data - Datos recibidos:', datos);
+  
   const hoja = inicializarHoja();
   const fila = [
     datos.folio, datos.fecha_reporte, datos.hora_reporte,
@@ -142,8 +162,16 @@ function guardarOrden_data(datos) {
     datos.nombre_firma_recibe, datos.firma_conformidad,
     'ABIERTA', ''
   ];
+  
+  // DEPURACIÓN: Mostrar fila que se va a insertar
+  console.log('🔍 DEPURACIÓN BACKEND - Fila a insertar:', fila);
+  
   hoja.appendRow(fila);
   hoja.getRange(hoja.getLastRow(), 1, 1, fila.length).setBackground('#fff8e1');
+  
+  // DEPURACIÓN: Confirmar guardado
+  console.log('🔍 DEPURACIÓN BACKEND - Orden guardada exitosamente');
+  
   return { ok: true, folio: datos.folio };
 }
 
@@ -189,6 +217,10 @@ function listarOrdenes_data() {
 }
 
 function cerrarOrden_data(folio, datosCierre) {
+  // DEPURACIÓN: Mostrar datos de cierre
+  console.log('🔍 DEPURACIÓN BACKEND - cerrarOrden_data - Folio:', folio);
+  console.log('🔍 DEPURACIÓN BACKEND - cerrarOrden_data - DatosCierre:', datosCierre);
+  
   const hoja  = inicializarHoja();
   const datos = hoja.getDataRange().getValues();
   for (let i = 1; i < datos.length; i++) {
@@ -216,13 +248,25 @@ function cerrarOrden_data(folio, datosCierre) {
         29: 'CERRADA',
         30: new Date().toLocaleDateString('es-MX')
       };
+      
+      // DEPURACIÓN: Mostrar campos a actualizar
+      console.log('🔍 DEPURACIÓN BACKEND - Campos a actualizar:', campos);
+      
       Object.entries(campos).forEach(([col, val]) => {
         hoja.getRange(fila, parseInt(col) + 1).setValue(val);
       });
       hoja.getRange(fila, 1, 1, datos[i].length).setBackground('#e8f5e9');
+      
+      // DEPURACIÓN: Confirmar cierre
+      console.log('🔍 DEPURACIÓN BACKEND - Orden cerrada exitosamente');
+      
       return { ok: true };
     }
   }
+  
+  // DEPURACIÓN: Folio no encontrado
+  console.log('🔍 DEPURACIÓN BACKEND - Folio no encontrado:', folio);
+  
   return { ok: false, error: 'Folio no encontrado: ' + folio };
 }
 
@@ -273,6 +317,9 @@ function eliminarOrden_data(folio) {
 }
 
 function respuesta(obj) {
+  // DEPURACIÓN: Mostrar respuesta que se enviará
+  console.log('🔍 DEPURACIÓN BACKEND - Respuesta a enviar:', obj);
+  
   return ContentService
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
