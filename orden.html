@@ -34,7 +34,7 @@
     .checkbox-field:checked { background-color: var(--negro); border-color: var(--negro); }
     .checkbox-field:checked::after { content: "✓"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); color: white; font-size: 9px; font-weight: bold; font-family: 'Inconsolata', monospace; }
     .campo-cierre { display: none !important; }
-
+ 
     #folio { top:141px;left:629px;width:102px;height:22px;text-align:center;font-family:'Inconsolata',monospace;font-weight:500;font-size:12px;letter-spacing:0.5px; }
     #cb-zinc{top:182.8px;left:201.15px} #cb-cromo{top:198.8px;left:201.15px} #cb-doblado{top:214.9px;left:201.15px} #cb-oficinas{top:232px;left:201.15px}
     #cb-pretratamiento{top:182.8px;left:451.4px} #cb-tratamiento{top:198.8px;left:451.4px} #cb-andenes{top:214.9px;left:451.4px} #cb-laboratorio{top:232px;left:451.4px}
@@ -57,9 +57,9 @@
     #fecha-liberacion{top:985px;left:186px;width:115px;height:15px} #hora-entrega-equipo{top:983px;left:430px;width:40px;height:15px}
     #tecnico-entrega{top:984px;left:596px;width:140px;height:15px} #nombre-firma-recibe{top:1017px;left:386px;width:438px;height:15px}
     #firma-conformidad{top:1045px;left:438px;width:368px;height:15px}
-
+ 
     .modo-ver .input-field,.modo-ver .textarea-field,.modo-ver .checkbox-field { pointer-events: none; }
-
+ 
     @page { size: A4 portrait; margin: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     @media print {
       html, body { margin: 0 !important; padding: 0 !important; background: none; width: 210mm; height: 297mm; overflow: hidden; }
@@ -76,7 +76,7 @@
       .input-field:placeholder-shown, .textarea-field:placeholder-shown { color: transparent !important; }
       .checkbox-field:not(:checked) { border-color: transparent !important; background: transparent !important; }
     }
-
+ 
     .toast { position: fixed; bottom: 28px; right: 28px; background: var(--negro); color: var(--blanco); padding: 12px 20px 12px 16px; font-family: 'Inconsolata', monospace; font-size: 13px; font-weight: 500; letter-spacing: 1px; border-left: 3px solid rgba(255,255,255,0.3); transform: translateX(120%); opacity: 0; transition: all 0.3s cubic-bezier(0.16,1,0.3,1); z-index: 9999; max-width: 340px; }
     .toast.show { transform: translateX(0); opacity: 1; }
     .toast.error { border-left-color: var(--rojo-clar); }
@@ -85,7 +85,7 @@
   </style>
 </head>
 <body>
-
+ 
 <div class="action-bar" id="action-bar">
   <div class="action-bar-left">
     <a href="index.html" class="btn btn-ghost">
@@ -109,10 +109,10 @@
     </button>
   </div>
 </div>
-
+ 
 <div class="form-container" id="form-container">
   <input type="text" id="folio" class="input-field" readonly placeholder="—">
-
+ 
   <input type="checkbox" id="cb-zinc"            class="checkbox-field" data-grupo="centro" data-abreviatura="Zn">
   <input type="checkbox" id="cb-cromo"           class="checkbox-field" data-grupo="centro" data-abreviatura="Cr">
   <input type="checkbox" id="cb-doblado"         class="checkbox-field" data-grupo="centro" data-abreviatura="Do">
@@ -124,7 +124,7 @@
   <input type="checkbox" id="cb-obra-civil"      class="checkbox-field" data-grupo="centro" data-abreviatura="Oc">
   <input type="checkbox" id="cb-area-periferica" class="checkbox-field" data-grupo="centro" data-abreviatura="Ap">
   <input type="checkbox" id="cb-otros1"          class="checkbox-field" data-grupo="centro" data-abreviatura="Ot">
-
+ 
   <input type="checkbox" id="cb-preventivo"  class="checkbox-field" data-grupo="tipo" data-label="Preventivo">
   <input type="checkbox" id="cb-correctivo"  class="checkbox-field" data-grupo="tipo" data-label="Correctivo">
   <input type="checkbox" id="cb-mejora"      class="checkbox-field" data-grupo="tipo" data-label="Mejora de Equipo">
@@ -132,24 +132,24 @@
   <input type="checkbox" id="cb-ajuste"      class="checkbox-field" data-grupo="tipo" data-label="Ajuste">
   <input type="checkbox" id="cb-cambio"      class="checkbox-field" data-grupo="tipo" data-label="Cambio Equipo">
   <input type="checkbox" id="cb-otros2"      class="checkbox-field" data-grupo="tipo" data-label="Otros">
-
+ 
   <input type="text" id="equipo-reportado" class="input-field" placeholder="Nombre del equipo">
   <input type="text" id="no-control"       class="input-field" placeholder="No. control">
   <textarea id="falla-reportada" class="textarea-field" placeholder="Describe la falla reportada…"></textarea>
-
+ 
   <input type="checkbox" id="cb-alto"        class="checkbox-field" data-grupo="urgencia" data-label="Alto">
   <input type="checkbox" id="cb-medio"       class="checkbox-field" data-grupo="urgencia" data-label="Medio">
   <input type="checkbox" id="cb-bajo"        class="checkbox-field" data-grupo="urgencia" data-label="Bajo">
   <input type="checkbox" id="cb-muy-urgente" class="checkbox-field" data-grupo="urgencia" data-label="Muy Urgente">
-
+ 
   <input type="checkbox" id="cb-primera" class="checkbox-field" data-grupo="frecuencia" data-label="1a Vez">
   <input type="checkbox" id="cb-segunda" class="checkbox-field" data-grupo="frecuencia" data-label="2a Vez">
   <input type="checkbox" id="cb-tercera" class="checkbox-field" data-grupo="frecuencia" data-label="3a Vez">
-
+ 
   <input type="text" id="fecha-reporte" class="input-field" readonly>
   <input type="text" id="hora-reporte"  class="input-field" readonly>
   <input type="text" id="quien-reporta" class="input-field" placeholder="Nombre">
-
+ 
   <input type="text"     id="hora-recibo"           class="input-field   campo-cierre" placeholder="HH:MM">
   <input type="text"     id="fecha-atencion"         class="input-field   campo-cierre" placeholder="dd/mm/aaaa">
   <textarea              id="tecnicos"               class="textarea-field campo-cierre" placeholder="Técnico(s)"></textarea>
@@ -171,26 +171,26 @@
   <input type="text"     id="nombre-firma-recibe"    class="input-field   campo-cierre" placeholder="Nombre y firma">
   <input type="text"     id="firma-conformidad"      class="input-field   campo-cierre" placeholder="Firma de conformidad">
 </div>
-
+ 
 <div class="toast" id="toast"></div>
-
+ 
 <script src="sheets.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   const folio  = params.get('folio');
   const modo   = params.get('modo');
-
+ 
   // Solo poner fecha/hora actual si es una orden NUEVA (no en modo ver)
   if (!(folio && modo === 'ver')) {
     actualizarFechaHora();
     setInterval(actualizarFechaHora, 60000);
   }
-
+ 
   setupGrupos();
   if (folio && modo === 'ver') cargarOrdenExistente(folio);
 });
-
+ 
 function actualizarFechaHora() {
   const ahora = new Date();
   document.getElementById('fecha-reporte').value = formatFecha(ahora);
@@ -198,7 +198,7 @@ function actualizarFechaHora() {
 }
 function formatFecha(d) { return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`; }
 function formatHora(d)  { return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
-
+ 
 function setupGrupos() {
   document.querySelectorAll('.checkbox-field[data-grupo]').forEach(cb => {
     cb.addEventListener('change', function() {
@@ -211,7 +211,7 @@ function setupGrupos() {
     });
   });
 }
-
+ 
 function getWeekNumber(d) {
   d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -219,7 +219,7 @@ function getWeekNumber(d) {
   week1.setUTCDate(week1.getUTCDate() + 1 - (week1.getUTCDay() || 7));
   return Math.ceil(((d - week1) / 86400000 + 1) / 7);
 }
-
+ 
 // Calcula qué semanas ISO tienen al menos un día dentro del mes/año dados
 function semanasDelMes(anio, mes) {
   const semanas = new Set();
@@ -229,7 +229,7 @@ function semanasDelMes(anio, mes) {
   }
   return semanas;
 }
-
+ 
 // Extrae el número de semana de un folio "ABR-semana-dia-NNN"
 function semanaDelFolio(folio) {
   const partes = folio.split('-');
@@ -237,7 +237,7 @@ function semanaDelFolio(folio) {
   const n = parseInt(partes[1]);
   return isNaN(n) ? null : n;
 }
-
+ 
 // ── Lógica central: busca el mayor consecutivo del mismo área en el mes actual ──
 // No depende de fecha_reporte — trabaja solo con el folio.
 function extraerConsecutivos(ordenes, abr, semanasEsteMes) {
@@ -255,26 +255,26 @@ function extraerConsecutivos(ordenes, abr, semanasEsteMes) {
     })
     .filter(n => n > 0);
 }
-
+ 
 async function generarFolio() {
   const centroCB = document.querySelector('.checkbox-field[data-grupo="centro"]:checked');
   if (!centroCB) { document.getElementById('folio').value = ''; return; }
-
+ 
   const abr    = centroCB.dataset.abreviatura;
   const ahora  = new Date();
   const semana = getWeekNumber(ahora);
   const dia    = String(ahora.getDate()).padStart(2, '0');
   const prefijo = `${abr}-${semana}-${dia}-`;
-
+ 
   const anioActual     = ahora.getFullYear();
   const mesActual      = ahora.getMonth() + 1;           // 1-12
   const semanasEsteMes = semanasDelMes(anioActual, mesActual);
-
+ 
   const folioInput = document.getElementById('folio');
   const labelFolio = document.getElementById('label-folio');
   folioInput.value = '…';
   labelFolio.textContent = 'Generando…';
-
+ 
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 6000);
@@ -282,21 +282,21 @@ async function generarFolio() {
     clearTimeout(timer);
     const data  = await res.json();
     const remotas = data.ordenes || [];
-
+ 
     const consecutivos = extraerConsecutivos(remotas, abr, semanasEsteMes);
     const siguiente    = consecutivos.length > 0 ? Math.max(...consecutivos) + 1 : 1;
     const folio        = `${prefijo}${String(siguiente).padStart(3, '0')}`;
-
+ 
     folioInput.value       = folio;
     labelFolio.textContent = folio;
-
+ 
   } catch (e) {
     folioInput.value       = '';
     labelFolio.textContent = 'Sin conexión';
     mostrarToast('Sin conexión a Google Sheets. No se puede generar folio.', 'error');
   }
 }
-
+ 
 function leerFormulario() {
   const centroCB = document.querySelector('.checkbox-field[data-grupo="centro"]:checked');
   const tipoCB   = document.querySelector('.checkbox-field[data-grupo="tipo"]:checked');
@@ -313,7 +313,7 @@ function leerFormulario() {
   return {
     folio: val('folio'), fecha_reporte: val('fecha-reporte'), hora_reporte: val('hora-reporte'),
     quien_reporta: val('quien-reporta'),
-    centro_negocio: centroCB ? (centroMap[centroCB.id] || centroCB.dataset.abreviatura) : '',
+    centro_de_negocio: centroCB ? (centroMap[centroCB.id] || centroCB.dataset.abreviatura) : '',
     tipo_mantenimiento: tipoCB ? tipoCB.dataset.label : '',
     equipo_reportado: val('equipo-reportado'), no_control: val('no-control'),
     falla_reportada: val('falla-reportada'),
@@ -329,12 +329,12 @@ function leerFormulario() {
     descripcion_reparacion: val('descripcion-reparacion'), fecha_liberacion: val('fecha-liberacion'),
     hora_entrega_equipo: val('hora-entrega-equipo'), tecnico_entrega: val('tecnico-entrega'),
     nombre_firma_recibe: val('nombre-firma-recibe'), firma_conformidad: val('firma-conformidad'),
-    estado: 'ABIERTA',
+    estado: 'ABIERTA', // CORREGIDO: Agregar estado explícitamente
   };
 }
-
+ 
 function val(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
-
+ 
 function imprimirOrden() {
   const campos = document.querySelectorAll('.input-field, .textarea-field');
   const phs = [];
@@ -342,22 +342,28 @@ function imprimirOrden() {
   window.print();
   setTimeout(() => { campos.forEach((el, i) => { el.placeholder = phs[i]; }); }, 500);
 }
-
+ 
 async function guardarOrdenLocal() {
   const datos = leerFormulario();
   if (!datos.folio)            { mostrarToast('Selecciona un Centro de Negocio para generar el Folio', 'error'); return; }
   if (!datos.equipo_reportado) { mostrarToast('Ingresa el equipo reportado', 'error'); return; }
   if (!datos.falla_reportada)  { mostrarToast('Describe la falla reportada', 'error'); return; }
   if (!datos.quien_reporta)    { mostrarToast('Indica quién reporta', 'error'); return; }
-
+ 
   const res = await guardarOrden(datos);
-  if (res && res.ok) { mostrarToast(`Orden ${datos.folio} guardada en Google Sheets`, 'success'); }
-  else { mostrarToast(`Error al guardar en Sheets: ${res ? res.error : 'sin conexión'}`, 'error'); return; }
-
-  const btn = document.getElementById('btn-guardar');
-  btn.textContent = '✓ Guardado'; btn.disabled = true; btn.style.opacity = '0.5';
+  if (res && res.ok) { 
+    mostrarToast(`Orden ${datos.folio} guardada en Google Sheets`, 'success'); 
+    // CORREGIDO: Actualizar el botón para mostrar que se guardó correctamente
+    const btn = document.getElementById('btn-guardar');
+    btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Guardado';
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+  } else { 
+    mostrarToast(`Error al guardar en Sheets: ${res ? res.error : 'sin conexión'}`, 'error'); 
+    return;
+  }
 }
-
+ 
 async function cargarOrdenExistente(folio) {
   let orden = null;
   try {
@@ -366,59 +372,65 @@ async function cargarOrdenExistente(folio) {
     orden = (result.ordenes || []).find(o => o.folio === folio) || null;
   } catch(e) { /* sin conexión */ }
   if (!orden) { mostrarToast('Orden no encontrada en Google Sheets', 'error'); return; }
-
+ 
+  // CORREGIDO: Usar nombres de campos consistentes con sheets.js
   for (const [key, value] of Object.entries(orden)) {
     const id = key.replace(/_/g, '-');
     const el = document.getElementById(id);
     if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') && el.type !== 'checkbox') el.value = value;
   }
-
+ 
   const centroReverso = {
     'Zinc':'cb-zinc','Cromo':'cb-cromo','Doblado de Tubo':'cb-doblado','Oficinas':'cb-oficinas',
     'Planta Pre-Tratamiento':'cb-pretratamiento','Planta de Tratamiento':'cb-tratamiento',
     'Andenes y Patio de Maniobras':'cb-andenes','Laboratorio':'cb-laboratorio',
     'Obra Civil':'cb-obra-civil','Área Periférica':'cb-area-periferica','Otros':'cb-otros1'
   };
-  if (centroReverso[orden.centro_negocio]) {
-    const cb = document.getElementById(centroReverso[orden.centro_negocio]);
+  if (centroReverso[orden.centro_de_negocio]) {
+    const cb = document.getElementById(centroReverso[orden.centro_de_negocio]);
     if (cb) cb.checked = true;
   }
-
+ 
   document.querySelectorAll('.checkbox-field[data-label]').forEach(cb => {
     const g = cb.dataset.grupo, l = cb.dataset.label;
     if (g === 'tipo'       && l === orden.tipo_mantenimiento) cb.checked = true;
     if (g === 'urgencia'   && l === orden.grado_urgencia)     cb.checked = true;
     if (g === 'frecuencia' && l === orden.frecuencia_falla)   cb.checked = true;
   });
-
+ 
   if (orden.refacciones_requeridas === 'SI') document.getElementById('cb-refacciones-si').checked = true;
   else document.getElementById('cb-refacciones-no').checked = true;
   if (orden.refacciones_almacen === 'SI') document.getElementById('cb-almacen-si').checked = true;
   else document.getElementById('cb-almacen-no').checked = true;
-
+ 
   document.getElementById('label-folio').textContent = folio;
-
+ 
   if (orden.estado === 'CERRADA') {
-    document.querySelectorAll('.campo-cierre').forEach(el => { el.classList.remove('campo-cierre'); el.style.display = ''; });
+    document.querySelectorAll('.campo-cierre').forEach(el => { 
+      el.classList.remove('campo-cierre'); 
+      el.style.display = ''; 
+    });
     document.getElementById('btn-guardar').style.display = 'none';
     document.getElementById('form-container').classList.add('modo-ver');
   }
 }
-
+ 
 function limpiarFormulario() {
   if (!confirm('¿Limpiar todos los campos del formulario?')) return;
   document.querySelectorAll('.input-field:not([readonly]), .textarea-field').forEach(el => el.value = '');
   document.querySelectorAll('.checkbox-field').forEach(cb => cb.checked = false);
   const btn = document.getElementById('btn-guardar');
   btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Guardar Orden';
-  btn.disabled = false; btn.style.opacity = '1';
+  btn.disabled = false; 
+  btn.style.opacity = '1';
   document.getElementById('label-folio').textContent = 'Nueva Orden';
   actualizarFechaHora();
 }
-
+ 
 function mostrarToast(msg, tipo = '') {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.className = `toast show ${tipo}`;
+  t.textContent = msg; 
+  t.className = `toast show ${tipo}`;
   setTimeout(() => t.className = 'toast', 4000);
 }
 </script>
