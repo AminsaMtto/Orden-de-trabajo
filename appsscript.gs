@@ -23,61 +23,62 @@ function doGet(e) {
     }
 
     if (accion === 'guardar') {
-      // Leer campos individuales
+      // CORREGIDO: Leer campos con nombres correctos que coinciden con frontend
       const datos = {
         folio:                      p.folio        || '',
         fecha_reporte:              p.fecha_reporte || '',
         hora_reporte:               p.hora_reporte  || '',
         quien_reporta:              p.quien_reporta || '',
-        centro_negocio:             p.centro_negocio || '',
-        tipo_mantenimiento:         p.tipo_mant     || '',
-        equipo_reportado:           p.equipo        || '',
+        centro_negocio:             p.centro_de_negocio || '',  // CORREGIDO: centro_negocio -> centro_de_negocio
+        tipo_mantenimiento:         p.tipo_mantenimiento || '',  // CORREGIDO: tipo_mant -> tipo_mantenimiento
+        equipo_reportado:           p.equipo_reportado || '',  // CORREGIDO: equipo -> equipo_reportado
         no_control:                 p.no_control    || '',
-        falla_reportada:            p.falla         || '',
-        grado_urgencia:             p.urgencia      || '',
-        frecuencia_falla:           p.frecuencia    || '',
+        falla_reportada:            p.falla_reportada || '',  // CORREGIDO: falla -> falla_reportada
+        grado_urgencia:             p.grado_urgencia || '',  // CORREGIDO: urgencia -> grado_urgencia
+        frecuencia_falla:           p.frecuencia_falla || '',  // CORREGIDO: frecuencia -> frecuencia_falla
         hora_recibo:                p.hora_recibo   || '',
         fecha_atencion:             p.fecha_atencion || '',
         tecnicos:                   p.tecnicos      || '',
-        diagnostico_inicial:        p.diagnostico   || '',
-        refacciones_requeridas:     p.ref_req       || '',
-        refacciones_almacen:        p.ref_alm       || '',
-        tiempo_entrega_refacciones: p.tiempo_ref    || '',
-        actividades_previas:        p.act_previas   || '',
-        inicio_reparacion:          p.inicio_rep    || '',
+        diagnostico_inicial:        p.diagnostico_inicial || '',  // CORREGIDO: diagnostico -> diagnostico_inicial
+        refacciones_requeridas:     p.refacciones_requeridas || '',  // CORREGIDO: ref_req -> refacciones_requeridas
+        refacciones_almacen:        p.refacciones_almacen || '',  // CORREGIDO: ref_alm -> refacciones_almacen
+        tiempo_entrega_refacciones: p.tiempo_entrega_refacciones || '',  // CORREGIDO: tiempo_ref -> tiempo_entrega_refacciones
+        actividades_previas:        p.actividades_previas || '',  // CORREGIDO: act_previas -> actividades_previas
+        inicio_reparacion:          p.inicio_reparacion || '',  // CORREGIDO: inicio_rep -> inicio_reparacion
         hora_inicio:                p.hora_inicio   || '',
-        fecha_estimada_entrega:     p.fecha_est     || '',
-        costo_refacciones:          p.costo         || '',
-        descripcion_reparacion:     p.descripcion   || '',
-        fecha_liberacion:           p.fecha_lib     || '',
-        hora_entrega_equipo:        p.hora_entrega  || '',
-        tecnico_entrega:            p.tec_entrega   || '',
-        nombre_firma_recibe:        p.firma_recibe  || '',
-        firma_conformidad:          p.firma_conf    || ''
+        fecha_estimada_entrega:     p.fecha_estimada_entrega || '',  // CORREGIDO: fecha_est -> fecha_estimada_entrega
+        costo_refacciones:          p.costo_refacciones || '',  // CORREGIDO: costo -> costo_refacciones
+        descripcion_reparacion:     p.descripcion_reparacion || '',  // CORREGIDO: descripcion -> descripcion_reparacion
+        fecha_liberacion:           p.fecha_liberacion || '',  // CORREGIDO: fecha_lib -> fecha_liberacion
+        hora_entrega_equipo:        p.hora_entrega_equipo || '',  // CORREGIDO: hora_entrega -> hora_entrega_equipo
+        tecnico_entrega:            p.tecnico_entrega || '',  // CORREGIDO: tec_entrega -> tecnico_entrega
+        nombre_firma_recibe:        p.nombre_firma_recibe || '',  // CORREGIDO: firma_recibe -> nombre_firma_recibe
+        firma_conformidad:          p.firma_conformidad || ''   // CORREGIDO: firma_conf -> firma_conformidad
       };
       return respuesta(guardarOrden_data(datos));
     }
 
     if (accion === 'cerrar') {
+      // CORREGIDO: Mismos problemas de nombres en cerrarOrden
       const datosCierre = {
         hora_recibo:                  p.hora_recibo   || '',
         fecha_atencion:               p.fecha_atencion|| '',
         tecnicos:                     p.tecnicos      || '',
-        diagnostico_inicial:          p.diagnostico   || '',
-        refacciones_requeridas:       p.ref_req       || '',
-        refacciones_almacen:          p.ref_alm       || '',
-        tiempo_entrega_refacciones:   p.tiempo_ref    || '',
-        actividades_previas:          p.act_previas   || '',
-        inicio_reparacion:            p.inicio_rep    || '',
+        diagnostico_inicial:          p.diagnostico_inicial || '',  // CORREGIDO: diagnostico -> diagnostico_inicial
+        refacciones_requeridas:       p.refacciones_requeridas || '',  // CORREGIDO: ref_req -> refacciones_requeridas
+        refacciones_almacen:          p.refacciones_almacen || '',  // CORREGIDO: ref_alm -> refacciones_almacen
+        tiempo_entrega_refacciones:   p.tiempo_entrega_refacciones || '',  // CORREGIDO: tiempo_ref -> tiempo_entrega_refacciones
+        actividades_previas:          p.actividades_previas || '',  // CORREGIDO: act_previas -> actividades_previas
+        inicio_reparacion:            p.inicio_reparacion || '',  // CORREGIDO: inicio_rep -> inicio_reparacion
         hora_inicio:                  p.hora_inicio   || '',
-        fecha_estimada_entrega:       p.fecha_est     || '',
-        costo_refacciones:            p.costo         || '',
-        descripcion_reparacion:       p.descripcion   || '',
-        fecha_liberacion:             p.fecha_lib     || '',
-        hora_entrega_equipo:          p.hora_entrega  || '',
-        tecnico_entrega:              p.tec_entrega   || '',
-        nombre_firma_recibe:          p.firma_recibe  || '',
-        firma_conformidad:            p.firma_conf    || ''
+        fecha_estimada_entrega:       p.fecha_estimada_entrega || '',  // CORREGIDO: fecha_est -> fecha_estimada_entrega
+        costo_refacciones:            p.costo_refacciones || '',  // CORREGIDO: costo -> costo_refacciones
+        descripcion_reparacion:       p.descripcion_reparacion || '',  // CORREGIDO: descripcion -> descripcion_reparacion
+        fecha_liberacion:             p.fecha_liberacion || '',  // CORREGIDO: fecha_lib -> fecha_liberacion
+        hora_entrega_equipo:          p.hora_entrega_equipo || '',  // CORREGIDO: hora_entrega -> hora_entrega_equipo
+        tecnico_entrega:              p.tecnico_entrega || '',  // CORREGIDO: tec_entrega -> tecnico_entrega
+        nombre_firma_recibe:          p.nombre_firma_recibe || '',  // CORREGIDO: firma_recibe -> nombre_firma_recibe
+        firma_conformidad:            p.firma_conformidad || ''   // CORREGIDO: firma_conf -> firma_conformidad
       };
       return respuesta(cerrarOrden_data(p.folio, datosCierre));
     }
@@ -254,7 +255,7 @@ function verificarLogin(usuario, password) {
       }
     }
     return { ok: false, error: 'Usuario o contraseña incorrectos' };
-  } catch(err) {
+  } catch (err) {
     return { ok: false, error: err.toString() };
   }
 }
