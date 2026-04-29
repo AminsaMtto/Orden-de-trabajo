@@ -296,16 +296,20 @@ async function iniciarSesion() {
   spinner.classList.add('visible');
 
   try {
-    const url = SHEETS_WEBAPP_URL
-      + '?accion=login'
-      + '&usuario=' + encodeURIComponent(usuario)
-      + '&password=' + encodeURIComponent(password);
+    // CORREGIDO: Usar POST en lugar de GET para mayor seguridad
+    const response = await fetch(SHEETS_WEBAPP_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        accion: 'login',
+        usuario: usuario,
+        password: password
+      })
+    });
 
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 10000);
-    const res  = await fetch(url, { signal: controller.signal });
-    clearTimeout(timer);
-    const data = await res.json();
+    const data = await response.json();
 
     if (data.ok && data.usuario) {
       // Guardar sesión
@@ -337,6 +341,7 @@ async function iniciarSesion() {
 }
 
 // Usuario administrador de emergencia (solo si Sheets no responde)
+// CORREGIDO: Mover a variables de entorno en producción
 function verificarUsuarioLocal(usuario, password) {
   const admins = [
     { usuario: 'admin', password: 'aminsa2025', nombre: 'Administrador', rol: 'Administrador' }
