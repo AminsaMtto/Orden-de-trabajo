@@ -1,4 +1,4 @@
-const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyrP_UdUQWXnQkNqOZatGUQ3jJHZwn2A5w7lhb5R0lZTAmKMgi0vDlO3IdSvmjx2iAbCw/exec';
+const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycby1m3xVEV4dlEE5fvAvwHrb0D3lMfC7T7wGq3Fbcv3VA3qwf_6_UIBvx0pZxbxdQCoLsg/exec';
 
 // ── Guardar orden ──────────────────────────────────────────────
 // Divide los datos en campos individuales para no exceder el límite de URL
