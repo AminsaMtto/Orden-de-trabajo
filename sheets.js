@@ -40,8 +40,13 @@ async function guardarOrden(datos) {
     params.set('estado',             datos.estado || 'ABIERTA'); // NUEVO: Guardar estado explícitamente
 
     const url = SHEETS_WEBAPP_URL + '?' + params.toString();
+    console.log('🔍 DEPURACIÓN - URL enviada:', url);
+    console.log('🔍 DEPURACIÓN - Parámetros:', Object.fromEntries(params.entries()));
+    
     const response = await fetch(url, { method: 'GET' });
     const result   = await response.json();
+    
+    console.log('🔍 DEPURACIÓN - Respuesta del backend:', result);
     return result;
   } catch (err) {
     console.error('guardarOrden error:', err);
