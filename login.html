@@ -296,19 +296,13 @@ async function iniciarSesion() {
   spinner.classList.add('visible');
 
   try {
-    // CORREGIDO: Usar POST en lugar de GET para mayor seguridad
-    const response = await fetch(SHEETS_WEBAPP_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        accion: 'login',
-        usuario: usuario,
-        password: password
-      })
-    });
-
+    // CORREGIDO: Google Apps Script espera GET con parámetros en URL
+    const url = SHEETS_WEBAPP_URL 
+      + '?accion=login'
+      + '&usuario=' + encodeURIComponent(usuario)
+      + '&password=' + encodeURIComponent(password);
+    
+    const response = await fetch(url, { method: 'GET' });
     const data = await response.json();
 
     if (data.ok && data.usuario) {
