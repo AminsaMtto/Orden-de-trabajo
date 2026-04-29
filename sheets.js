@@ -12,7 +12,7 @@ async function guardarOrden(datos) {
     params.set('fecha_reporte',      datos.fecha_reporte || '');
     params.set('hora_reporte',       datos.hora_reporte || '');
     params.set('quien_reporta',      datos.quien_reporta || '');
-    params.set('centro_negocio',     datos.centro_negocio || '');
+    params.set('centro_de_negocio',     datos.centro_de_negocio || '');
     params.set('tipo_mantenimiento', datos.tipo_mantenimiento || ''); // CORREGIDO: tipo_mant -> tipo_mantenimiento
     params.set('equipo_reportado',   datos.equipo_reportado || ''); // CORREGIDO: equipo -> equipo_reportado
     params.set('no_control',         datos.no_control || '');
