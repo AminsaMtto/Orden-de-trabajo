@@ -374,6 +374,14 @@ function imprimirOrden() {
 
 async function guardarOrdenLocal() {
   const datos = leerFormulario();
+  
+  // DEPURACIÓN: Mostrar datos que se van a guardar
+  console.log('🔍 DEPURACIÓN - Datos a guardar:', datos);
+  console.log('📋 Centro:', datos.centro_de_negocio);
+  console.log('📋 Tipo:', datos.tipo_mantenimiento);
+  console.log('📋 Equipo:', datos.equipo_reportado);
+  console.log('📋 Folio:', datos.folio);
+  
   if (!datos.folio)            { mostrarToast('Selecciona un Centro de Negocio para generar el Folio', 'error'); return; }
   if (!datos.equipo_reportado) { mostrarToast('Ingresa el equipo reportado', 'error'); return; }
   if (!datos.falla_reportada)  { mostrarToast('Describe la falla reportada', 'error'); return; }
