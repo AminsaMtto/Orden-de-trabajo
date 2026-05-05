@@ -185,6 +185,16 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!(folio && modo === 'ver')) {
     actualizarFechaHora();
     setInterval(actualizarFechaHora, 60000);
+    
+    // AUTOCOMPLETAR: Llenar "Quién Reporta" con el usuario de la sesión
+    const sesion = JSON.parse(sessionStorage.getItem('sesion') || '{}');
+    if (sesion.nombre) {
+      document.getElementById('quien-reporta').value = sesion.nombre;
+      document.getElementById('quien-reporta').setAttribute('readonly', true);
+      // Agregar estilo visual para indicar que está autocompletado
+      document.getElementById('quien-reporta').style.backgroundColor = '#f0f0f0';
+      document.getElementById('quien-reporta').style.cursor = 'not-allowed';
+    }
   }
 
   setupGrupos();
