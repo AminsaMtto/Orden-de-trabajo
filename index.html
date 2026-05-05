@@ -247,6 +247,23 @@
     .filtro-select:focus {
       background: var(--blanco);
     }
+    
+    .filtros-tabla {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      margin: 20px 0;
+      background: var(--fondo);
+      border: 1px solid var(--borde);
+      border-radius: 4px;
+    }
+    
+    .filtros-tabla-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
     .search-wrap {
       position: relative;
@@ -828,50 +845,6 @@
       </svg>
       Actualizar
     </button>
-    <div class="filtros">
-      <button class="filtro-btn activo" onclick="filtrar('todos', this)">Todas</button>
-      <button class="filtro-btn" onclick="filtrar('ABIERTA', this)">Abiertas</button>
-      <button class="filtro-btn" onclick="filtrar('CERRADA', this)">Cerradas</button>
-      
-      <!-- Filtro por Centro de Negocio -->
-      <select class="filtro-select" id="filtro-centro" onchange="aplicarFiltros()">
-        <option value="">Todos los Centros</option>
-        <option value="Zinc">Zinc</option>
-        <option value="Cromo">Cromo</option>
-        <option value="Doblado de Tubo">Doblado</option>
-        <option value="Oficinas">Oficinas</option>
-        <option value="Planta Pre-Tratamiento">Pre-Tratamiento</option>
-        <option value="Planta de Tratamiento">Tratamiento</option>
-        <option value="Andenes y Patio de Maniobras">Andenes</option>
-        <option value="Laboratorio">Laboratorio</option>
-        <option value="Obra Civil">Obra Civil</option>
-        <option value="Area Periferica a la Planta">Área Periférica</option>
-        <option value="Otros">Otros</option>
-      </select>
-      
-      <!-- Filtro por Mes -->
-      <select class="filtro-select" id="filtro-mes" onchange="aplicarFiltros()">
-        <option value="">Todos los Meses</option>
-        <option value="0">Enero</option>
-        <option value="1">Febrero</option>
-        <option value="2">Marzo</option>
-        <option value="3">Abril</option>
-        <option value="4">Mayo</option>
-        <option value="5">Junio</option>
-        <option value="6">Julio</option>
-        <option value="7">Agosto</option>
-        <option value="8">Septiembre</option>
-        <option value="9">Octubre</option>
-        <option value="10">Noviembre</option>
-        <option value="11">Diciembre</option>
-      </select>
-    </div>
-  </div>
-  <div class="search-wrap">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-    </svg>
-    <input class="search-input" type="text" placeholder="BUSCAR FOLIO / EQUIPO / REPORTA" oninput="buscar(this.value)">
   </div>
 </div>
 
@@ -949,6 +922,56 @@
         <canvas id="chart-mtbf"></canvas>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- FILTROS DE TABLA -->
+<div class="filtros-tabla">
+  <div class="filtros-tabla-left">
+    <div class="filtros">
+      <button class="filtro-btn activo" onclick="filtrar('todos', this)">Todas</button>
+      <button class="filtro-btn" onclick="filtrar('ABIERTA', this)">Abiertas</button>
+      <button class="filtro-btn" onclick="filtrar('CERRADA', this)">Cerradas</button>
+      
+      <!-- Filtro por Centro de Negocio -->
+      <select class="filtro-select" id="filtro-centro" onchange="aplicarFiltros()">
+        <option value="">Todos los Centros</option>
+        <option value="Zinc">Zinc</option>
+        <option value="Cromo">Cromo</option>
+        <option value="Doblado de Tubo">Doblado</option>
+        <option value="Oficinas">Oficinas</option>
+        <option value="Planta Pre-Tratamiento">Pre-Tratamiento</option>
+        <option value="Planta de Tratamiento">Tratamiento</option>
+        <option value="Andenes y Patio de Maniobras">Andenes</option>
+        <option value="Laboratorio">Laboratorio</option>
+        <option value="Obra Civil">Obra Civil</option>
+        <option value="Area Periferica a la Planta">Área Periférica</option>
+        <option value="Otros">Otros</option>
+      </select>
+      
+      <!-- Filtro por Mes -->
+      <select class="filtro-select" id="filtro-mes" onchange="aplicarFiltros()">
+        <option value="">Todos los Meses</option>
+        <option value="0">Enero</option>
+        <option value="1">Febrero</option>
+        <option value="2">Marzo</option>
+        <option value="3">Abril</option>
+        <option value="4">Mayo</option>
+        <option value="5">Junio</option>
+        <option value="6">Julio</option>
+        <option value="7">Agosto</option>
+        <option value="8">Septiembre</option>
+        <option value="9">Octubre</option>
+        <option value="10">Noviembre</option>
+        <option value="11">Diciembre</option>
+      </select>
+    </div>
+  </div>
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input class="search-input" type="text" placeholder="BUSCAR FOLIO / EQUIPO / REPORTA" oninput="buscar(this.value)">
   </div>
 </div>
 
@@ -1327,6 +1350,14 @@ function cerrarSesion() {
 document.addEventListener('DOMContentLoaded', () => {
   if (!verificarSesion()) return;
   document.getElementById('metricas-year').textContent = 'AÑO ' + new Date().getFullYear();
+  
+  // Establecer mes actual por defecto en el filtro de mes
+  const mesActual = new Date().getMonth();
+  const filtroMes = document.getElementById('filtro-mes');
+  if (filtroMes) {
+    filtroMes.value = mesActual.toString();
+  }
+  
   cargarOrdenes();
   verificarConexion();
 });
