@@ -250,19 +250,23 @@
     
     .filtros-tabla {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
-      padding: 12px 20px;
-      margin: 20px 0;
+      padding: 12px 40px;
+      margin: 20px auto;
+      max-width: 1200px;
       background: var(--fondo);
       border: 1px solid var(--borde);
       border-radius: 4px;
+      gap: 20px;
     }
     
     .filtros-tabla-left {
       display: flex;
       align-items: center;
       gap: 12px;
+      flex: 1;
+      justify-content: center;
     }
 
     .search-wrap {
@@ -1449,12 +1453,33 @@ async function cargarOrdenes() {
 }
 
 function actualizarStats() {
-  const total    = todasLasOrdenes.length;
-  const abiertas = todasLasOrdenes.filter(o => (o.estado || 'ABIERTA') === 'ABIERTA').length;
-  const cerradas = todasLasOrdenes.filter(o => o.estado === 'CERRADA').length;
-  const urgentes = todasLasOrdenes.filter(o =>
+  // Obtener mes seleccionado del filtro
+  const mesSeleccionado = document.getElementById('filtro-mes').value;
+  const anioActual = new Date().getFullYear();
+  
+  let ordenesFiltradas;
+  
+  if (mesSeleccionado === '') {
+    // "Todos los Meses" - mostrar todas las órdenes del año actual
+    ordenesFiltradas = todasLasOrdenes.filter(o => {
+      const fecha = parseFecha(o.fecha_reporte);
+      return fecha && fecha.getFullYear() === anioActual;
+    });
+  } else {
+    // Mes específico seleccionado
+    ordenesFiltradas = todasLasOrdenes.filter(o => {
+      const fecha = parseFecha(o.fecha_reporte);
+      return fecha && fecha.getMonth() === parseInt(mesSeleccionado) && fecha.getFullYear() === anioActual;
+    });
+  }
+  
+  const total    = ordenesFiltradas.length;
+  const abiertas = ordenesFiltradas.filter(o => (o.estado || 'ABIERTA') === 'ABIERTA').length;
+  const cerradas = ordenesFiltradas.filter(o => o.estado === 'CERRADA').length;
+  const urgentes = ordenesFiltradas.filter(o =>
     (o.grado_urgencia || '').toLowerCase().includes('urgente') && o.estado !== 'CERRADA'
   ).length;
+  
   document.getElementById('stat-total').textContent    = total;
   document.getElementById('stat-abiertas').textContent = abiertas;
   document.getElementById('stat-cerradas').textContent = cerradas;
