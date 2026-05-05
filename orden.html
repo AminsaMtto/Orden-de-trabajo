@@ -514,6 +514,12 @@ function limpiarFormulario() {
   btn.style.opacity = '1';
   document.getElementById('label-folio').textContent = 'Nueva Orden';
   actualizarFechaHora();
+  
+  // CORRECCIÓN: Volver a autocompletar el campo 'quien-reporta' después de limpiar
+  const sesion = JSON.parse(sessionStorage.getItem('sesion') || '{}');
+  if (sesion.nombre) {
+    document.getElementById('quien-reporta').value = sesion.nombre;
+  }
 }
 
 function mostrarToast(msg, tipo = '') {
