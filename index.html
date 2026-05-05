@@ -412,7 +412,7 @@
       letter-spacing: 2px;
     }
     input[type="text"], input[type="date"], input[type="time"], textarea, select {
-      padding: 9px 25px;
+      padding: 9px 12px;
       border: 1px solid var(--borde);
       font-size: 14px;
       font-family: 'Cormorant Garamond', serif;
@@ -577,6 +577,34 @@
     }
     .btn-logout:hover { border-color: var(--rojo); color: var(--rojo-clar); }
 
+    /* ── NAVEGACIÓN ── */
+    .header-nav {
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--borde);
+    }
+    .nav-link {
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 8px 16px;
+      color: var(--texto-ter);
+      border-right: 1px solid var(--borde);
+      transition: all 0.2s;
+    }
+    .nav-link:last-child { border-right: none; }
+    .nav-link:hover {
+      background: var(--fondo-alt);
+      color: var(--negro);
+    }
+    .nav-link.active {
+      background: var(--negro);
+      color: var(--blanco);
+    }
+
     /* ── MÉTRICAS SECTION ── */
     .metricas-section {
       margin: 0 48px 28px;
@@ -705,6 +733,10 @@
     </div>
   </div>
   <div class="header-right">
+    <div class="header-nav">
+      <a href="index.html" class="nav-link active">Órdenes</a>
+      <a href="preventivo.html" class="nav-link">Preventivos</a>
+    </div>
     <div class="header-doc-ref">AM-MA-FO-7.1.3.-08</div>
     <div class="user-pill" id="user-pill">
       <span id="user-nombre">—</span>
@@ -791,20 +823,21 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
     </svg>
-    <input class="search-input" type="text" placeholder="BUSCAR FOLIO / EQUIPO" oninput="buscar(this.value)">
+    <input class="search-input" type="text" placeholder="BUSCAR FOLIO / EQUIPO / REPORTA" oninput="buscar(this.value)">
   </div>
 </div>
 
 <!-- MÉTRICAS MTTR / MTBF -->
 <div class="metricas-section">
   <div class="metricas-header">
-    <div class="metricas-title">Indicadores de Mantenimiento</div>
+    <div class="metricas-title" id="metricas-title">Indicadores de Mantenimiento</div>
     <div class="metricas-line"></div>
     <div style="font-family:'Inconsolata',monospace;font-size:10px;color:var(--texto-ter);letter-spacing:1px" id="metricas-year"></div>
   </div>
 
   <!-- Tabs de centros -->
   <div class="centros-tabs" id="centros-tabs">
+    <button class="centro-tab" onclick="cambiarCentro('GRAL', this)">GRAL/Todos</button>
     <button class="centro-tab activo" onclick="cambiarCentro('Zinc', this)">Zinc</button>
     <button class="centro-tab" onclick="cambiarCentro('Cromo', this)">Cromo</button>
     <button class="centro-tab" onclick="cambiarCentro('Doblado de Tubo', this)">Doblado</button>
@@ -1095,6 +1128,112 @@
   </div>
 </div>
 
+<!-- Modal Editar Orden Cerrada — SOLO ADMINISTRADOR -->
+<div class="modal-overlay" id="modal-editar-cerrada">
+  <div class="modal" style="max-width:720px">
+    <div class="modal-header" style="background:var(--azul)">
+      <h2>Editar Orden Cerrada — <span id="modal-editar-folio"></span></h2>
+      <button class="modal-close" onclick="cerrarModal('modal-editar-cerrada')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-family:'Inconsolata',monospace;font-size:11px;color:var(--rojo);margin-bottom:16px;background:var(--fondo-alt);padding:8px 12px;border-left:3px solid var(--rojo)">
+        ⚠️ Solo el Administrador puede editar órdenes ya cerradas. Los cambios se guardarán en Google Sheets.
+      </p>
+
+      <h3 style="font-family:'Cormorant SC',serif;font-size:14px;letter-spacing:1px;margin:20px 0 12px;border-bottom:1px solid var(--borde);padding-bottom:6px">Datos del Reporte</h3>
+      <div class="form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label>Centro de Negocio</label>
+          <select id="ec-centro">
+            <option value="">Seleccionar...</option>
+            <option value="Zinc">Zinc</option>
+            <option value="Oro">Oro</option>
+            <option value="Plata">Plata</option>
+            <option value="Plomo">Plomo</option>
+            <option value="Cobre">Cobre</option>
+            <option value="Sinter">Sinter</option>
+            <option value="Acido">Acido</option>
+            <option value="Jales">Jales</option>
+            <option value="Moly">Moly</option>
+            <option value="Reactivos">Reactivos</option>
+            <option value="Mantenimiento">Mantenimiento</option>
+            <option value="Molienda">Molienda</option>
+            <option value="Chancado">Chancado</option>
+            <option value="Filtros">Filtros</option>
+            <option value="Concentrado">Concentrado</option>
+            <option value="Desaladora">Desaladora</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Equipo Reportado</label>
+          <input type="text" id="ec-equipo" placeholder="Nombre del equipo">
+        </div>
+        <div class="form-group">
+          <label>Quién Reporta</label>
+          <input type="text" id="ec-quien-reporta" placeholder="Nombre de quien reporta">
+        </div>
+        <div class="form-group">
+          <label>Técnico(s) Asignado(s)</label>
+          <input type="text" id="ec-tecnicos" placeholder="Nombre(s) del técnico(s)">
+        </div>
+        <div class="form-group">
+          <label>Tipo de Mantenimiento</label>
+          <select id="ec-tipo">
+            <option value="">Seleccionar...</option>
+            <option value="Correctivo">Correctivo</option>
+            <option value="Preventivo">Preventivo</option>
+            <option value="Predictivo">Predictivo</option>
+            <option value="Mejora">Mejora</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Grado de Urgencia</label>
+          <select id="ec-urgencia">
+            <option value="">Seleccionar...</option>
+            <option value="Bajo">Bajo</option>
+            <option value="Medio">Medio</option>
+            <option value="Alto">Alto</option>
+            <option value="Crítico">Crítico</option>
+          </select>
+        </div>
+      </div>
+
+      <h3 style="font-family:'Cormorant SC',serif;font-size:14px;letter-spacing:1px;margin:20px 0 12px;border-bottom:1px solid var(--borde);padding-bottom:6px">Descripción</h3>
+      <div class="form-group">
+        <label>Descripción del Trabajo Solicitado</label>
+        <textarea id="ec-descripcion" rows="3" style="width:100%;padding:10px;border:1px solid var(--borde);font-family:inherit;font-size:12px;resize:vertical"></textarea>
+      </div>
+
+      <h3 style="font-family:'Cormorant SC',serif;font-size:14px;letter-spacing:1px;margin:20px 0 12px;border-bottom:1px solid var(--borde);padding-bottom:6px">Datos de Cierre</h3>
+      <div class="form-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+        <div class="form-group">
+          <label>Fecha de Liberación</label>
+          <input type="date" id="ec-fecha-lib">
+        </div>
+        <div class="form-group">
+          <label>Hora Recibo</label>
+          <input type="time" id="ec-hora-recibo">
+        </div>
+        <div class="form-group">
+          <label>Hora Entrega Equipo</label>
+          <input type="time" id="ec-hora-entrega">
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:12px">
+        <label>Trabajo Realizado</label>
+        <textarea id="ec-trabajo-realizado" rows="2" style="width:100%;padding:10px;border:1px solid var(--borde);font-family:inherit;font-size:12px;resize:vertical"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cerrarModal('modal-editar-cerrada')">Cancelar</button>
+      <button class="btn btn-primary" onclick="ejecutarEdicionCerrada()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Guardar Cambios
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="sheets.js"></script>
@@ -1287,8 +1426,8 @@ function renderTabla(ordenes) {
             </svg>
           </button>
           ${estado !== 'CERRADA'
-            ? `<button class="btn btn-success btn-sm btn-cerrar-rol" onclick="abrirModalCerrar('${o.folio}')" style="${(sesionActual && sesionActual.rol !== 'Administrador' && sesionActual.rol !== 'Técnico') ? 'display:none' : ''}">Cerrar</button>` 
-            : ''}
+            ? `<button class="btn btn-success btn-sm btn-cerrar-rol" onclick="abrirModalCerrar('${o.folio}')" style="${(sesionActual && sesionActual.rol !== 'Administrador' && sesionActual.rol !== 'Técnico') ? 'display:none' : ''}">Cerrar</button>`
+            : `<button class="btn btn-primary btn-sm btn-editar-cerrada" onclick="abrirModalEditarCerrada('${o.folio}')" style="${(sesionActual && sesionActual.rol !== 'Administrador') ? 'display:none' : ''}">Editar</button>`}
           <button class="btn btn-danger btn-sm btn-eliminar-rol" onclick="abrirModalEliminar('${o.folio}')" title="Eliminar" style="${(sesionActual && sesionActual.rol !== 'Administrador') ? 'display:none' : ''}">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m5 0V4h4v2"/></svg>
           </button>
@@ -1505,6 +1644,98 @@ async function ejecutarEliminar() {
   renderTabla(aplicarFiltro(todasLasOrdenes));
 }
 
+// ── EDITAR ORDEN CERRADA — SOLO ADMINISTRADOR ───────────────
+function abrirModalEditarCerrada(folio) {
+  // Verificación de seguridad
+  if (!sesionActual || sesionActual.rol !== 'Administrador') {
+    mostrarToast('Solo el Administrador puede editar órdenes cerradas', 'error');
+    return;
+  }
+
+  folioSeleccionado = folio;
+  const o = todasLasOrdenes.find(x => x.folio === folio);
+  if (!o) return;
+
+  document.getElementById('modal-editar-folio').textContent = folio;
+
+  // Llenar campos del reporte
+  document.getElementById('ec-centro').value = o.centro_de_negocio || '';
+  document.getElementById('ec-equipo').value = o.equipo_reportado || '';
+  document.getElementById('ec-quien-reporta').value = o.quien_reporta || '';
+  document.getElementById('ec-tecnicos').value = o.tecnicos || '';
+  document.getElementById('ec-tipo').value = o.tipo_mantenimiento || '';
+  document.getElementById('ec-urgencia').value = o.grado_urgencia || '';
+  document.getElementById('ec-descripcion').value = o.descripcion || '';
+
+  // Llenar campos de cierre
+  const fechaCierre = o.fecha_cierre || o.fecha_liberacion || o.fecha_cierre_trabajo;
+  if (fechaCierre) {
+    const fechaISO = parseFechaISO(fechaCierre);
+    document.getElementById('ec-fecha-lib').value = fechaISO || '';
+  }
+  document.getElementById('ec-hora-recibo').value = o.hora_recibo || '';
+  document.getElementById('ec-hora-entrega').value = o.hora_entrega_equipo || o.hora_entrega || '';
+  document.getElementById('ec-trabajo-realizado').value = o.trabajo_realizado || '';
+
+  document.getElementById('modal-editar-cerrada').classList.add('visible');
+}
+
+async function ejecutarEdicionCerrada() {
+  // Verificación de seguridad
+  if (!sesionActual || sesionActual.rol !== 'Administrador') {
+    mostrarToast('Solo el Administrador puede guardar cambios', 'error');
+    return;
+  }
+
+  const datos = {
+    folio: folioSeleccionado,
+    centro_de_negocio: document.getElementById('ec-centro').value,
+    equipo_reportado: document.getElementById('ec-equipo').value,
+    quien_reporta: document.getElementById('ec-quien-reporta').value,
+    tecnicos: document.getElementById('ec-tecnicos').value,
+    tipo_mantenimiento: document.getElementById('ec-tipo').value,
+    grado_urgencia: document.getElementById('ec-urgencia').value,
+    descripcion: document.getElementById('ec-descripcion').value,
+    fecha_cierre: document.getElementById('ec-fecha-lib').value,
+    hora_recibo: document.getElementById('ec-hora-recibo').value,
+    hora_entrega_equipo: document.getElementById('ec-hora-entrega').value,
+    trabajo_realizado: document.getElementById('ec-trabajo-realizado').value
+  };
+
+  try {
+    // Guardar en Google Sheets
+    const params = new URLSearchParams();
+    params.set('accion', 'editarCerrada');
+    Object.entries(datos).forEach(([k, v]) => params.set(k, v || ''));
+
+    const url = SHEETS_WEBAPP_URL + '?' + params.toString();
+    const response = await fetch(url, { method: 'GET' });
+    const result = await response.json();
+
+    if (result.ok) {
+      mostrarToast('Orden cerrada actualizada correctamente', 'success');
+      cerrarModal('modal-editar-cerrada');
+      await cargarOrdenes(); // Recargar para mostrar cambios
+      actualizarMetricas(); // Recalcular métricas
+    } else {
+      mostrarToast('Error: ' + (result.error || 'No se pudo actualizar'), 'error');
+    }
+  } catch (e) {
+    console.error('Error al editar orden cerrada:', e);
+    mostrarToast('Error de conexión al guardar', 'error');
+  }
+}
+
+function parseFechaISO(str) {
+  if (!str) return '';
+  const fecha = parseFecha(str);
+  if (!fecha) return '';
+  const y = fecha.getFullYear();
+  const m = String(fecha.getMonth() + 1).padStart(2, '0');
+  const d = String(fecha.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 function abrirOrdenImpresion(folio) {
   window.open(`orden.html?folio=${folio}&modo=ver`, '_blank');
 }
@@ -1551,6 +1782,15 @@ function cambiarCentro(centro, btn) {
   centroActual = centro;
   document.querySelectorAll('.centro-tab').forEach(b => b.classList.remove('activo'));
   btn.classList.add('activo');
+  
+  // Actualizar título dinámicamente
+  const titleElement = document.getElementById('metricas-title');
+  if (centro === 'GRAL') {
+    titleElement.textContent = 'Indicadores de Mantenimiento - General';
+  } else {
+    titleElement.textContent = 'Indicadores de Mantenimiento';
+  }
+  
   actualizarMetricas();
 }
 
@@ -1605,9 +1845,9 @@ function parseFecha(str) {
 
 function actualizarMetricas() {
   const anio = new Date().getFullYear();
-  const ordenesDelCentro = todasLasOrdenes.filter(o =>
-    (o.centro_de_negocio || '').trim() === centroActual.trim()
-  );
+  const ordenesDelCentro = centroActual === 'GRAL' 
+    ? todasLasOrdenes  // GRAL: mostrar todas las líneas juntas
+    : todasLasOrdenes.filter(o => (o.centro_de_negocio || '').trim() === centroActual.trim());
 
   // DEPURACIÓN: Mostrar datos de órdenes cerradas
   console.log('🔍 DEPURACIÓN MTTR - Centro:', centroActual);
@@ -1711,6 +1951,7 @@ function actualizarMetricas() {
     (ctx, data) => { chartMTTR = ctx; });
   renderChart('chart-mtbf', chartMTBF, mtbfVals, 'MTBF (horas)', '#1a3a7a', '#c0d0f0',
     (ctx, data) => { chartMTBF = ctx; });
+
 }
 
 function renderChart(canvasId, existingChart, data, label, color, bgColor, onCreated) {
