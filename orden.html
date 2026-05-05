@@ -177,8 +177,8 @@
 <script src="sheets.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // VERIFICAR SESIÓN: Si no hay sesión, redirigir al login
-  const sesion = JSON.parse(sessionStorage.getItem('sesion') || '{}');
+  // VERIFICAR SESIÓN: Usar la misma clave que en index.html ('aminsa_sesion')
+  const sesion = JSON.parse(sessionStorage.getItem('aminsa_sesion') || '{}');
   console.log('DEPURACIÓN - Verificando sesión inicial:', sesion);
   
   if (!sesion.nombre) {
@@ -531,7 +531,7 @@ function limpiarFormulario() {
   actualizarFechaHora();
   
   // Asegurar que 'quien-reporta' siempre tenga el valor del usuario
-  const sesion = JSON.parse(sessionStorage.getItem('sesion') || '{}');
+  const sesion = JSON.parse(sessionStorage.getItem('aminsa_sesion') || '{}');
   console.log('DEPURACIÓN - Sesión:', sesion);
   console.log('DEPURACIÓN - Nombre usuario:', sesion.nombre);
   
