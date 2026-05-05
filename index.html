@@ -232,6 +232,21 @@
       color: var(--blanco);
     }
     .filtro-btn:hover:not(.activo) { background: var(--blanco); color: var(--negro); }
+    
+    .filtro-select {
+      padding: 7px 12px;
+      font-family: 'Inconsolata', monospace;
+      font-size: 11px;
+      border: none;
+      background: var(--fondo);
+      color: var(--texto);
+      cursor: pointer;
+      outline: none;
+      min-width: 140px;
+    }
+    .filtro-select:focus {
+      background: var(--blanco);
+    }
 
     .search-wrap {
       position: relative;
@@ -817,6 +832,39 @@
       <button class="filtro-btn activo" onclick="filtrar('todos', this)">Todas</button>
       <button class="filtro-btn" onclick="filtrar('ABIERTA', this)">Abiertas</button>
       <button class="filtro-btn" onclick="filtrar('CERRADA', this)">Cerradas</button>
+      
+      <!-- Filtro por Centro de Negocio -->
+      <select class="filtro-select" id="filtro-centro" onchange="aplicarFiltros()">
+        <option value="">Todos los Centros</option>
+        <option value="Zinc">Zinc</option>
+        <option value="Cromo">Cromo</option>
+        <option value="Doblado de Tubo">Doblado</option>
+        <option value="Oficinas">Oficinas</option>
+        <option value="Planta Pre-Tratamiento">Pre-Tratamiento</option>
+        <option value="Planta de Tratamiento">Tratamiento</option>
+        <option value="Andenes y Patio de Maniobras">Andenes</option>
+        <option value="Laboratorio">Laboratorio</option>
+        <option value="Obra Civil">Obra Civil</option>
+        <option value="Area Periferica a la Planta">Área Periférica</option>
+        <option value="Otros">Otros</option>
+      </select>
+      
+      <!-- Filtro por Mes -->
+      <select class="filtro-select" id="filtro-mes" onchange="aplicarFiltros()">
+        <option value="">Todos los Meses</option>
+        <option value="0">Enero</option>
+        <option value="1">Febrero</option>
+        <option value="2">Marzo</option>
+        <option value="3">Abril</option>
+        <option value="4">Mayo</option>
+        <option value="5">Junio</option>
+        <option value="6">Julio</option>
+        <option value="7">Agosto</option>
+        <option value="8">Septiembre</option>
+        <option value="9">Octubre</option>
+        <option value="10">Noviembre</option>
+        <option value="11">Diciembre</option>
+      </select>
     </div>
   </div>
   <div class="search-wrap">
@@ -1444,9 +1492,34 @@ function filtrar(tipo, btn) {
   renderTabla(aplicarFiltro(todasLasOrdenes));
 }
 
+function aplicarFiltros() {
+  renderTabla(aplicarFiltro(todasLasOrdenes));
+}
+
 function aplicarFiltro(ordenes) {
-  if (filtroActual === 'todos') return ordenes;
-  return ordenes.filter(o => (o.estado || 'ABIERTA') === filtroActual);
+  let filtradas = ordenes;
+  
+  // Filtro por estado
+  if (filtroActual !== 'todos') {
+    filtradas = filtradas.filter(o => (o.estado || 'ABIERTA') === filtroActual);
+  }
+  
+  // Filtro por centro de negocio
+  const centroSeleccionado = document.getElementById('filtro-centro').value;
+  if (centroSeleccionado) {
+    filtradas = filtradas.filter(o => (o.centro_de_negocio || '').trim() === centroSeleccionado);
+  }
+  
+  // Filtro por mes
+  const mesSeleccionado = document.getElementById('filtro-mes').value;
+  if (mesSeleccionado !== '') {
+    filtradas = filtradas.filter(o => {
+      const fecha = parseFecha(o.fecha_reporte);
+      return fecha && fecha.getMonth() === parseInt(mesSeleccionado) && fecha.getFullYear() === new Date().getFullYear();
+    });
+  }
+  
+  return filtradas;
 }
 
 function buscar(query) {
