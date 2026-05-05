@@ -506,8 +506,11 @@ async function cargarOrdenExistente(folio) {
 
 function limpiarFormulario() {
   if (!confirm('¿Limpiar todos los campos del formulario?')) return;
-  document.querySelectorAll('.input-field:not([readonly]), .textarea-field').forEach(el => el.value = '');
+  
+  // CORRECCIÓN: Limpiar todos los campos EXCEPTO 'quien-reporta'
+  document.querySelectorAll('.input-field:not(#quien-reporta):not([readonly]), .textarea-field').forEach(el => el.value = '');
   document.querySelectorAll('.checkbox-field').forEach(cb => cb.checked = false);
+  
   const btn = document.getElementById('btn-guardar');
   btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Guardar Orden';
   btn.disabled = false; 
@@ -515,7 +518,7 @@ function limpiarFormulario() {
   document.getElementById('label-folio').textContent = 'Nueva Orden';
   actualizarFechaHora();
   
-  // CORRECCIÓN: Volver a autocompletar el campo 'quien-reporta' después de limpiar
+  // Asegurar que 'quien-reporta' siempre tenga el valor del usuario
   const sesion = JSON.parse(sessionStorage.getItem('sesion') || '{}');
   if (sesion.nombre) {
     document.getElementById('quien-reporta').value = sesion.nombre;
