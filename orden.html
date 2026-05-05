@@ -177,6 +177,17 @@
 <script src="sheets.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  // VERIFICAR SESIÓN: Si no hay sesión, redirigir al login
+  const sesion = JSON.parse(sessionStorage.getItem('sesion') || '{}');
+  console.log('DEPURACIÓN - Verificando sesión inicial:', sesion);
+  
+  if (!sesion.nombre) {
+    console.log('DEPURACIÓN - No hay sesión activa, redirigiendo al login');
+    alert('Debes iniciar sesión para acceder a esta página');
+    window.location.href = 'login.html';
+    return;
+  }
+
   const params = new URLSearchParams(window.location.search);
   const folio  = params.get('folio');
   const modo   = params.get('modo');
@@ -187,20 +198,15 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(actualizarFechaHora, 60000);
     
     // AUTOCOMPLETAR: Llenar "Quién Reporta" con el usuario de la sesión
-    const sesion = JSON.parse(sessionStorage.getItem('sesion') || '{}');
-    console.log('DEPURACIÓN INICIAL - Sesión:', sesion);
+    console.log('DEPURACIÓN INICIAL - Sesión válida:', sesion);
     console.log('DEPURACIÓN INICIAL - Nombre usuario:', sesion.nombre);
     
-    if (sesion.nombre) {
-      document.getElementById('quien-reporta').value = sesion.nombre;
-      document.getElementById('quien-reporta').setAttribute('readonly', true);
-      // Agregar estilo visual para indicar que está autocompletado
-      document.getElementById('quien-reporta').style.backgroundColor = '#f0f0f0';
-      document.getElementById('quien-reporta').style.cursor = 'not-allowed';
-      console.log('DEPURACIÓN INICIAL - Valor asignado:', document.getElementById('quien-reporta').value);
-    } else {
-      console.log('DEPURACIÓN INICIAL - No hay nombre en la sesión');
-    }
+    document.getElementById('quien-reporta').value = sesion.nombre;
+    document.getElementById('quien-reporta').setAttribute('readonly', true);
+    // Agregar estilo visual para indicar que está autocompletado
+    document.getElementById('quien-reporta').style.backgroundColor = '#f0f0f0';
+    document.getElementById('quien-reporta').style.cursor = 'not-allowed';
+    console.log('DEPURACIÓN INICIAL - Valor asignado:', document.getElementById('quien-reporta').value);
   }
 
   setupGrupos();
