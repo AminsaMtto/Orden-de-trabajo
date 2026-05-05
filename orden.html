@@ -188,12 +188,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // AUTOCOMPLETAR: Llenar "Quién Reporta" con el usuario de la sesión
     const sesion = JSON.parse(sessionStorage.getItem('sesion') || '{}');
+    console.log('DEPURACIÓN INICIAL - Sesión:', sesion);
+    console.log('DEPURACIÓN INICIAL - Nombre usuario:', sesion.nombre);
+    
     if (sesion.nombre) {
       document.getElementById('quien-reporta').value = sesion.nombre;
       document.getElementById('quien-reporta').setAttribute('readonly', true);
       // Agregar estilo visual para indicar que está autocompletado
       document.getElementById('quien-reporta').style.backgroundColor = '#f0f0f0';
       document.getElementById('quien-reporta').style.cursor = 'not-allowed';
+      console.log('DEPURACIÓN INICIAL - Valor asignado:', document.getElementById('quien-reporta').value);
+    } else {
+      console.log('DEPURACIÓN INICIAL - No hay nombre en la sesión');
     }
   }
 
@@ -520,8 +526,14 @@ function limpiarFormulario() {
   
   // Asegurar que 'quien-reporta' siempre tenga el valor del usuario
   const sesion = JSON.parse(sessionStorage.getItem('sesion') || '{}');
+  console.log('DEPURACIÓN - Sesión:', sesion);
+  console.log('DEPURACIÓN - Nombre usuario:', sesion.nombre);
+  
   if (sesion.nombre) {
     document.getElementById('quien-reporta').value = sesion.nombre;
+    console.log('DEPURACIÓN - Valor asignado a quien-reporta:', document.getElementById('quien-reporta').value);
+  } else {
+    console.log('DEPURACIÓN - No hay nombre en la sesión');
   }
 }
 
