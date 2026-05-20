@@ -1388,7 +1388,7 @@ async function verificarConexion() {
     const result = await res.json();
     if (result.ok !== false) {
       dot.className = 'sync-dot online';
-      label.textContent = 'SHEETS CONECTADO';
+      label.textContent = 'CONECTADO';
     } else {
       label.textContent = 'SIN CONEXIÓN (LOCAL)';
     }
