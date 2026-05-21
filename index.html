@@ -2177,10 +2177,17 @@ async function actualizarMetricas() {
       // Calcular horas laborables excluyendo fines de semana
       const recibo  = parseHora(o.hora_recibo);
       const entrega = parseHora(o.hora_entrega_equipo || o.hora_entrega);
+      const fechaReporte = parseFecha(o.fecha_reporte);
+      const fechaLiberacion = parseFecha(o.fecha_liberacion);
       console.log('⏰ Parseo horas - Recibo:', recibo, 'Entrega:', entrega);
+      console.log('📅 Parseo fechas - Reporte:', fechaReporte, 'Liberación:', fechaLiberacion);
       
       if (recibo === null || entrega === null) {
         console.log('❌ Horas inválidas para orden:', o.folio);
+        return;
+      }
+      if (!fechaReporte) {
+        console.log('❌ Fecha de reporte inválida para orden:', o.folio);
         return;
       }
 
@@ -2191,16 +2198,15 @@ async function actualizarMetricas() {
       const entregaHoras = Math.floor(entrega / 60);
       const entregaMinutos = entrega % 60;
       
-      const fechaRecibo = new Date(fecha);
+      const fechaRecibo = new Date(fechaReporte);
       fechaRecibo.setHours(reciboHoras, reciboMinutos, 0, 0);
       
-      const fechaEntrega = new Date(fecha);
+      // Usar fecha de liberación si está disponible, si no usar fecha de reporte
+      const fechaBaseEntrega = fechaLiberacion || fechaReporte;
+      const fechaEntrega = new Date(fechaBaseEntrega);
       fechaEntrega.setHours(entregaHoras, entregaMinutos, 0, 0);
       
-      // Si la entrega es menor que el recibo, significa que cruzó al día siguiente
-      if (fechaEntrega < fechaRecibo) {
-        fechaEntrega.setDate(fechaEntrega.getDate() + 1);
-      }
+      console.log('📊 Fechas completas - Recibo:', fechaRecibo, 'Entrega:', fechaEntrega);
       
       // Calcular horas laborables excluyendo fines de semana
       horas = calcularHorasLaborablesEntreFechas(fechaRecibo, fechaEntrega);
