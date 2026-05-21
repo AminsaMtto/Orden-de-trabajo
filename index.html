@@ -773,6 +773,7 @@
       <a href="index.html" class="nav-link active">Órdenes</a>
       <a href="https://aminsamtto.github.io/Mtto-preventivo/" class="nav-link">Preventivos</a>
       <a href="https://aminsamtto.github.io/Almacen-Refacciones/" class="nav-link">Refacciones</a>
+      <a href="configuracion.html" class="nav-link" id="nav-config" style="display:none;">Configuración</a>
     </div>
     <div class="user-pill" id="user-pill">
       <span id="user-nombre">—</span>
@@ -1344,6 +1345,11 @@ function aplicarRestriccionesRol() {
   if (rol !== 'Administrador') {
     document.querySelectorAll('.btn-eliminar-rol').forEach(b => b.style.display = 'none');
   }
+  // Mostrar enlace de Configuración solo para Administradores
+  const navConfig = document.getElementById('nav-config');
+  if (navConfig) {
+    navConfig.style.display = rol === 'Administrador' ? 'block' : 'none';
+  }
 }
 
 function cerrarSesion() {
@@ -1449,7 +1455,7 @@ async function cargarOrdenes() {
   }
   actualizarStats();
   renderTabla(aplicarFiltro(todasLasOrdenes));
-  actualizarMetricas();
+  await actualizarMetricas();
 }
 
 function actualizarStats() {
@@ -1745,7 +1751,7 @@ async function ejecutarCierre() {
   cerrarModal('modal-cerrar');
   mostrarToast(`Orden ${folioSeleccionado} cerrada correctamente`, 'success');
   await cargarOrdenes(); // Recargar para mostrar el estado actualizado
-  actualizarMetricas(); // CORREGIDO: Actualizar métricas después de cerrar orden
+  await actualizarMetricas(); // CORREGIDO: Actualizar métricas después de cerrar orden
 }
 
 function abrirModalEliminar(folio) {
@@ -1846,7 +1852,7 @@ async function ejecutarEdicionCerrada() {
       mostrarToast('Orden cerrada actualizada correctamente', 'success');
       cerrarModal('modal-editar-cerrada');
       await cargarOrdenes(); // Recargar para mostrar cambios
-      actualizarMetricas(); // Recalcular métricas
+      await actualizarMetricas(); // Recalcular métricas
     } else {
       mostrarToast('Error: ' + (result.error || 'No se pudo actualizar'), 'error');
     }
@@ -1908,7 +1914,7 @@ let chartMTBF = null;
 
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
-function cambiarCentro(centro, btn) {
+async function cambiarCentro(centro, btn) {
   centroActual = centro;
   document.querySelectorAll('.centro-tab').forEach(b => b.classList.remove('activo'));
   btn.classList.add('activo');
@@ -1921,7 +1927,7 @@ function cambiarCentro(centro, btn) {
     titleElement.textContent = 'Indicadores de Mantenimiento';
   }
   
-  actualizarMetricas();
+  await actualizarMetricas();
 }
 
 function parseHora(str) {
@@ -1973,11 +1979,24 @@ function parseFecha(str) {
   return null;
 }
 
-function actualizarMetricas() {
+async function actualizarMetricas() {
   const anio = new Date().getFullYear();
   const ordenesDelCentro = centroActual === 'GRAL' 
     ? todasLasOrdenes  // GRAL: mostrar todas las líneas juntas
     : todasLasOrdenes.filter(o => (o.centro_de_negocio || '').trim() === centroActual.trim());
+
+  // Cargar configuración de horas laborables desde Google Sheets
+  let configHoras = {};
+  try {
+    configHoras = await obtenerConfiguracionHoras();
+  } catch(e) {
+    console.warn('Error al cargar configuración de horas:', e);
+  }
+  
+  const CENTROS = ['Zinc', 'Cromo', 'Doblado de Tubo', 'Oficinas',
+    'Planta Pre-Tratamiento', 'Planta de Tratamiento',
+    'Andenes y Patio de Maniobras', 'Laboratorio',
+    'Obra Civil', 'Area Periferica a la Planta', 'Otros'];
 
   // DEPURACIÓN: Mostrar datos de órdenes cerradas
   console.log('🔍 DEPURACIÓN MTTR - Centro:', centroActual);
@@ -2035,43 +2054,58 @@ function actualizarMetricas() {
   document.getElementById('mttr-max').textContent   = mttrMax   ? mttrMax  + 'h'  : '—';
   document.getElementById('mttr-fallas').textContent = mttrFallas || '—';
 
-  // ── MTBF por mes ──────────────────────────────────────────
-  // CORREGIDO: Calcula horas entre fallas consecutivas (incluye fecha y hora)
-  const fechasHorasFallas = ordenesDelCentro
-    .map(o => {
-      const fecha = parseFecha(o.fecha_reporte);
-      const hora = parseHora(o.hora_reporte);
-      if (!fecha) return null;
-      // Combina fecha con hora (si hay hora válida)
-      if (hora !== null) {
-        fecha.setHours(Math.floor(hora / 60), hora % 60, 0, 0);
+  // ── MTBF por mes (usando horas laborables configuradas) ─────────
+  // Función para obtener horas laborables acumuladas hasta un mes específico
+  function obtenerHorasLaborablesAcumuladas(centro, mesHasta) {
+    if (centroActual === 'GRAL') {
+      // Para GRAL, sumar horas de todos los centros
+      let total = 0;
+      CENTROS.forEach(c => {
+        const horasCentro = configHoras[c] || Array(12).fill(160);
+        for (let m = 0; m <= mesHasta && m < 12; m++) {
+          total += horasCentro[m];
+        }
+      });
+      return total;
+    } else {
+      const horasCentro = configHoras[centroActual] || Array(12).fill(160);
+      let total = 0;
+      for (let m = 0; m <= mesHasta && m < 12; m++) {
+        total += horasCentro[m];
       }
-      return fecha;
-    })
-    .filter(f => f && f.getFullYear() === anio)
-    .sort((a, b) => a - b);
-
-  const mtbfPorMes = Array(12).fill(null).map(() => ({ suma: 0, count: 0 }));
-
-  for (let i = 1; i < fechasHorasFallas.length; i++) {
-    // CORREGIDO: Calcula en horas en lugar de días
-    const horas = (fechasHorasFallas[i] - fechasHorasFallas[i-1]) / (1000 * 60 * 60);
-    const mes  = fechasHorasFallas[i].getMonth();
-    if (horas >= 0 && horas < 8760) { // Máximo 1 año en horas
-      mtbfPorMes[mes].suma  += horas;
-      mtbfPorMes[mes].count += 1;
+      return total;
     }
   }
 
-  const mtbfVals = mtbfPorMes.map(m => m.count > 0 ? +(m.suma / m.count).toFixed(1) : 0);
-  const mtbfValidos = mtbfVals.filter(v => v > 0);
+  // Agrupar fallas por mes
+  const fallasPorMes = Array(12).fill(0);
+  ordenesDelCentro.forEach(o => {
+    const fecha = parseFecha(o.fecha_reporte);
+    if (fecha && fecha.getFullYear() === anio) {
+      fallasPorMes[fecha.getMonth()]++;
+    }
+  });
+
+  // Calcular MTBF por mes usando horas laborables
+  const mtbfPorMes = Array(12).fill(0);
+  let fallasAcumuladas = 0;
+
+  for (let mes = 0; mes < 12; mes++) {
+    fallasAcumuladas += fallasPorMes[mes];
+    const horasLaborables = obtenerHorasLaborablesAcumuladas(centroActual, mes);
+    
+    if (fallasAcumuladas > 0 && horasLaborables > 0) {
+      mtbfPorMes[mes] = +(horasLaborables / fallasAcumuladas).toFixed(1);
+    }
+  }
+
+  const mtbfValidos = mtbfPorMes.filter(v => v > 0);
   const mtbfProm = mtbfValidos.length ? +(mtbfValidos.reduce((a,b) => a+b, 0) / mtbfValidos.length).toFixed(1) : 0;
   const mtbfMax  = mtbfValidos.length ? Math.max(...mtbfValidos) : 0;
   const totalFallas = ordenesDelCentro.filter(o =>
     parseFecha(o.fecha_reporte)?.getFullYear() === anio
   ).length;
 
-  // CORREGIDO: Mostrar en horas en lugar de días
   document.getElementById('mtbf-prom').textContent  = mtbfProm ? mtbfProm + 'h' : '—';
   document.getElementById('mtbf-max').textContent   = mtbfMax  ? mtbfMax  + 'h' : '—';
   document.getElementById('mtbf-total').textContent = totalFallas || '—';
@@ -2079,7 +2113,7 @@ function actualizarMetricas() {
   // ── Renderizar gráficas ────────────────────────────────────
   renderChart('chart-mttr', chartMTTR, mttrVals, 'MTTR (horas)', '#b55a00', '#f0e0c0',
     (ctx, data) => { chartMTTR = ctx; });
-  renderChart('chart-mtbf', chartMTBF, mtbfVals, 'MTBF (horas)', '#1a3a7a', '#c0d0f0',
+  renderChart('chart-mtbf', chartMTBF, mtbfPorMes, 'MTBF (horas laborables)', '#1a3a7a', '#c0d0f0',
     (ctx, data) => { chartMTBF = ctx; });
 
 }
