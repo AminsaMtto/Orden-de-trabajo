@@ -106,6 +106,78 @@ async function cerrarOrden(folio, datosCierre) {
   }
 }
 
+// ── Guardar configuración de horas laborables ─────────────────────
+async function guardarConfiguracionHoras(configHoras) {
+  try {
+    const params = new URLSearchParams();
+    params.set('accion', 'guardarConfigHoras');
+    params.set('config', JSON.stringify(configHoras));
+
+    const url = SHEETS_WEBAPP_URL + '?' + params.toString();
+    const response = await fetch(url, { method: 'GET' });
+    const result = await response.json();
+    return result;
+  } catch (err) {
+    console.error('guardarConfiguracionHoras error:', err);
+    return { ok: false, error: err.message };
+  }
+}
+
+// ── Obtener configuración de horas laborables ───────────────────
+async function obtenerConfiguracionHoras() {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+    const response = await fetch(SHEETS_WEBAPP_URL + '?accion=obtenerConfigHoras', { signal: controller.signal });
+    clearTimeout(timer);
+    const result = await response.json();
+    return result.config || {};
+  } catch (err) {
+    console.warn('obtenerConfiguracionHoras:', err.message);
+    return {};
+  }
+}
+
+// ── Guardar configuración de usuarios ───────────────────────────
+async function guardarConfiguracionUsuarios(usuarios) {
+  try {
+    const params = new URLSearchParams();
+    params.set('accion', 'guardarConfigUsuarios');
+    params.set('usuarios', JSON.stringify(usuarios));
+
+    const url = SHEETS_WEBAPP_URL + '?' + params.toString();
+    const response = await fetch(url, { method: 'GET' });
+    const result = await response.json();
+    return result;
+  } catch (err) {
+    console.error('guardarConfiguracionUsuarios error:', err);
+    return { ok: false, error: err.message };
+  }
+}
+
+// ── Obtener configuración de usuarios ───────────────────────────
+async function obtenerConfiguracionUsuarios() {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+    const response = await fetch(SHEETS_WEBAPP_URL + '?accion=obtenerConfigUsuarios', { signal: controller.signal });
+    clearTimeout(timer);
+    const result = await response.json();
+    return result.usuarios || [];
+  } catch (err) {
+    console.warn('obtenerConfiguracionUsuarios:', err.message);
+    return [];
+  }
+}
+
 if (typeof module !== 'undefined') {
-  module.exports = { guardarOrden, obtenerOrdenes, cerrarOrden };
+  module.exports = { 
+    guardarOrden, 
+    obtenerOrdenes, 
+    cerrarOrden,
+    guardarConfiguracionHoras,
+    obtenerConfiguracionHoras,
+    guardarConfiguracionUsuarios,
+    obtenerConfiguracionUsuarios
+  };
 }
