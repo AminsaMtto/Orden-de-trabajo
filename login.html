@@ -306,12 +306,16 @@ async function iniciarSesion() {
     const data = await response.json();
 
     if (data.ok && data.usuario) {
-      // Guardar sesión
-      sessionStorage.setItem('aminsa_sesion', JSON.stringify({
-        usuario: data.usuario.usuario,
-        nombre:  data.usuario.nombre,
-        rol:     data.usuario.rol,
-      }));
+      // Guardar sesión con permisos
+      const sesionData = {
+        usuario:  data.usuario.usuario,
+        nombre:   data.usuario.nombre,
+        rol:      data.usuario.rol,
+        centros:  data.usuario.centros || [],
+        permisos: data.usuario.permisos || {}
+      };
+      console.log('🔍 DEPURACIÓN LOGIN - Datos de sesión:', sesionData);
+      sessionStorage.setItem('aminsa_sesion', JSON.stringify(sesionData));
       window.location.href = 'index.html';
     } else {
       errorEl.textContent = data.error || 'Usuario o contraseña incorrectos';
