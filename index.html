@@ -1168,6 +1168,28 @@
         </div>
       </div>
 
+      <!-- Cálculo MTTR -->
+      <div style="margin-bottom:20px">
+        <div style="font-family:'Inconsolata',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--texto-ter);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--borde-suave)">Cálculo MTTR (Opcional)</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Horas Efectivas</label>
+            <input type="number" id="c-horas-efectivas" placeholder="Horas reales trabajadas" min="0" step="0.5">
+          </div>
+          <div class="form-group">
+            <label>Tipo de Mantenimiento</label>
+            <select id="c-tipo-mantenimiento">
+              <option value="">— Seleccionar —</option>
+              <option value="MENOR">Mantenimiento Menor</option>
+              <option value="MAYOR">Mantenimiento Mayor</option>
+            </select>
+          </div>
+        </div>
+        <small style="font-family:'Inconsolata',monospace;font-size:9px;color:var(--texto-ter)">
+          Solo los mantenimientos menores se usan para el cálculo de MTTR. Si no se especifican horas efectivas, se calcularán automáticamente excluyendo fines de semana.
+        </small>
+      </div>
+
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="cerrarModal('modal-cerrar')">Cancelar</button>
@@ -1756,6 +1778,8 @@ async function ejecutarCierre() {
     tecnico_entrega:              tecnicoEnt,
     nombre_firma_recibe:          document.getElementById('c-quien-recibe').value,
     firma_conformidad:            document.getElementById('c-firma-conformidad').value,
+    horas_efectivas:              document.getElementById('c-horas-efectivas').value,
+    tipo_mantenimiento:           document.getElementById('c-tipo-mantenimiento').value,
   };
 
   const resultCierre = await cerrarOrden(folioSeleccionado, datosCierre);
@@ -1997,6 +2021,7 @@ function parseFecha(str) {
 
 async function actualizarMetricas() {
   const anio = new Date().getFullYear();
+  const mesActual = new Date().getMonth(); // Mes actual (0-11)
   const ordenesDelCentro = centroActual === 'GRAL' 
     ? todasLasOrdenes  // GRAL: mostrar todas las líneas juntas
     : todasLasOrdenes.filter(o => (o.centro_de_negocio || '').trim() === centroActual.trim());
@@ -2031,6 +2056,24 @@ async function actualizarMetricas() {
   });
 
   // ── MTTR por mes ──────────────────────────────────────────
+  // Función para calcular horas laborables entre dos fechas (excluyendo fines de semana)
+  function calcularHorasLaborablesEntreFechas(fechaInicio, fechaFin) {
+    let totalHoras = 0;
+    let fechaActual = new Date(fechaInicio);
+    const fechaFinObj = new Date(fechaFin);
+    
+    while (fechaActual < fechaFinObj) {
+      const diaSemana = fechaActual.getDay(); // 0 = domingo, 6 = sábado
+      if (diaSemana !== 0 && diaSemana !== 6) {
+        // Es día laboral, agregar 1 hora
+        totalHoras += 1;
+      }
+      fechaActual.setHours(fechaActual.getHours() + 1);
+    }
+    
+    return totalHoras;
+  }
+
   const mttrPorMes = Array(12).fill(null).map(() => ({ suma: 0, count: 0 }));
 
   ordenesDelCentro.forEach(o => {
@@ -2039,19 +2082,45 @@ async function actualizarMetricas() {
     if (!fecha || fecha.getFullYear() !== anio) return;
     const mes = fecha.getMonth();
 
-    const recibo  = parseHora(o.hora_recibo);
-    const entrega = parseHora(o.hora_entrega_equipo || o.hora_entrega);
-    console.log('⏰ Parseo horas - Recibo:', recibo, 'Entrega:', entrega);
-    
-    if (recibo === null || entrega === null) {
-      console.log('❌ Horas inválidas para orden:', o.folio);
+    // Verificar si es mantenimiento menor (solo estos cuentan para MTTR)
+    const tipoMantenimientoCierre = (o.tipo_mantenimiento_cierre || '').toUpperCase();
+    if (tipoMantenimientoCierre === 'MAYOR') {
+      console.log('⏭️ Orden excluida de MTTR (mantenimiento mayor):', o.folio);
       return;
     }
 
-    let diff = entrega - recibo;
-    if (diff < 0) diff += 24 * 60; // cruzó medianoche
-    const horas = diff / 60;
-    console.log('📊 Diferencia horas:', horas, 'para orden:', o.folio);
+    // Usar horas efectivas si están disponibles, si no calcular automáticamente
+    let horas = 0;
+    if (o.horas_efectivas && o.horas_efectivas !== '') {
+      horas = parseFloat(o.horas_efectivas);
+      console.log('📊 Usando horas efectivas:', horas, 'para orden:', o.folio);
+    } else {
+      // Calcular horas laborables excluyendo fines de semana
+      const recibo  = parseHora(o.hora_recibo);
+      const entrega = parseHora(o.hora_entrega_equipo || o.hora_entrega);
+      console.log('⏰ Parseo horas - Recibo:', recibo, 'Entrega:', entrega);
+      
+      if (recibo === null || entrega === null) {
+        console.log('❌ Horas inválidas para orden:', o.folio);
+        return;
+      }
+
+      // Crear fechas completas para calcular horas laborables
+      const fechaRecibo = new Date(fecha);
+      fechaRecibo.setHours(recibo.getHours(), recibo.getMinutes(), 0, 0);
+      
+      const fechaEntrega = new Date(fecha);
+      fechaEntrega.setHours(entrega.getHours(), entrega.getMinutes(), 0, 0);
+      
+      // Si la entrega es menor que el recibo, significa que cruzó al día siguiente
+      if (fechaEntrega < fechaRecibo) {
+        fechaEntrega.setDate(fechaEntrega.getDate() + 1);
+      }
+      
+      // Calcular horas laborables excluyendo fines de semana
+      horas = calcularHorasLaborablesEntreFechas(fechaRecibo, fechaEntrega);
+      console.log('📊 Horas laborables (excluyendo fines de semana):', horas, 'para orden:', o.folio);
+    }
     
     if (horas > 0 && horas < 1000) {
       mttrPorMes[mes].suma  += horas;
@@ -2102,11 +2171,11 @@ async function actualizarMetricas() {
     }
   });
 
-  // Calcular MTBF por mes usando horas laborables
+  // Calcular MTBF por mes usando horas laborables (solo hasta el mes actual)
   const mtbfPorMes = Array(12).fill(0);
   let fallasAcumuladas = 0;
 
-  for (let mes = 0; mes < 12; mes++) {
+  for (let mes = 0; mes <= mesActual; mes++) {
     fallasAcumuladas += fallasPorMes[mes];
     const horasLaborables = obtenerHorasLaborablesAcumuladas(centroActual, mes);
     
