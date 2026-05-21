@@ -2118,11 +2118,17 @@ async function actualizarMetricas() {
       }
 
       // Crear fechas completas para calcular horas laborables
+      // recibo y entrega son minutos desde medianoche, convertir a horas y minutos
+      const reciboHoras = Math.floor(recibo / 60);
+      const reciboMinutos = recibo % 60;
+      const entregaHoras = Math.floor(entrega / 60);
+      const entregaMinutos = entrega % 60;
+      
       const fechaRecibo = new Date(fecha);
-      fechaRecibo.setHours(recibo.getHours(), recibo.getMinutes(), 0, 0);
+      fechaRecibo.setHours(reciboHoras, reciboMinutos, 0, 0);
       
       const fechaEntrega = new Date(fecha);
-      fechaEntrega.setHours(entrega.getHours(), entrega.getMinutes(), 0, 0);
+      fechaEntrega.setHours(entregaHoras, entregaMinutos, 0, 0);
       
       // Si la entrega es menor que el recibo, significa que cruzó al día siguiente
       if (fechaEntrega < fechaRecibo) {
