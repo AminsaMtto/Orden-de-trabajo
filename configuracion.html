@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configuración - AMINSA</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="icon" type="image/png" href="LOGO.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Cormorant+SC:wght@300;400;500;600;700&family=IM+Fell+DW+Pica&family=Inconsolata:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --negro:       #0e0e0e;
+      --carbono:     #111111;
+      --gris-osc:    #1a1a1a;
+      --gris:        #2e2e2e;
+      --gris-med:    #4a4a4a;
+      --gris-clar:   #7a7a7a;
+      --borde:       #d8d4ce;
+      --borde-suave: #e8e4de;
+      --fondo:       #faf9f7;
+      --fondo-alt:   #f4f2ee;
+      --blanco:      #ffffff;
+      --acento:      #1a1a1a;
+      --acento2:     #8b1a1a;
+      --rojo:        #8b1a1a;
+      --rojo-clar:   #b52020;
+      --verde:       #1a4a2a;
+      --verde-clar:  #1e6b35;
+      --texto:       #1a1a1a;
+      --texto-sec:   #4a4a4a;
+      --texto-ter:   #7a7a7a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Cormorant Garamond', serif;
+      background: var(--fondo);
+      color: var(--texto);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--negro);
+      padding: 0 48px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #2e2e2e;
+      position: relative;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .header-logo {
+      width: 42px;
+      height: 42px;
+      background: var(--blanco);
+      color: var(--negro);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant SC', serif;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 1px;
+      flex-shrink: 0;
+    }
+    .header-divider {
+      width: 1px;
+      height: 32px;
+      background: rgba(255,255,255,0.2);
+    }
+    .header-text {}
+    .header-title {
+      font-family: 'Cormorant SC', serif;
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: 3px;
+      color: #ffffff;
+    }
+    .header-sub {
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px;
+      color: #666;
+      margin-top: 3px;
+      letter-spacing: 1px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    /* ── NAVEGACIÓN ── */
+    .header-nav {
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--borde);
+    }
+    .nav-link {
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 8px 16px;
+      color: var(--texto-ter);
+      border-right: 1px solid var(--borde);
+      transition: all 0.2s;
+    }
+    .nav-link:last-child { border-right: none; }
+    .nav-link:hover {
+      background: var(--fondo-alt);
+      color: var(--negro);
+    }
+    .nav-link.active {
+      background: var(--negro);
+      color: var(--blanco);
+    }
+
+    /* ── SESIÓN USUARIO ── */
+    .user-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Inconsolata', monospace;
+      font-size: 11px;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 1px;
+      border: 1px solid #333;
+      padding: 5px 12px;
+    }
+    .user-role {
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.8);
+      padding: 2px 8px;
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .btn-logout {
+      background: none;
+      border: 1px solid #444;
+      color: #666;
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px;
+      letter-spacing: 1px;
+      padding: 4px 10px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+    .btn-logout:hover { border-color: var(--rojo); color: var(--rojo-clar); }
+
+    /* ── CONTENIDO PRINCIPAL ── */
+    .main-content {
+      padding: 32px 48px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .page-title {
+      font-family: 'Cormorant SC', serif;
+      font-size: 24px;
+      font-weight: 500;
+      letter-spacing: 3px;
+      color: var(--negro);
+    }
+    .page-subtitle {
+      font-family: 'Inconsolata', monospace;
+      font-size: 11px;
+      color: var(--texto-ter);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    /* ── TABS DE CONFIGURACIÓN ── */
+    .config-tabs {
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--borde);
+      margin-bottom: 24px;
+    }
+    .config-tab {
+      padding: 10px 24px;
+      font-family: 'Inconsolata', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      border-right: 1px solid var(--borde);
+      background: transparent;
+      color: var(--texto-ter);
+      transition: all 0.2s;
+    }
+    .config-tab:last-child { border-right: none; }
+    .config-tab.active {
+      background: var(--negro);
+      color: var(--blanco);
+    }
+    .config-tab:hover:not(.active) {
+      background: var(--fondo-alt);
+      color: var(--negro);
+    }
+
+    /* ── SECCIONES ── */
+    .config-section {
+      display: none;
+    }
+    .config-section.active {
+      display: block;
+    }
+
+    .section-card {
+      background: var(--blanco);
+      border: 1px solid var(--borde);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--borde-suave);
+    }
+    .section-title {
+      font-family: 'Cormorant SC', serif;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      color: var(--negro);
+    }
+    .section-desc {
+      font-family: 'Inconsolata', monospace;
+      font-size: 11px;
+      color: var(--texto-ter);
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    /* ── TABLA DE HORAS ── */
+    .horas-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .horas-table thead tr {
+      background: var(--negro);
+    }
+    .horas-table th {
+      padding: 12px 16px;
+      text-align: left;
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.6);
+      white-space: nowrap;
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+    .horas-table th:last-child { border-right: none; }
+    .horas-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--borde-suave);
+      border-right: 1px solid rgba(216,212,206,0.4);
+      vertical-align: middle;
+      color: var(--texto);
+      font-family: 'Cormorant Garamond', serif;
+    }
+    .horas-table td:last-child { border-right: none; }
+    .horas-table tbody tr:hover { background: var(--fondo-alt); }
+
+    .horas-input {
+      width: 70px;
+      padding: 6px 8px;
+      border: 1px solid var(--borde);
+      font-family: 'Inconsolata', monospace;
+      font-size: 12px;
+      text-align: center;
+      background: var(--fondo);
+      color: var(--negro);
+      transition: border-color 0.2s;
+    }
+    .horas-input:focus {
+      outline: none;
+      border-color: var(--negro);
+      background: var(--blanco);
+    }
+
+    /* ── TABLA DE USUARIOS ── */
+    .usuarios-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .usuarios-table thead tr {
+      background: var(--negro);
+    }
+    .usuarios-table th {
+      padding: 12px 16px;
+      text-align: left;
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.6);
+      white-space: nowrap;
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+    .usuarios-table th:last-child { border-right: none; }
+    .usuarios-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--borde-suave);
+      border-right: 1px solid rgba(216,212,206,0.4);
+      vertical-align: middle;
+      color: var(--texto);
+      font-family: 'Cormorant Garamond', serif;
+    }
+    .usuarios-table td:last-child { border-right: none; }
+    .usuarios-table tbody tr:hover { background: var(--fondo-alt); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      font-family: 'Inconsolata', monospace;
+      font-size: 9px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border: 1px solid;
+    }
+    .badge-admin { background: #f0f0f0; color: var(--negro); border-color: #999; }
+    .badge-tecnico { background: #f0faf4; color: var(--verde); border-color: #a0d8b0; }
+    .badge-usuario { background: #f0f4fd; color: #1a3a7a; border-color: #a0b8e0; }
+
+    /* ── BOTONES ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      font-family: 'Inconsolata', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--negro);
+      color: var(--blanco);
+      border-color: var(--negro);
+    }
+    .btn-primary:hover {
+      background: #333;
+      border-color: #333;
+    }
+    .btn-danger {
+      background: transparent;
+      color: var(--rojo-clar);
+      border: 1px solid var(--rojo);
+    }
+    .btn-danger:hover { background: var(--rojo); color: var(--blanco); }
+    .btn-success {
+      background: transparent;
+      color: var(--verde-clar);
+      border: 1px solid var(--verde);
+    }
+    .btn-success:hover { background: var(--verde); color: var(--blanco); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--texto-sec);
+      border: 1px solid var(--borde);
+    }
+    .btn-ghost:hover { background: var(--blanco); border-color: #aaa; color: var(--negro); }
+    .btn-sm {
+      padding: 4px 12px;
+      font-size: 10px;
+      letter-spacing: 1px;
+    }
+
+    /* ── FORMULARIO ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--texto-ter);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    input[type="text"], input[type="password"], select {
+      padding: 9px 16px;
+      border: 1px solid var(--borde);
+      font-size: 14px;
+      font-family: 'Cormorant Garamond', serif;
+      background: var(--fondo);
+      color: var(--negro);
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--negro);
+      background: var(--blanco);
+    }
+
+    /* ── CHECKBOX DE PERMISOS ── */
+    .permisos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .permiso-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--fondo);
+      border: 1px solid var(--borde);
+    }
+    .permiso-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+    .permiso-item label {
+      font-size: 11px;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10,10,10,0.6);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(3px);
+    }
+    .modal-overlay.visible { display: flex; }
+
+    .modal {
+      background: var(--blanco);
+      border: 1px solid var(--borde);
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      background: var(--negro);
+      color: var(--blanco);
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-header h2 {
+      font-family: 'Cormorant SC', serif;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 2.5px;
+      color: #fff;
+    }
+    .modal-close {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      width: 28px;
+      height: 28px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.4); }
+    .modal-body { padding: 28px; }
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--borde-suave);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      background: var(--fondo-alt);
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: var(--negro);
+      color: var(--blanco);
+      padding: 12px 20px 12px 16px;
+      font-family: 'Inconsolata', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      border-left: 3px solid rgba(255,255,255,0.3);
+      transform: translateX(120%);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 9999;
+      max-width: 340px;
+    }
+    .toast.show { transform: translateX(0); opacity: 1; }
+    .toast.error   { border-left-color: var(--rojo-clar); }
+    .toast.success { border-left-color: var(--verde-clar); }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: var(--fondo); }
+    ::-webkit-scrollbar-thumb { background: var(--borde); }
+    ::-webkit-scrollbar-thumb:hover { background: #aaa; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-brand">
+    <img src="LOGO.png" style="width:70px;height:70px;object-fit:contain;">
+    <div class="header-divider"></div>
+    <div class="header-text">
+      <div class="header-title">Configuración</div>
+      <div class="header-sub">SISTEMA DE GESTIÓN</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="header-nav">
+      <a href="index.html" class="nav-link">Órdenes</a>
+      <a href="https://aminsamtto.github.io/Mtto-preventivo/" class="nav-link">Preventivos</a>
+      <a href="https://aminsamtto.github.io/Almacen-Refacciones/" class="nav-link">Refacciones</a>
+      <a href="configuracion.html" class="nav-link active">Configuración</a>
+    </div>
+    <div class="user-pill" id="user-pill">
+      <span id="user-nombre">—</span>
+      <span class="user-role" id="user-rol">—</span>
+      <button class="btn-logout" onclick="cerrarSesion()">Salir</button>
+    </div>
+  </div>
+</header>
+
+<!-- CONTENIDO PRINCIPAL -->
+<div class="main-content">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Configuración del Sistema</h1>
+      <p class="page-subtitle">Solo visible para Administradores</p>
+    </div>
+  </div>
+
+  <!-- TABS DE CONFIGURACIÓN -->
+  <div class="config-tabs">
+    <button class="config-tab active" onclick="cambiarTab('horas', this)">Horas Laborables</button>
+    <button class="config-tab" onclick="cambiarTab('usuarios', this)">Gestión de Usuarios</button>
+  </div>
+
+  <!-- SECCIÓN: HORAS LABORABLES -->
+  <div class="config-section active" id="section-horas">
+    <div class="section-card">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Horas Laborables por Centro</h2>
+          <p class="section-desc">Configura las horas de trabajo mensuales para cada centro de negocio (usado en cálculo de MTBF)</p>
+        </div>
+        <button class="btn btn-primary" onclick="guardarHoras()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+          Guardar Cambios
+        </button>
+      </div>
+
+      <table class="horas-table">
+        <thead>
+          <tr>
+            <th>Centro de Negocio</th>
+            <th>Ene</th>
+            <th>Feb</th>
+            <th>Mar</th>
+            <th>Abr</th>
+            <th>May</th>
+            <th>Jun</th>
+            <th>Jul</th>
+            <th>Ago</th>
+            <th>Sep</th>
+            <th>Oct</th>
+            <th>Nov</th>
+            <th>Dic</th>
+            <th>Total Anual</th>
+          </tr>
+        </thead>
+        <tbody id="horas-tbody">
+          <!-- Se llena dinámicamente -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECCIÓN: GESTIÓN DE USUARIOS -->
+  <div class="config-section" id="section-usuarios">
+    <div class="section-card">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Gestión de Usuarios</h2>
+          <p class="section-desc">Crear, editar y eliminar usuarios con permisos detallados</p>
+        </div>
+        <button class="btn btn-primary" onclick="abrirModalUsuario()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          Nuevo Usuario
+        </button>
+      </div>
+
+      <table class="usuarios-table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Nombre</th>
+            <th>Rol</th>
+            <th>Centros Permitidos</th>
+            <th>Permisos</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="usuarios-tbody">
+          <!-- Se llena dinámicamente -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL USUARIO -->
+<div class="modal-overlay" id="modal-usuario">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-usuario-title">Nuevo Usuario</h2>
+      <button class="modal-close" onclick="cerrarModal('modal-usuario')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="usuario-id">
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Usuario *</label>
+          <input type="text" id="usuario-usuario" placeholder="Nombre de usuario">
+        </div>
+        <div class="form-group">
+          <label>Nombre Completo *</label>
+          <input type="text" id="usuario-nombre" placeholder="Nombre completo">
+        </div>
+        <div class="form-group">
+          <label>Contraseña *</label>
+          <input type="password" id="usuario-password" placeholder="Contraseña">
+        </div>
+        <div class="form-group">
+          <label>Rol *</label>
+          <select id="usuario-rol">
+            <option value="">Seleccionar...</option>
+            <option value="Administrador">Administrador</option>
+            <option value="Técnico">Técnico</option>
+            <option value="Usuario">Usuario</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label>Centros de Negocio Permitidos</label>
+        <select id="usuario-centros" multiple style="height: 120px;">
+          <option value="Zinc">Zinc</option>
+          <option value="Cromo">Cromo</option>
+          <option value="Doblado de Tubo">Doblado de Tubo</option>
+          <option value="Oficinas">Oficinas</option>
+          <option value="Planta Pre-Tratamiento">Planta Pre-Tratamiento</option>
+          <option value="Planta de Tratamiento">Planta de Tratamiento</option>
+          <option value="Andenes y Patio de Maniobras">Andenes y Patio de Maniobras</option>
+          <option value="Laboratorio">Laboratorio</option>
+          <option value="Obra Civil">Obra Civil</option>
+          <option value="Area Periferica a la Planta">Área Periférica</option>
+          <option value="Otros">Otros</option>
+        </select>
+        <small style="font-family: 'Inconsolata', monospace; font-size: 10px; color: var(--texto-ter);">Ctrl+Click para seleccionar múltiples</small>
+      </div>
+
+      <div class="form-group">
+        <label>Permisos Especiales</label>
+        <div class="permisos-grid">
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-ver-ordenes" checked>
+            <label for="perm-ver-ordenes">Ver Órdenes</label>
+          </div>
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-crear-ordenes">
+            <label for="perm-crear-ordenes">Crear Órdenes</label>
+          </div>
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-editar-ordenes">
+            <label for="perm-editar-ordenes">Editar Órdenes</label>
+          </div>
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-cerrar-ordenes">
+            <label for="perm-cerrar-ordenes">Cerrar Órdenes</label>
+          </div>
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-eliminar-ordenes">
+            <label for="perm-eliminar-ordenes">Eliminar Órdenes</label>
+          </div>
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-ver-metricas" checked>
+            <label for="perm-ver-metricas">Ver Métricas</label>
+          </div>
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-ver-config">
+            <label for="perm-ver-config">Ver Configuración</label>
+          </div>
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-exportar">
+            <label for="perm-exportar">Exportar Datos</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cerrarModal('modal-usuario')">Cancelar</button>
+      <button class="btn btn-success" onclick="guardarUsuario()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Guardar Usuario
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="sheets.js"></script>
+<script>
+// ── Variables globales ─────────────────────────────────────────
+let sesionActual = null;
+let configuracionHoras = {};
+let usuarios = [];
+
+const CENTROS = [
+  'Zinc', 'Cromo', 'Doblado de Tubo', 'Oficinas',
+  'Planta Pre-Tratamiento', 'Planta de Tratamiento',
+  'Andenes y Patio de Maniobras', 'Laboratorio',
+  'Obra Civil', 'Area Periferica a la Planta', 'Otros'
+];
+
+const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+// ── Verificar sesión ────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  verificarSesion();
+  cargarConfiguracion();
+  cargarUsuarios();
+});
+
+function verificarSesion() {
+  const raw = sessionStorage.getItem('aminsa_sesion');
+  if (!raw) {
+    window.location.href = 'login.html';
+    return false;
+  }
+  sesionActual = JSON.parse(raw);
+  
+  // Solo administradores pueden acceder
+  if (sesionActual.rol !== 'Administrador') {
+    alert('Solo los administradores pueden acceder a la configuración');
+    window.location.href = 'index.html';
+    return false;
+  }
+  
+  document.getElementById('user-nombre').textContent = sesionActual.nombre;
+  document.getElementById('user-rol').textContent = sesionActual.rol;
+  return true;
+}
+
+function cerrarSesion() {
+  sessionStorage.removeItem('aminsa_sesion');
+  window.location.href = 'login.html';
+}
+
+// ── Tabs ────────────────────────────────────────────────────────
+function cambiarTab(tab, btn) {
+  document.querySelectorAll('.config-tab').forEach(b => b.classList.remove('activo'));
+  document.querySelectorAll('.config-section').forEach(s => s.classList.remove('active'));
+  
+  btn.classList.add('active');
+  document.getElementById('section-' + tab).classList.add('active');
+}
+
+// ── Configuración de Horas ─────────────────────────────────────
+async function cargarConfiguracion() {
+  try {
+    // Cargar desde Google Sheets
+    const config = await obtenerConfiguracionHoras();
+    if (Object.keys(config).length > 0) {
+      configuracionHoras = config;
+    } else {
+      // Valores por defecto: 160 horas por mes (8 horas x 20 días)
+      CENTROS.forEach(centro => {
+        configuracionHoras[centro] = Array(12).fill(160);
+      });
+    }
+  } catch(e) {
+    console.warn('Error al cargar configuración de horas:', e);
+    // Valores por defecto
+    CENTROS.forEach(centro => {
+      configuracionHoras[centro] = Array(12).fill(160);
+    });
+  }
+  
+  renderHorasTable();
+}
+
+function renderHorasTable() {
+  const tbody = document.getElementById('horas-tbody');
+  tbody.innerHTML = CENTROS.map(centro => {
+    const horas = configuracionHoras[centro] || Array(12).fill(160);
+    const total = horas.reduce((a, b) => a + b, 0);
+    
+    return `
+      <tr>
+        <td><strong>${centro}</strong></td>
+        ${horas.map((h, i) => `
+          <td>
+            <input type="number" class="horas-input" 
+                   data-centro="${centro}" data-mes="${i}" 
+                   value="${h}" min="0" max="744">
+          </td>
+        `).join('')}
+        <td><strong>${total}</strong></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+async function guardarHoras() {
+  // Leer todos los inputs
+  document.querySelectorAll('.horas-input').forEach(input => {
+    const centro = input.dataset.centro;
+    const mes = parseInt(input.dataset.mes);
+    const valor = parseInt(input.value) || 0;
+    
+    if (!configuracionHoras[centro]) {
+      configuracionHoras[centro] = Array(12).fill(160);
+    }
+    configuracionHoras[centro][mes] = valor;
+  });
+  
+  try {
+    // Guardar en Google Sheets
+    const result = await guardarConfiguracionHoras(configuracionHoras);
+    if (result && result.ok) {
+      mostrarToast('Configuración de horas guardada correctamente', 'success');
+    } else {
+      mostrarToast('Error al guardar en Google Sheets: ' + (result ? result.error : 'desconocido'), 'error');
+    }
+  } catch(e) {
+    mostrarToast('Error de conexión al guardar', 'error');
+  }
+  
+  renderHorasTable();
+}
+
+// ── Gestión de Usuarios ─────────────────────────────────────────
+async function cargarUsuarios() {
+  try {
+    // Cargar desde Google Sheets
+    const usuariosData = await obtenerConfiguracionUsuarios();
+    if (usuariosData && usuariosData.length > 0) {
+      usuarios = usuariosData;
+    } else {
+      // Usuario admin por defecto
+      usuarios = [
+        {
+          id: '1',
+          usuario: 'admin',
+          nombre: 'Administrador',
+          password: 'aminsa2025',
+          rol: 'Administrador',
+          centros: CENTROS,
+          permisos: {
+            ver_ordenes: true,
+            crear_ordenes: true,
+            editar_ordenes: true,
+            cerrar_ordenes: true,
+            eliminar_ordenes: true,
+            ver_metricas: true,
+            ver_config: true,
+            exportar: true
+          }
+        }
+      ];
+    }
+  } catch(e) {
+    console.warn('Error al cargar usuarios:', e);
+    // Usuario admin por defecto
+    usuarios = [
+      {
+        id: '1',
+        usuario: 'admin',
+        nombre: 'Administrador',
+        password: 'aminsa2025',
+        rol: 'Administrador',
+        centros: CENTROS,
+        permisos: {
+          ver_ordenes: true,
+          crear_ordenes: true,
+          editar_ordenes: true,
+          cerrar_ordenes: true,
+          eliminar_ordenes: true,
+          ver_metricas: true,
+          ver_config: true,
+          exportar: true
+        }
+      }
+    ];
+  }
+  
+  renderUsuariosTable();
+}
+
+function renderUsuariosTable() {
+  const tbody = document.getElementById('usuarios-tbody');
+  tbody.innerHTML = usuarios.map(u => {
+    const badgeClass = u.rol === 'Administrador' ? 'badge-admin' : 
+                      u.rol === 'Técnico' ? 'badge-tecnico' : 'badge-usuario';
+    
+    const centrosTexto = u.centros && u.centros.length > 0 
+      ? u.centros.slice(0, 3).join(', ') + (u.centros.length > 3 ? '...' : '')
+      : 'Todos';
+    
+    const permisosActivos = Object.entries(u.permisos || {})
+      .filter(([k, v]) => v)
+      .map(([k, v]) => k.replace(/_/g, ' '))
+      .slice(0, 3)
+      .join(', ');
+    
+    return `
+      <tr>
+        <td><strong>${u.usuario}</strong></td>
+        <td>${u.nombre}</td>
+        <td><span class="badge ${badgeClass}">${u.rol}</span></td>
+        <td>${centrosTexto}</td>
+        <td style="font-size: 11px; font-family: 'Inconsolata', monospace;">${permisosActivos}</td>
+        <td>
+          <div style="display: flex; gap: 5px;">
+            <button class="btn btn-sm btn-ghost" onclick="editarUsuario('${u.id}')">Editar</button>
+            ${u.usuario !== 'admin' ? `
+              <button class="btn btn-sm btn-danger" onclick="eliminarUsuario('${u.id}')">Eliminar</button>
+            ` : ''}
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function abrirModalUsuario(usuarioId = null) {
+  const modal = document.getElementById('modal-usuario');
+  const title = document.getElementById('modal-usuario-title');
+  
+  // Limpiar formulario
+  document.getElementById('usuario-id').value = '';
+  document.getElementById('usuario-usuario').value = '';
+  document.getElementById('usuario-nombre').value = '';
+  document.getElementById('usuario-password').value = '';
+  document.getElementById('usuario-rol').value = '';
+  document.getElementById('usuario-centros').selectedIndex = -1;
+  
+  // Reset checkboxes
+  document.querySelectorAll('.permiso-item input[type="checkbox"]').forEach(cb => cb.checked = false);
+  document.getElementById('perm-ver-ordenes').checked = true;
+  document.getElementById('perm-ver-metricas').checked = true;
+  
+  if (usuarioId) {
+    // Editar usuario existente
+    const usuario = usuarios.find(u => u.id === usuarioId);
+    if (usuario) {
+      title.textContent = 'Editar Usuario';
+      document.getElementById('usuario-id').value = usuario.id;
+      document.getElementById('usuario-usuario').value = usuario.usuario;
+      document.getElementById('usuario-nombre').value = usuario.nombre;
+      document.getElementById('usuario-password').value = usuario.password;
+      document.getElementById('usuario-rol').value = usuario.rol;
+      
+      // Seleccionar centros
+      if (usuario.centros) {
+        Array.from(document.getElementById('usuario-centros').options).forEach(opt => {
+          opt.selected = usuario.centros.includes(opt.value);
+        });
+      }
+      
+      // Marcar permisos
+      if (usuario.permisos) {
+        Object.entries(usuario.permisos).forEach(([key, value]) => {
+          const cb = document.getElementById('perm-' + key);
+          if (cb) cb.checked = value;
+        });
+      }
+    }
+  } else {
+    title.textContent = 'Nuevo Usuario';
+  }
+  
+  modal.classList.add('visible');
+}
+
+function editarUsuario(id) {
+  abrirModalUsuario(id);
+}
+
+async function eliminarUsuario(id) {
+  if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
+  
+  usuarios = usuarios.filter(u => u.id !== id);
+  
+  try {
+    const result = await guardarConfiguracionUsuarios(usuarios);
+    if (result && result.ok) {
+      renderUsuariosTable();
+      mostrarToast('Usuario eliminado correctamente', 'success');
+    } else {
+      mostrarToast('Error al guardar en Google Sheets: ' + (result ? result.error : 'desconocido'), 'error');
+    }
+  } catch(e) {
+    mostrarToast('Error de conexión al guardar', 'error');
+  }
+}
+
+async function guardarUsuario() {
+  const id = document.getElementById('usuario-id').value;
+  const usuario = document.getElementById('usuario-usuario').value.trim();
+  const nombre = document.getElementById('usuario-nombre').value.trim();
+  const password = document.getElementById('usuario-password').value.trim();
+  const rol = document.getElementById('usuario-rol').value;
+  
+  if (!usuario || !nombre || !password || !rol) {
+    mostrarToast('Completa todos los campos obligatorios', 'error');
+    return;
+  }
+  
+  // Obtener centros seleccionados
+  const centrosSelect = document.getElementById('usuario-centros');
+  const centros = Array.from(centrosSelect.selectedOptions).map(opt => opt.value);
+  
+  // Obtener permisos
+  const permisos = {
+    ver_ordenes: document.getElementById('perm-ver-ordenes').checked,
+    crear_ordenes: document.getElementById('perm-crear-ordenes').checked,
+    editar_ordenes: document.getElementById('perm-editar-ordenes').checked,
+    cerrar_ordenes: document.getElementById('perm-cerrar-ordenes').checked,
+    eliminar_ordenes: document.getElementById('perm-eliminar-ordenes').checked,
+    ver_metricas: document.getElementById('perm-ver-metricas').checked,
+    ver_config: document.getElementById('perm-ver-config').checked,
+    exportar: document.getElementById('perm-exportar').checked
+  };
+  
+  if (id) {
+    // Editar existente
+    const index = usuarios.findIndex(u => u.id === id);
+    if (index !== -1) {
+      usuarios[index] = { ...usuarios[index], usuario, nombre, password, rol, centros, permisos };
+    }
+  } else {
+    // Nuevo usuario
+    const nuevoUsuario = {
+      id: Date.now().toString(),
+      usuario,
+      nombre,
+      password,
+      rol,
+      centros: centros.length > 0 ? centros : CENTROS,
+      permisos
+    };
+    usuarios.push(nuevoUsuario);
+  }
+  
+  try {
+    const result = await guardarConfiguracionUsuarios(usuarios);
+    if (result && result.ok) {
+      renderUsuariosTable();
+      cerrarModal('modal-usuario');
+      mostrarToast('Usuario guardado correctamente', 'success');
+    } else {
+      mostrarToast('Error al guardar en Google Sheets: ' + (result ? result.error : 'desconocido'), 'error');
+    }
+  } catch(e) {
+    mostrarToast('Error de conexión al guardar', 'error');
+  }
+}
+
+// ── Modal ───────────────────────────────────────────────────────
+function cerrarModal(id) {
+  document.getElementById(id).classList.remove('visible');
+}
+
+// ── Toast ────────────────────────────────────────────────────────
+function mostrarToast(msg, tipo = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${tipo}`;
+  setTimeout(() => t.className = 'toast', 3500);
+}
+</script>
+</body>
+</html>
