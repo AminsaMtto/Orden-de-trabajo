@@ -781,8 +781,8 @@
   <div class="header-right">
     <div class="header-nav">
       <a href="index.html" class="nav-link active">Órdenes</a>
-      <a href="https://aminsamtto.github.io/Mtto-preventivo/" class="nav-link">Preventivos</a>
-      <a href="https://aminsamtto.github.io/Almacen-Refacciones/" class="nav-link">Refacciones</a>
+      <a href="preventivos.html" class="nav-link" id="nav-preventivos" style="display:none;">Preventivos</a>
+      <a href="refacciones.html" class="nav-link" id="nav-refacciones" style="display:none;">Refacciones</a>
       <a href="configuracion.html" class="nav-link" id="nav-config" style="display:none;">Configuración</a>
     </div>
     <div class="user-pill" id="user-pill">
@@ -1385,8 +1385,8 @@ function aplicarRestriccionesRol() {
   
   // Aplicar permisos de pestañas (personalizados por usuario, no solo por rol)
   const navOrdenes = document.querySelector('.header-nav a[href="index.html"]');
-  const navPreventivos = document.querySelector('.header-nav a[href*="Mtto-preventivo"]');
-  const navRefacciones = document.querySelector('.header-nav a[href*="Almacen-Refacciones"]');
+  const navPreventivos = document.getElementById('nav-preventivos');
+  const navRefacciones = document.getElementById('nav-refacciones');
   const navConfig = document.getElementById('nav-config');
   
   console.log('🔍 DEPURACIÓN INDEX - navOrdenes:', navOrdenes);
@@ -1399,12 +1399,12 @@ function aplicarRestriccionesRol() {
     console.log('🔍 DEPURACIÓN INDEX - Órdenes visible:', permisos.ver_ordenes_tab !== false);
   }
   if (navPreventivos) {
-    navPreventivos.style.display = permisos.ver_preventivos ? 'block' : 'none';
-    console.log('🔍 DEPURACIÓN INDEX - Preventivos visible:', permisos.ver_preventivos);
+    navPreventivos.style.display = permisos.ver_preventivos_tab ? 'block' : 'none';
+    console.log('🔍 DEPURACIÓN INDEX - Preventivos visible:', permisos.ver_preventivos_tab);
   }
   if (navRefacciones) {
-    navRefacciones.style.display = permisos.ver_refacciones ? 'block' : 'none';
-    console.log('🔍 DEPURACIÓN INDEX - Refacciones visible:', permisos.ver_refacciones);
+    navRefacciones.style.display = permisos.ver_refacciones_tab ? 'block' : 'none';
+    console.log('🔍 DEPURACIÓN INDEX - Refacciones visible:', permisos.ver_refacciones_tab);
   }
   if (navConfig) {
     navConfig.style.display = permisos.ver_config_tab ? 'block' : 'none';
