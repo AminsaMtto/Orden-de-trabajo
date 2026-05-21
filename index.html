@@ -1362,6 +1362,9 @@ function aplicarRestriccionesRol() {
   const rol = sesionActual.rol;
   const permisos = sesionActual.permisos || {};
   
+  console.log('🔍 DEPURACIÓN INDEX - Rol:', rol);
+  console.log('🔍 DEPURACIÓN INDEX - Permisos:', permisos);
+  
   // CORREGIDO: Administrador y Técnico pueden cerrar órdenes, solo Administrador puede eliminar
   if (rol !== 'Administrador' && rol !== 'Técnico') {
     document.querySelectorAll('.btn-cerrar-rol').forEach(b => b.style.display = 'none');
@@ -1376,17 +1379,26 @@ function aplicarRestriccionesRol() {
   const navRefacciones = document.querySelector('.header-nav a[href*="Almacen-Refacciones"]');
   const navConfig = document.getElementById('nav-config');
   
+  console.log('🔍 DEPURACIÓN INDEX - navOrdenes:', navOrdenes);
+  console.log('🔍 DEPURACIÓN INDEX - navPreventivos:', navPreventivos);
+  console.log('🔍 DEPURACIÓN INDEX - navRefacciones:', navRefacciones);
+  console.log('🔍 DEPURACIÓN INDEX - navConfig:', navConfig);
+  
   if (navOrdenes) {
     navOrdenes.style.display = permisos.ver_ordenes_tab !== false ? 'block' : 'none';
+    console.log('🔍 DEPURACIÓN INDEX - Órdenes visible:', permisos.ver_ordenes_tab !== false);
   }
   if (navPreventivos) {
     navPreventivos.style.display = permisos.ver_preventivos ? 'block' : 'none';
+    console.log('🔍 DEPURACIÓN INDEX - Preventivos visible:', permisos.ver_preventivos);
   }
   if (navRefacciones) {
     navRefacciones.style.display = permisos.ver_refacciones ? 'block' : 'none';
+    console.log('🔍 DEPURACIÓN INDEX - Refacciones visible:', permisos.ver_refacciones);
   }
   if (navConfig) {
     navConfig.style.display = permisos.ver_config_tab ? 'block' : 'none';
+    console.log('🔍 DEPURACIÓN INDEX - Config visible:', permisos.ver_config_tab);
   }
 }
 
