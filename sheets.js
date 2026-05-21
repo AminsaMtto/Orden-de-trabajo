@@ -1,4 +1,4 @@
-const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwNQgF7wm7h5QQT6zPgB_9xn5Yi9XpfaTrBdQmCqBUOHFIvWxESafrOuhFkbArkKTdGIQ/exec';
+const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbz6EcqTNd6ybBfv5Ul2xMkmTEEGl6qr8r1Mzqj-MrJzOiKZmfA0L2LxK_Edm9xPBUO90A/exec';
 
 // ── Guardar orden ──────────────────────────────────────────────
 // Divide los datos en campos individuales para no exceder el límite de URL
@@ -145,8 +145,13 @@ async function guardarConfiguracionUsuarios(usuarios) {
     params.set('accion', 'guardarConfigUsuarios');
     params.set('usuarios', JSON.stringify(usuarios));
 
-    const url = SHEETS_WEBAPP_URL + '?' + params.toString();
-    const response = await fetch(url, { method: 'GET' });
+    const response = await fetch(SHEETS_WEBAPP_URL, {
+      method: 'POST',
+      body: params,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
     const result = await response.json();
     return result;
   } catch (err) {
