@@ -840,12 +840,15 @@ function verificarSesion() {
   }
   sesionActual = JSON.parse(raw);
   
-  // Verificar permiso para ver configuración
-  const permisos = sesionActual.permisos || {};
-  if (!permisos.ver_config_tab) {
-    alert('No tienes permiso para acceder a la configuración');
-    window.location.href = 'index.html';
-    return false;
+  // Los administradores siempre pueden acceder a configuración
+  // Otros usuarios necesitan permiso específico
+  if (sesionActual.rol !== 'Administrador') {
+    const permisos = sesionActual.permisos || {};
+    if (!permisos.ver_config_tab) {
+      alert('No tienes permiso para acceder a la configuración');
+      window.location.href = 'index.html';
+      return false;
+    }
   }
   
   document.getElementById('user-nombre').textContent = sesionActual.nombre;
