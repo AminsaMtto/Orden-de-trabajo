@@ -793,6 +793,14 @@
             <label for="perm-ver_tiempo_duracion">Ver Tiempo Duración</label>
           </div>
           <div class="permiso-item">
+            <input type="checkbox" id="perm-ver_preventivos_tab">
+            <label for="perm-ver_preventivos_tab">Ver Preventivos</label>
+          </div>
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-ver_refacciones_tab">
+            <label for="perm-ver_refacciones_tab">Ver Refacciones</label>
+          </div>
+          <div class="permiso-item">
             <input type="checkbox" id="perm-exportar">
             <label for="perm-exportar">Exportar Datos</label>
           </div>
@@ -1146,6 +1154,8 @@ async function guardarUsuario() {
     ver_config_tab: document.getElementById('perm-ver-config-tab').checked,
     ver_metricas: document.getElementById('perm-ver-metricas').checked,
     ver_tiempo_duracion: document.getElementById('perm-ver-tiempo-duracion').checked,
+    ver_preventivos_tab: document.getElementById('perm-ver_preventivos_tab').checked,
+    ver_refacciones_tab: document.getElementById('perm-ver_refacciones_tab').checked,
     exportar: document.getElementById('perm-exportar').checked
   };
   
