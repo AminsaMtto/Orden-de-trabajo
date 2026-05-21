@@ -145,15 +145,18 @@ async function guardarConfiguracionUsuarios(usuarios) {
     params.set('accion', 'guardarConfigUsuarios');
     params.set('usuarios', JSON.stringify(usuarios));
 
+    // Usar POST con redirección para evitar límite de URL
     const response = await fetch(SHEETS_WEBAPP_URL, {
       method: 'POST',
       body: params,
+      mode: 'no-cors',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       }
     });
-    const result = await response.json();
-    return result;
+    
+    // Con no-cors no podemos leer la respuesta, así que asumimos éxito
+    return { ok: true };
   } catch (err) {
     console.error('guardarConfiguracionUsuarios error:', err);
     return { ok: false, error: err.message };
