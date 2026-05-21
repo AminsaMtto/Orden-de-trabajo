@@ -734,7 +734,7 @@
       </div>
 
       <div class="form-group">
-        <label>Permisos Especiales</label>
+        <label>Permisos de Órdenes</label>
         <div class="permisos-grid">
           <div class="permiso-item">
             <input type="checkbox" id="perm-ver-ordenes" checked>
@@ -756,13 +756,37 @@
             <input type="checkbox" id="perm-eliminar-ordenes">
             <label for="perm-eliminar-ordenes">Eliminar Órdenes</label>
           </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Permisos de Pestañas</label>
+        <div class="permisos-grid">
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-ver-ordenes-tab" checked>
+            <label for="perm-ver-ordenes-tab">Pestaña Órdenes</label>
+          </div>
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-ver-preventivos">
+            <label for="perm-ver-preventivos">Pestaña Preventivos</label>
+          </div>
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-ver-refacciones">
+            <label for="perm-ver-refacciones">Pestaña Refacciones</label>
+          </div>
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-ver-config-tab">
+            <label for="perm-ver-config-tab">Pestaña Configuración</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Permisos Adicionales</label>
+        <div class="permisos-grid">
           <div class="permiso-item">
             <input type="checkbox" id="perm-ver-metricas" checked>
             <label for="perm-ver-metricas">Ver Métricas</label>
-          </div>
-          <div class="permiso-item">
-            <input type="checkbox" id="perm-ver-config">
-            <label for="perm-ver-config">Ver Configuración</label>
           </div>
           <div class="permiso-item">
             <input type="checkbox" id="perm-exportar">
@@ -816,9 +840,10 @@ function verificarSesion() {
   }
   sesionActual = JSON.parse(raw);
   
-  // Solo administradores pueden acceder
-  if (sesionActual.rol !== 'Administrador') {
-    alert('Solo los administradores pueden acceder a la configuración');
+  // Verificar permiso para ver configuración
+  const permisos = sesionActual.permisos || {};
+  if (!permisos.ver_config_tab) {
+    alert('No tienes permiso para acceder a la configuración');
     window.location.href = 'index.html';
     return false;
   }
@@ -1025,6 +1050,7 @@ function abrirModalUsuario(usuarioId = null) {
   // Reset checkboxes
   document.querySelectorAll('.permiso-item input[type="checkbox"]').forEach(cb => cb.checked = false);
   document.getElementById('perm-ver-ordenes').checked = true;
+  document.getElementById('perm-ver-ordenes-tab').checked = true;
   document.getElementById('perm-ver-metricas').checked = true;
   
   if (usuarioId) {
@@ -1105,8 +1131,11 @@ async function guardarUsuario() {
     editar_ordenes: document.getElementById('perm-editar-ordenes').checked,
     cerrar_ordenes: document.getElementById('perm-cerrar-ordenes').checked,
     eliminar_ordenes: document.getElementById('perm-eliminar-ordenes').checked,
+    ver_ordenes_tab: document.getElementById('perm-ver-ordenes-tab').checked,
+    ver_preventivos: document.getElementById('perm-ver-preventivos').checked,
+    ver_refacciones: document.getElementById('perm-ver-refacciones').checked,
+    ver_config_tab: document.getElementById('perm-ver-config-tab').checked,
     ver_metricas: document.getElementById('perm-ver-metricas').checked,
-    ver_config: document.getElementById('perm-ver-config').checked,
     exportar: document.getElementById('perm-exportar').checked
   };
   
