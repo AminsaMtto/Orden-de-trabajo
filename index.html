@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Órdenes de Trabajo - AMINSA</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="auth.js"></script>
   <link rel="icon" type="image/png" href="LOGO.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Cormorant+SC:wght@300;400;500;600;700&family=IM+Fell+DW+Pica&family=Inconsolata:wght@300;400;500&display=swap" rel="stylesheet">
@@ -781,8 +782,8 @@
   <div class="header-right">
     <div class="header-nav">
       <a href="index.html" class="nav-link active">Órdenes</a>
-      <a href="preventivos.html" class="nav-link" id="nav-preventivos" style="display:none;">Preventivos</a>
-      <a href="refacciones.html" class="nav-link" id="nav-refacciones" style="display:none;">Refacciones</a>
+      <a href="https://aminsamtto.github.io/Mtto-preventivo/" class="nav-link">Preventivos</a>
+      <a href="https://aminsamtto.github.io/Almacen-Refacciones/index.html" class="nav-link">Refacciones</a>
       <a href="configuracion.html" class="nav-link" id="nav-config" style="display:none;">Configuración</a>
     </div>
     <div class="user-pill" id="user-pill">
@@ -1354,13 +1355,11 @@ let folioSeleccionado = '';
 // ── Sesión ────────────────────────────────────────────────────
 let sesionActual = null;
 
-function verificarSesion() {
-  const raw = sessionStorage.getItem('aminsa_sesion');
-  if (!raw) {
-    window.location.href = 'login.html';
-    return false;
-  }
-  sesionActual = JSON.parse(raw);
+function verificarSesionIndex() {
+  const sesion = verificarSesion();
+  if (!sesion) return false;
+  
+  sesionActual = sesion;
   document.getElementById('user-nombre').textContent = sesionActual.nombre;
   document.getElementById('user-rol').textContent    = sesionActual.rol;
   aplicarRestriccionesRol();
@@ -1384,41 +1383,19 @@ function aplicarRestriccionesRol() {
   }
   
   // Aplicar permisos de pestañas (personalizados por usuario, no solo por rol)
-  const navOrdenes = document.querySelector('.header-nav a[href="index.html"]');
-  const navPreventivos = document.getElementById('nav-preventivos');
-  const navRefacciones = document.getElementById('nav-refacciones');
   const navConfig = document.getElementById('nav-config');
   
-  console.log('🔍 DEPURACIÓN INDEX - navOrdenes:', navOrdenes);
-  console.log('🔍 DEPURACIÓN INDEX - navPreventivos:', navPreventivos);
-  console.log('🔍 DEPURACIÓN INDEX - navRefacciones:', navRefacciones);
   console.log('🔍 DEPURACIÓN INDEX - navConfig:', navConfig);
   
-  if (navOrdenes) {
-    navOrdenes.style.display = permisos.ver_ordenes_tab !== false ? 'block' : 'none';
-    console.log('🔍 DEPURACIÓN INDEX - Órdenes visible:', permisos.ver_ordenes_tab !== false);
-  }
-  if (navPreventivos) {
-    navPreventivos.style.display = permisos.ver_preventivos_tab ? 'block' : 'none';
-    console.log('🔍 DEPURACIÓN INDEX - Preventivos visible:', permisos.ver_preventivos_tab);
-  }
-  if (navRefacciones) {
-    navRefacciones.style.display = permisos.ver_refacciones_tab ? 'block' : 'none';
-    console.log('🔍 DEPURACIÓN INDEX - Refacciones visible:', permisos.ver_refacciones_tab);
-  }
   if (navConfig) {
     navConfig.style.display = permisos.ver_config_tab ? 'block' : 'none';
     console.log('🔍 DEPURACIÓN INDEX - Config visible:', permisos.ver_config_tab);
   }
 }
 
-function cerrarSesion() {
-  sessionStorage.removeItem('aminsa_sesion');
-  window.location.href = 'login.html';
-}
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (!verificarSesion()) return;
+  if (!verificarSesionIndex()) return;
   document.getElementById('metricas-year').textContent = 'AÑO ' + new Date().getFullYear();
   
   // Establecer mes actual por defecto en el filtro de mes
