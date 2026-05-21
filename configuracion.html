@@ -789,6 +789,10 @@
             <label for="perm-ver-metricas">Ver Métricas</label>
           </div>
           <div class="permiso-item">
+            <input type="checkbox" id="perm-ver_tiempo_duracion">
+            <label for="perm-ver_tiempo_duracion">Ver Tiempo Duración</label>
+          </div>
+          <div class="permiso-item">
             <input type="checkbox" id="perm-exportar">
             <label for="perm-exportar">Exportar Datos</label>
           </div>
@@ -969,6 +973,7 @@ async function cargarUsuarios() {
             eliminar_ordenes: true,
             ver_metricas: true,
             ver_config: true,
+            ver_tiempo_duracion: true,
             exportar: true
           }
         }
@@ -993,6 +998,7 @@ async function cargarUsuarios() {
           eliminar_ordenes: true,
           ver_metricas: true,
           ver_config: true,
+          ver_tiempo_duracion: true,
           exportar: true
         }
       }
@@ -1139,6 +1145,7 @@ async function guardarUsuario() {
     ver_refacciones: document.getElementById('perm-ver-refacciones').checked,
     ver_config_tab: document.getElementById('perm-ver-config-tab').checked,
     ver_metricas: document.getElementById('perm-ver-metricas').checked,
+    ver_tiempo_duracion: document.getElementById('perm-ver-tiempo-duracion').checked,
     exportar: document.getElementById('perm-exportar').checked
   };
   
