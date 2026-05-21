@@ -2075,6 +2075,24 @@ function parseFecha(str) {
   return null;
 }
 
+// ── Función para calcular horas laborables entre dos fechas (excluyendo fines de semana) ──
+function calcularHorasLaborablesEntreFechas(fechaInicio, fechaFin) {
+  let totalHoras = 0;
+  let fechaActual = new Date(fechaInicio);
+  const fechaFinObj = new Date(fechaFin);
+  
+  while (fechaActual < fechaFinObj) {
+    const diaSemana = fechaActual.getDay(); // 0 = domingo, 6 = sábado
+    if (diaSemana !== 0 && diaSemana !== 6) {
+      // Es día laboral, agregar 1 hora
+      totalHoras += 1;
+    }
+    fechaActual.setHours(fechaActual.getHours() + 1);
+  }
+  
+  return totalHoras;
+}
+
 async function actualizarMetricas() {
   const anio = new Date().getFullYear();
   const mesActual = new Date().getMonth(); // Mes actual (0-11)
@@ -2112,24 +2130,6 @@ async function actualizarMetricas() {
   });
 
   // ── MTTR por mes ──────────────────────────────────────────
-  // Función para calcular horas laborables entre dos fechas (excluyendo fines de semana)
-  function calcularHorasLaborablesEntreFechas(fechaInicio, fechaFin) {
-    let totalHoras = 0;
-    let fechaActual = new Date(fechaInicio);
-    const fechaFinObj = new Date(fechaFin);
-    
-    while (fechaActual < fechaFinObj) {
-      const diaSemana = fechaActual.getDay(); // 0 = domingo, 6 = sábado
-      if (diaSemana !== 0 && diaSemana !== 6) {
-        // Es día laboral, agregar 1 hora
-        totalHoras += 1;
-      }
-      fechaActual.setHours(fechaActual.getHours() + 1);
-    }
-    
-    return totalHoras;
-  }
-
   const mttrPorMes = Array(12).fill(null).map(() => ({ suma: 0, count: 0 }));
 
   ordenesDelCentro.forEach(o => {
