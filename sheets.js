@@ -93,6 +93,8 @@ async function cerrarOrden(folio, datosCierre) {
     params.set('tecnico_entrega', datosCierre.tecnico_entrega || ''); // CORREGIDO: tec_entrega -> tecnico_entrega
     params.set('nombre_firma_recibe', datosCierre.nombre_firma_recibe || ''); // CORREGIDO: firma_recibe -> nombre_firma_recibe
     params.set('firma_conformidad', datosCierre.firma_conformidad || ''); // CORREGIDO: firma_conf -> firma_conformidad
+    params.set('horas_efectivas', datosCierre.horas_efectivas || ''); // NUEVO: Horas efectivas
+    params.set('tipo_mantenimiento', datosCierre.tipo_mantenimiento || ''); // NUEVO: Tipo de mantenimiento
     params.set('estado', 'CERRADA'); // NUEVO: Actualizar estado a CERRADA
     params.set('fecha_cierre', new Date().toISOString().split('T')[0]); // NUEVO: Guardar fecha de cierre actual
 
