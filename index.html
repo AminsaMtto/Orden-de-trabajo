@@ -1789,6 +1789,7 @@ async function ejecutarCierre() {
   console.log('🔍 DEPURACIÓN FRONTEND - tipo_mantenimiento:', datosCierre.tipo_mantenimiento);
 
   const resultCierre = await cerrarOrden(folioSeleccionado, datosCierre);
+  console.log('🔍 DEPURACIÓN FRONTEND - Respuesta del backend:', resultCierre);
   if (resultCierre && resultCierre.ok === false) {
     mostrarToast('Error al cerrar en Sheets: ' + (resultCierre.error || 'desconocido'), 'error');
     return;
