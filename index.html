@@ -2077,20 +2077,32 @@ function parseFecha(str) {
 
 // ── Función para calcular horas laborables entre dos fechas (excluyendo fines de semana) ──
 function calcularHorasLaborablesEntreFechas(fechaInicio, fechaFin) {
-  let totalHoras = 0;
+  let totalMilisegundos = 0;
   let fechaActual = new Date(fechaInicio);
   const fechaFinObj = new Date(fechaFin);
   
   while (fechaActual < fechaFinObj) {
     const diaSemana = fechaActual.getDay(); // 0 = domingo, 6 = sábado
     if (diaSemana !== 0 && diaSemana !== 6) {
-      // Es día laboral, agregar 1 hora
-      totalHoras += 1;
+      // Es día laboral, agregar 1 hora (3600000 ms)
+      // Avanzar 1 hora a la vez para precisión
+      const proximaHora = new Date(fechaActual);
+      proximaHora.setHours(proximaHora.getHours() + 1);
+      
+      // Si la próxima hora excede el fin, usar el fin
+      const horaFin = proximaHora > fechaFinObj ? fechaFinObj : proximaHora;
+      totalMilisegundos += horaFin - fechaActual;
+      
+      fechaActual = proximaHora;
+    } else {
+      // Es fin de semana, saltar al siguiente día laboral (lunes)
+      fechaActual.setDate(fechaActual.getDate() + 1);
+      fechaActual.setHours(0, 0, 0, 0);
     }
-    fechaActual.setHours(fechaActual.getHours() + 1);
   }
   
-  return totalHoras;
+  // Convertir milisegundos a horas
+  return totalMilisegundos / (1000 * 60 * 60);
 }
 
 async function actualizarMetricas() {
