@@ -1485,6 +1485,12 @@ async function cargarOrdenes() {
     const result = await res.json();
     todasLasOrdenes = (result.ordenes || []).map(normalizarOrden)
       .sort((a, b) => new Date(b.fecha_reporte || 0) - new Date(a.fecha_reporte || 0));
+    
+    // DEPURACIÓN: Mostrar primera orden para verificar campos
+    if (todasLasOrdenes.length > 0) {
+      console.log('🔍 DEPURACIÓN cargarOrdenes - Primera orden:', todasLasOrdenes[0]);
+      console.log('🔍 DEPURACIÓN cargarOrdenes - Campos de primera orden:', Object.keys(todasLasOrdenes[0]));
+    }
   } catch(e) {
     console.warn('No se pudo conectar a Sheets:', e.message);
     todasLasOrdenes = [];
