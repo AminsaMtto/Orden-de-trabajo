@@ -2056,19 +2056,6 @@ function calcularTiempoDuracion(orden) {
   // Calcular horas laborables excluyendo fines de semana
   const horas = calcularHorasLaborablesEntreFechas(fechaRecibo, fechaEntrega);
   
-  console.log('🔍 CÁLCULO TIEMPO - Orden:', orden.folio, {
-    hora_recibo: orden.hora_recibo,
-    hora_entrega: orden.hora_entrega_equipo || orden.hora_entrega,
-    fecha_reporte: orden.fecha_reporte,
-    fecha_liberacion: orden.fecha_liberacion,
-    recibo: recibo,
-    entrega: entrega,
-    fechaRecibo: fechaRecibo.toISOString(),
-    fechaEntrega: fechaEntrega.toISOString(),
-    horasCalculadas: horas,
-    formateado: formatearHoras(horas)
-  });
-  
   return formatearHoras(horas);
 }
 
@@ -2274,12 +2261,16 @@ async function actualizarMetricas() {
     }
   }
 
-  // Agrupar fallas por mes
+  // Agrupar fallas por mes (solo fallas menores o sin tipo especificado)
   const fallasPorMes = Array(12).fill(0);
   ordenesDelCentro.forEach(o => {
     const fecha = parseFecha(o.fecha_reporte);
     if (fecha && fecha.getFullYear() === anio) {
-      fallasPorMes[fecha.getMonth()]++;
+      // Solo contar si es mantenimiento menor o si no está especificado
+      const tipoMantenimientoCierre = (o.tipo_mantenimiento_cierre || '').toUpperCase();
+      if (tipoMantenimientoCierre !== 'MAYOR') {
+        fallasPorMes[fecha.getMonth()]++;
+      }
     }
   });
 
@@ -2299,9 +2290,13 @@ async function actualizarMetricas() {
   const mtbfValidos = mtbfPorMes.filter(v => v > 0);
   const mtbfProm = mtbfValidos.length ? +(mtbfValidos.reduce((a,b) => a+b, 0) / mtbfValidos.length).toFixed(1) : 0;
   const mtbfMax  = mtbfValidos.length ? Math.max(...mtbfValidos) : 0;
-  const totalFallas = ordenesDelCentro.filter(o =>
-    parseFecha(o.fecha_reporte)?.getFullYear() === anio
-  ).length;
+  const totalFallas = ordenesDelCentro.filter(o => {
+    const fecha = parseFecha(o.fecha_reporte);
+    if (!fecha || fecha.getFullYear() !== anio) return false;
+    // Solo contar si es mantenimiento menor o si no está especificado
+    const tipoMantenimientoCierre = (o.tipo_mantenimiento_cierre || '').toUpperCase();
+    return tipoMantenimientoCierre !== 'MAYOR';
+  }).length;
 
   document.getElementById('mtbf-prom').textContent  = mtbfProm ? mtbfProm + 'h' : '—';
   document.getElementById('mtbf-max').textContent   = mtbfMax  ? mtbfMax  + 'h' : '—';
