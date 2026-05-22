@@ -2004,6 +2004,19 @@ function parseHora(str) {
   return null;
 }
 
+function formatearHoras(horas) {
+  if (horas < 1) {
+    const minutos = Math.round(horas * 60);
+    return `${minutos} min`;
+  }
+  const h = Math.floor(horas);
+  const m = Math.round((horas - h) * 60);
+  if (m === 0) {
+    return `${h}h`;
+  }
+  return `${h}h ${m}m`;
+}
+
 function calcularTiempoDuracion(orden) {
   if (!orden || orden.estado !== 'CERRADA') return '-';
   
@@ -2018,9 +2031,10 @@ function calcularTiempoDuracion(orden) {
   // Si no, calcular usando hora recibo y entrega excluyendo fines de semana
   const recibo = parseHora(orden.hora_recibo);
   const entrega = parseHora(orden.hora_entrega_equipo || orden.hora_entrega);
-  const fecha = parseFecha(orden.fecha_reporte);
+  const fechaReciboDate = parseFecha(orden.fecha_reporte);
+  const fechaEntregaDate = parseFecha(orden.fecha_liberacion || orden.fecha_reporte);
   
-  if (recibo === null || entrega === null || fecha === null) return '-';
+  if (recibo === null || entrega === null || fechaReciboDate === null || fechaEntregaDate === null) return '-';
   
   // Crear fechas completas para calcular horas laborables
   const reciboHoras = Math.floor(recibo / 60);
@@ -2028,10 +2042,10 @@ function calcularTiempoDuracion(orden) {
   const entregaHoras = Math.floor(entrega / 60);
   const entregaMinutos = entrega % 60;
   
-  const fechaRecibo = new Date(fecha);
+  const fechaRecibo = new Date(fechaReciboDate);
   fechaRecibo.setHours(reciboHoras, reciboMinutos, 0, 0);
   
-  const fechaEntrega = new Date(fecha);
+  const fechaEntrega = new Date(fechaEntregaDate);
   fechaEntrega.setHours(entregaHoras, entregaMinutos, 0, 0);
   
   // Si la entrega es menor que el recibo, significa que cruzó al día siguiente
@@ -2041,6 +2055,19 @@ function calcularTiempoDuracion(orden) {
   
   // Calcular horas laborables excluyendo fines de semana
   const horas = calcularHorasLaborablesEntreFechas(fechaRecibo, fechaEntrega);
+  
+  console.log('🔍 CÁLCULO TIEMPO - Orden:', orden.folio, {
+    hora_recibo: orden.hora_recibo,
+    hora_entrega: orden.hora_entrega_equipo || orden.hora_entrega,
+    fecha_reporte: orden.fecha_reporte,
+    fecha_liberacion: orden.fecha_liberacion,
+    recibo: recibo,
+    entrega: entrega,
+    fechaRecibo: fechaRecibo.toISOString(),
+    fechaEntrega: fechaEntrega.toISOString(),
+    horasCalculadas: horas,
+    formateado: formatearHoras(horas)
+  });
   
   return formatearHoras(horas);
 }
@@ -2084,18 +2111,23 @@ function calcularHorasLaborablesEntreFechas(fechaInicio, fechaFin) {
   while (fechaActual < fechaFinObj) {
     const diaSemana = fechaActual.getDay(); // 0 = domingo, 6 = sábado
     if (diaSemana !== 0 && diaSemana !== 6) {
-      // Es día laboral, agregar 1 hora (3600000 ms)
-      // Avanzar 1 hora a la vez para precisión
-      const proximaHora = new Date(fechaActual);
-      proximaHora.setHours(proximaHora.getHours() + 1);
+      // Es día laboral
+      // Calcular fin del día actual (23:59:59.999)
+      const finDelDia = new Date(fechaActual);
+      finDelDia.setHours(23, 59, 59, 999);
       
-      // Si la próxima hora excede el fin, usar el fin
-      const horaFin = proximaHora > fechaFinObj ? fechaFinObj : proximaHora;
+      // Si el fin del día excede el fin, usar el fin
+      const horaFin = finDelDia > fechaFinObj ? fechaFinObj : finDelDia;
+      
+      // Agregar el tiempo transcurrido en este día
       totalMilisegundos += horaFin - fechaActual;
       
-      fechaActual = proximaHora;
+      // Mover al inicio del siguiente día
+      fechaActual = new Date(fechaActual);
+      fechaActual.setDate(fechaActual.getDate() + 1);
+      fechaActual.setHours(0, 0, 0, 0);
     } else {
-      // Es fin de semana, saltar al siguiente día laboral (lunes)
+      // Es fin de semana, saltar al siguiente día (lunes)
       fechaActual.setDate(fechaActual.getDate() + 1);
       fechaActual.setHours(0, 0, 0, 0);
     }
