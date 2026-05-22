@@ -1784,6 +1784,10 @@ async function ejecutarCierre() {
     tipo_mantenimiento:           document.getElementById('c-tipo-mantenimiento').value,
   };
 
+  console.log('🔍 DEPURACIÓN FRONTEND - datosCierre:', datosCierre);
+  console.log('🔍 DEPURACIÓN FRONTEND - horas_efectivas:', datosCierre.horas_efectivas);
+  console.log('🔍 DEPURACIÓN FRONTEND - tipo_mantenimiento:', datosCierre.tipo_mantenimiento);
+
   const resultCierre = await cerrarOrden(folioSeleccionado, datosCierre);
   if (resultCierre && resultCierre.ok === false) {
     mostrarToast('Error al cerrar en Sheets: ' + (resultCierre.error || 'desconocido'), 'error');
