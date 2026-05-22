@@ -2170,8 +2170,8 @@ async function actualizarMetricas() {
     const mes = fecha.getMonth();
 
     // Verificar si es mantenimiento menor (solo estos cuentan para MTTR)
-    const tipoMantenimientoCierre = (o.tipo_mantenimiento_cierre || '').toUpperCase();
-    if (tipoMantenimientoCierre === 'MAYOR') {
+    const tipoMantenimiento = (o.tipo_mantenimiento || '').toUpperCase();
+    if (tipoMantenimiento === 'MAYOR') {
       console.log('⏭️ Orden excluida de MTTR (mantenimiento mayor):', o.folio);
       return;
     }
@@ -2267,8 +2267,8 @@ async function actualizarMetricas() {
     const fecha = parseFecha(o.fecha_reporte);
     if (fecha && fecha.getFullYear() === anio) {
       // Solo contar si es mantenimiento menor o si no está especificado
-      const tipoMantenimientoCierre = (o.tipo_mantenimiento_cierre || '').toUpperCase();
-      if (tipoMantenimientoCierre !== 'MAYOR') {
+      const tipoMantenimiento = (o.tipo_mantenimiento || '').toUpperCase();
+      if (tipoMantenimiento !== 'MAYOR') {
         fallasPorMes[fecha.getMonth()]++;
       }
     }
@@ -2294,8 +2294,8 @@ async function actualizarMetricas() {
     const fecha = parseFecha(o.fecha_reporte);
     if (!fecha || fecha.getFullYear() !== anio) return false;
     // Solo contar si es mantenimiento menor o si no está especificado
-    const tipoMantenimientoCierre = (o.tipo_mantenimiento_cierre || '').toUpperCase();
-    return tipoMantenimientoCierre !== 'MAYOR';
+    const tipoMantenimiento = (o.tipo_mantenimiento || '').toUpperCase();
+    return tipoMantenimiento !== 'MAYOR';
   }).length;
 
   document.getElementById('mtbf-prom').textContent  = mtbfProm ? mtbfProm + 'h' : '—';
