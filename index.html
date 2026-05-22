@@ -1789,7 +1789,9 @@ async function ejecutarCierre() {
   console.log('🔍 DEPURACIÓN FRONTEND - tipo_mantenimiento:', datosCierre.tipo_mantenimiento);
 
   const resultCierre = await cerrarOrden(folioSeleccionado, datosCierre);
-  console.log('🔍 DEPURACIÓN FRONTEND - Respuesta del backend:', resultCierre);
+  console.log('🔍 DEPURACIÓN FRONTEND - Respuesta del backend:', JSON.stringify(resultCierre));
+  console.log('🔍 DEPURACIÓN FRONTEND - horas_efectivas_guardadas:', resultCierre.horas_efectivas_guardadas);
+  console.log('🔍 DEPURACIÓN FRONTEND - tipo_mantenimiento_guardado:', resultCierre.tipo_mantenimiento_guardado);
   if (resultCierre && resultCierre.ok === false) {
     mostrarToast('Error al cerrar en Sheets: ' + (resultCierre.error || 'desconocido'), 'error');
     return;
@@ -2025,11 +2027,18 @@ function formatearHoras(horas) {
 function calcularTiempoDuracion(orden) {
   if (!orden || orden.estado !== 'CERRADA') return '-';
   
+  console.log('🔍 DEPURACIÓN calcularTiempoDuracion - orden.folio:', orden.folio);
+  console.log('🔍 DEPURACIÓN calcularTiempoDuracion - horas_efectivas:', orden.horas_efectivas);
+  console.log('🔍 DEPURACIÓN calcularTiempoDuracion - tipo_mantenimiento:', orden.tipo_mantenimiento);
+  
   // Si tiene horas efectivas, usarlas
   if (orden.horas_efectivas && orden.horas_efectivas !== '') {
     const horas = parseFloat(orden.horas_efectivas);
+    console.log('🔍 DEPURACIÓN calcularTiempoDuracion - horas parseadas:', horas);
     if (!isNaN(horas)) {
-      return formatearHoras(horas);
+      const resultado = formatearHoras(horas);
+      console.log('🔍 DEPURACIÓN calcularTiempoDuracion - resultado:', resultado);
+      return resultado;
     }
   }
   
