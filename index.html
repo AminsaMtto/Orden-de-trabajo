@@ -1484,13 +1484,17 @@ async function cargarOrdenes() {
     const res    = await fetchConTimeout(SHEETS_WEBAPP_URL + '?accion=listar', 8000);
     const result = await res.json();
     console.log('🔍 DEPURACIÓN cargarOrdenes - Respuesta cruda del backend:', result);
+    if (result.ordenes && result.ordenes.length > 0) {
+      console.log('🔍 DEPURACIÓN cargarOrdenes - Primera orden cruda:', result.ordenes[0]);
+      console.log('🔍 DEPURACIÓN cargarOrdenes - Campos de primera orden cruda:', Object.keys(result.ordenes[0]));
+    }
     todasLasOrdenes = (result.ordenes || []).map(normalizarOrden)
       .sort((a, b) => new Date(b.fecha_reporte || 0) - new Date(a.fecha_reporte || 0));
     
     // DEPURACIÓN: Mostrar primera orden para verificar campos
     if (todasLasOrdenes.length > 0) {
-      console.log('🔍 DEPURACIÓN cargarOrdenes - Primera orden:', todasLasOrdenes[0]);
-      console.log('🔍 DEPURACIÓN cargarOrdenes - Campos de primera orden:', Object.keys(todasLasOrdenes[0]));
+      console.log('🔍 DEPURACIÓN cargarOrdenes - Primera orden normalizada:', todasLasOrdenes[0]);
+      console.log('🔍 DEPURACIÓN cargarOrdenes - Campos de primera orden normalizada:', Object.keys(todasLasOrdenes[0]));
     }
   } catch(e) {
     console.warn('No se pudo conectar a Sheets:', e.message);
