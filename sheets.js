@@ -1,4 +1,4 @@
-const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzDcEZWzap_ctjm7kSQAxNOGVJHO8u9rM65GrtvHIB4A88OiDg0cbTd6vrtIeBTyw7ZfQ/exec';
+const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzDIjdFHG5jetp3ilI6-koAsUqLogj2psIMDbXWWMTbQcJaKCoiMtkmEGqiEuWQhfCI/exec';
 
 // ── Guardar orden ──────────────────────────────────────────────
 // Divide los datos en campos individuales para no exceder el límite de URL
@@ -75,6 +75,7 @@ async function cerrarOrden(folio, datosCierre) {
     const params = new URLSearchParams();
     params.set('accion',        'cerrar');
     params.set('folio',         folio);
+    params.set('tipo_trabajo', datosCierre.tipo_trabajo || '');
     params.set('hora_recibo',   datosCierre.hora_recibo || '');
     params.set('fecha_atencion',datosCierre.fecha_atencion || '');
     params.set('tecnicos',      datosCierre.tecnicos || '');
@@ -94,7 +95,7 @@ async function cerrarOrden(folio, datosCierre) {
     params.set('nombre_firma_recibe', datosCierre.nombre_firma_recibe || ''); // CORREGIDO: firma_recibe -> nombre_firma_recibe
     params.set('firma_conformidad', datosCierre.firma_conformidad || ''); // CORREGIDO: firma_conf -> firma_conformidad
     params.set('horas_efectivas', datosCierre.horas_efectivas || ''); // NUEVO: Horas efectivas
-    params.set('tipo_mantenimiento', datosCierre.tipo_mantenimiento || ''); // NUEVO: Tipo de mantenimiento
+    params.set('tipo_mantenimiento', datosCierre.tipo_mantenimiento || ''); // NUEVO: Tipo de mantenimiento (MAYOR/MENOR)
     params.set('estado', 'CERRADA'); // NUEVO: Actualizar estado a CERRADA
     params.set('fecha_cierre', new Date().toISOString().split('T')[0]); // NUEVO: Guardar fecha de cierre actual
 
