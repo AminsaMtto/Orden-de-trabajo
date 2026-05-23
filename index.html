@@ -1483,6 +1483,7 @@ async function cargarOrdenes() {
   try {
     const res    = await fetchConTimeout(SHEETS_WEBAPP_URL + '?accion=listar', 8000);
     const result = await res.json();
+    console.log('🔍 DEPURACIÓN cargarOrdenes - Respuesta cruda del backend:', result);
     todasLasOrdenes = (result.ordenes || []).map(normalizarOrden)
       .sort((a, b) => new Date(b.fecha_reporte || 0) - new Date(a.fecha_reporte || 0));
     
