@@ -432,6 +432,10 @@ async function cargarOrdenExistente(folio) {
   } catch(e) { /* sin conexión */ }
   if (!orden) { mostrarToast('Orden no encontrada en Google Sheets', 'error'); return; }
 
+  // DEPURACIÓN: Mostrar datos recibidos del backend
+  console.log('🔍 DEPURACIÓN orden.html - Orden cargada:', JSON.stringify(orden));
+  console.log('🔍 DEPURACIÓN orden.html - Campos de la orden:', Object.keys(orden));
+
   // CORREGIDO: Usar nombres de campos consistentes con sheets.js
   // Función para formatear fecha ISO a formato local
   function formatearFecha(fecha) {
@@ -494,7 +498,7 @@ async function cargarOrdenExistente(folio) {
 
   document.querySelectorAll('.checkbox-field[data-label]').forEach(cb => {
     const g = cb.dataset.grupo, l = cb.dataset.label;
-    if (g === 'tipo'       && l === orden.tipo_trabajo) cb.checked = true;
+    if (g === 'tipo'       && (l === orden.tipo_trabajo || l === orden.tipo_mantenimiento)) cb.checked = true;
     if (g === 'urgencia'   && l === orden.grado_urgencia)     cb.checked = true;
     if (g === 'frecuencia' && l === orden.frecuencia_falla)   cb.checked = true;
   });
@@ -515,3 +519,40 @@ async function cargarOrdenExistente(folio) {
     document.getElementById('form-container').classList.add('modo-ver');
   }
 }
+
+function limpiarFormulario() {
+  if (!confirm('¿Limpiar todos los campos del formulario?')) return;
+  
+  // CORRECCIÓN: Limpiar todos los campos EXCEPTO 'quien-reporta'
+  document.querySelectorAll('.input-field:not(#quien-reporta):not([readonly]), .textarea-field').forEach(el => el.value = '');
+  document.querySelectorAll('.checkbox-field').forEach(cb => cb.checked = false);
+  
+  const btn = document.getElementById('btn-guardar');
+  btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Guardar Orden';
+  btn.disabled = false; 
+  btn.style.opacity = '1';
+  document.getElementById('label-folio').textContent = 'Nueva Orden';
+  actualizarFechaHora();
+  
+  // Asegurar que 'quien-reporta' siempre tenga el valor del usuario
+  const sesion = JSON.parse(sessionStorage.getItem('aminsa_sesion') || '{}');
+  console.log('DEPURACIÓN - Sesión:', sesion);
+  console.log('DEPURACIÓN - Nombre usuario:', sesion.nombre);
+  
+  if (sesion.nombre) {
+    document.getElementById('quien-reporta').value = sesion.nombre;
+    console.log('DEPURACIÓN - Valor asignado a quien-reporta:', document.getElementById('quien-reporta').value);
+  } else {
+    console.log('DEPURACIÓN - No hay nombre en la sesión');
+  }
+}
+
+function mostrarToast(msg, tipo = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; 
+  t.className = `toast show ${tipo}`;
+  setTimeout(() => t.className = 'toast', 4000);
+}
+</script>
+</body>
+</html>
