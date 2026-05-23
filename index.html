@@ -1703,7 +1703,7 @@ function verOrden(folio) {
     ['Hora Reporte', formatearHora(o.hora_reporte)], 
     ['Quién Reporta', o.quien_reporta],
     ['Centro de Negocio', o.centro_de_negocio], 
-    ['Tipo Mantenimiento', o.tipo_mantenimiento],
+    ['Tipo de Trabajo', o.tipo_trabajo || o.tipo_mantenimiento],
     ['Equipo Reportado', o.equipo_reportado, true], 
     ['No. Control', o.no_control],
     ['Grado Urgencia', o.grado_urgencia], 
