@@ -1188,6 +1188,15 @@
             <input type="number" id="c-horas-efectivas" placeholder="Horas reales trabajadas" min="0" step="0.5">
           </div>
           <div class="form-group">
+            <label>Tipo de Trabajo</label>
+            <select id="c-tipo-trabajo">
+              <option value="">— Seleccionar —</option>
+              <option value="CORRECTIVO">Correctivo</option>
+              <option value="PREVENTIVO">Preventivo</option>
+              <option value="PREDICTIVO">Predictivo</option>
+            </select>
+          </div>
+          <div class="form-group">
             <label>Tipo de Mantenimiento</label>
             <select id="c-tipo-mantenimiento">
               <option value="">— Seleccionar —</option>
@@ -1450,7 +1459,7 @@ function normalizarOrden(o) {
     quien_reporta:              o.quien_reporta        || '',
     // Sheets devuelve 'centro_negocio'; local guarda 'centro_de_negocio'
     centro_de_negocio:          o.centro_de_negocio    || o.centro_negocio || '',
-    tipo_mantenimiento:         o.tipo_mantenimiento   || o.tipo_mant || '',
+    tipo_trabajo:               o.tipo_trabajo         || o.tipo_mantenimiento || '',
     equipo_reportado:           o.equipo_reportado     || o.equipo || '',
     no_control:                 o.no_control           || '',
     falla_reportada:            o.falla_reportada      || o.falla || '',
@@ -1573,7 +1582,7 @@ function renderTabla(ordenes) {
       <td style="font-family:'Inconsolata',monospace;font-size:11px;color:var(--texto-ter)">${formatearFecha(o.fecha_reporte)}</td>
       <td>${o.centro_de_negocio || '—'}</td>
       <td>${truncar(o.equipo_reportado, 28)}</td>
-      <td style="color:var(--texto-sec)">${truncar(o.tipo_mantenimiento, 20)}</td>
+      <td style="color:var(--texto-sec)">${truncar(o.tipo_trabajo || o.tipo_mantenimiento, 20)}</td>
       <td><span class="badge ${badgeUrg}">${urgencia}</span></td>
       <td>${truncar(o.quien_reporta || '—', 20)}</td>
       <td><span class="badge ${badgeEstado}">${estado}</span></td>
@@ -1794,6 +1803,7 @@ async function ejecutarCierre() {
     nombre_firma_recibe:          document.getElementById('c-quien-recibe').value,
     firma_conformidad:            document.getElementById('c-firma-conformidad').value,
     horas_efectivas:              document.getElementById('c-horas-efectivas').value,
+    tipo_trabajo:                 document.getElementById('c-tipo-trabajo').value,
     tipo_mantenimiento:           document.getElementById('c-tipo-mantenimiento').value,
   };
 
