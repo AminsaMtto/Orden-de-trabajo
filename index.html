@@ -21,6 +21,7 @@
       --borde-suave: #e8e4de;
       --fondo:       #faf9f7;
       --fondo-alt:   #f4f2ee;
+      --fondo-claro: #f0f0f0;
       --blanco:      #ffffff;
       --acento:      #1a1a1a;
       --acento2:     #8b1a1a;
@@ -28,6 +29,7 @@
       --rojo-clar:   #b52020;
       --verde:       #1a4a2a;
       --verde-clar:  #1e6b35;
+      --azul:        #1a3a5a;
       --texto:       #1a1a1a;
       --texto-sec:   #4a4a4a;
       --texto-ter:   #7a7a7a;
@@ -1021,6 +1023,16 @@
       </tr>
     </tbody>
   </table>
+  
+  <!-- Paginación -->
+  <div class="pagination" id="pagination" style="display:none;justify-content:center;align-items:center;gap:12px;padding:16px;margin-top:12px;border-top:1px solid var(--borde-suave)">
+    <button class="btn btn-sm btn-ghost" onclick="cambiarPagina(-1)" id="btn-anterior" disabled>← Anterior</button>
+    <span style="font-family:'Inconsolata',monospace;font-size:11px;color:var(--texto-sec)">
+      Página <span id="pagina-actual">1</span> de <span id="total-paginas">1</span>
+      (<span id="total-elementos">0</span> órdenes)
+    </span>
+    <button class="btn btn-sm btn-ghost" onclick="cambiarPagina(1)" id="btn-siguiente" disabled>Siguiente →</button>
+  </div>
 </div>
 
 <!-- Modal Ver Detalles -->
@@ -1265,21 +1277,16 @@
           <select id="ec-centro">
             <option value="">Seleccionar...</option>
             <option value="Zinc">Zinc</option>
-            <option value="Oro">Oro</option>
-            <option value="Plata">Plata</option>
-            <option value="Plomo">Plomo</option>
-            <option value="Cobre">Cobre</option>
-            <option value="Sinter">Sinter</option>
-            <option value="Acido">Acido</option>
-            <option value="Jales">Jales</option>
-            <option value="Moly">Moly</option>
-            <option value="Reactivos">Reactivos</option>
-            <option value="Mantenimiento">Mantenimiento</option>
-            <option value="Molienda">Molienda</option>
-            <option value="Chancado">Chancado</option>
-            <option value="Filtros">Filtros</option>
-            <option value="Concentrado">Concentrado</option>
-            <option value="Desaladora">Desaladora</option>
+            <option value="Cromo">Cromo</option>
+            <option value="Doblado de Tubo">Doblado de Tubo</option>
+            <option value="Oficinas">Oficinas</option>
+            <option value="Planta Pre-Tratamiento">Planta Pre-Tratamiento</option>
+            <option value="Planta de Tratamiento">Planta de Tratamiento</option>
+            <option value="Andenes y Patio de Maniobras">Andenes y Patio de Maniobras</option>
+            <option value="Laboratorio">Laboratorio</option>
+            <option value="Obra Civil">Obra Civil</option>
+            <option value="Area Periferica a la Planta">Área Periférica a la Planta</option>
+            <option value="Otros">Otros</option>
           </select>
         </div>
         <div class="form-group">
@@ -1380,9 +1387,6 @@ function aplicarRestriccionesRol() {
   const rol = sesionActual.rol;
   const permisos = sesionActual.permisos || {};
   
-  console.log('🔍 DEPURACIÓN INDEX - Rol:', rol);
-  console.log('🔍 DEPURACIÓN INDEX - Permisos:', permisos);
-  
   // CORREGIDO: Administrador y Técnico pueden cerrar órdenes, solo Administrador puede eliminar
   if (rol !== 'Administrador' && rol !== 'Técnico') {
     document.querySelectorAll('.btn-cerrar-rol').forEach(b => b.style.display = 'none');
@@ -1394,11 +1398,8 @@ function aplicarRestriccionesRol() {
   // Aplicar permisos de pestañas (personalizados por usuario, no solo por rol)
   const navConfig = document.getElementById('nav-config');
   
-  console.log('🔍 DEPURACIÓN INDEX - navConfig:', navConfig);
-  
   if (navConfig) {
     navConfig.style.display = permisos.ver_config_tab ? 'block' : 'none';
-    console.log('🔍 DEPURACIÓN INDEX - Config visible:', permisos.ver_config_tab);
   }
 }
 
@@ -1490,23 +1491,27 @@ function normalizarOrden(o) {
   };
 }
 
+// Helper para parsear fechas en formato dd/mm/yyyy
+function parseFecha(fecha) {
+  if (!fecha) return 0;
+  // Si ya es un número o timestamp, retornarlo
+  if (typeof fecha === 'number') return fecha;
+  // Si está en formato dd/mm/yyyy, parsearlo
+  if (typeof fecha === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(fecha)) {
+    const [dia, mes, año] = fecha.split('/').map(Number);
+    return new Date(año, mes - 1, dia).getTime();
+  }
+  // Intento genérico
+  const d = new Date(fecha);
+  return isNaN(d.getTime()) ? 0 : d.getTime();
+}
+
 async function cargarOrdenes() {
   try {
     const res    = await fetchConTimeout(SHEETS_WEBAPP_URL + '?accion=listar', 8000);
     const result = await res.json();
-    console.log('🔍 DEPURACIÓN cargarOrdenes - Respuesta cruda del backend:', result);
-    if (result.ordenes && result.ordenes.length > 0) {
-      console.log('🔍 DEPURACIÓN cargarOrdenes - Primera orden cruda:', result.ordenes[0]);
-      console.log('🔍 DEPURACIÓN cargarOrdenes - Campos de primera orden cruda:', Object.keys(result.ordenes[0]));
-    }
     todasLasOrdenes = (result.ordenes || []).map(normalizarOrden)
-      .sort((a, b) => new Date(b.fecha_reporte || 0) - new Date(a.fecha_reporte || 0));
-    
-    // DEPURACIÓN: Mostrar primera orden para verificar campos
-    if (todasLasOrdenes.length > 0) {
-      console.log('🔍 DEPURACIÓN cargarOrdenes - Primera orden normalizada:', todasLasOrdenes[0]);
-      console.log('🔍 DEPURACIÓN cargarOrdenes - Campos de primera orden normalizada:', Object.keys(todasLasOrdenes[0]));
-    }
+      .sort((a, b) => parseFecha(b.fecha_reporte || 0) - parseFecha(a.fecha_reporte || 0));
   } catch(e) {
     console.warn('No se pudo conectar a Sheets:', e.message);
     todasLasOrdenes = [];
@@ -1567,7 +1572,19 @@ function renderTabla(ordenes) {
     return;
   }
 
-  tbody.innerHTML = ordenes.map(o => {
+  // Paginación
+  const totalElementos = ordenes.length;
+  const totalPaginas = Math.ceil(totalElementos / elementosPorPagina);
+  
+  // Asegurar que la página actual esté dentro del rango
+  if (paginaActual > totalPaginas) paginaActual = totalPaginas || 1;
+  if (paginaActual < 1) paginaActual = 1;
+  
+  const inicio = (paginaActual - 1) * elementosPorPagina;
+  const fin = inicio + elementosPorPagina;
+  const ordenesPaginadas = ordenes.slice(inicio, fin);
+
+  tbody.innerHTML = ordenesPaginadas.map(o => {
     const estado  = o.estado || 'ABIERTA';
     const urgencia = o.grado_urgencia || '—';
     const badgeEstado = estado === 'CERRADA' ? 'badge-cerrada' : 'badge-abierta';
@@ -1607,16 +1624,36 @@ function renderTabla(ordenes) {
       </td>
     </tr>`;
   }).join('');
+
+  // Actualizar controles de paginación
+  const pagination = document.getElementById('pagination');
+  if (totalPaginas > 1) {
+    pagination.style.display = 'flex';
+    document.getElementById('pagina-actual').textContent = paginaActual;
+    document.getElementById('total-paginas').textContent = totalPaginas;
+    document.getElementById('total-elementos').textContent = totalElementos;
+    document.getElementById('btn-anterior').disabled = paginaActual === 1;
+    document.getElementById('btn-siguiente').disabled = paginaActual === totalPaginas;
+  } else {
+    pagination.style.display = 'none';
+  }
 }
 
 function filtrar(tipo, btn) {
   filtroActual = tipo;
+  paginaActual = 1; // Resetear a página 1 al cambiar filtro
   document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('activo'));
   btn.classList.add('activo');
   renderTabla(aplicarFiltro(todasLasOrdenes));
 }
 
+function cambiarPagina(delta) {
+  paginaActual += delta;
+  renderTabla(aplicarFiltro(todasLasOrdenes));
+}
+
 function aplicarFiltros() {
+  paginaActual = 1; // Resetear a página 1 al aplicar filtros
   renderTabla(aplicarFiltro(todasLasOrdenes));
   actualizarStats();
 }
@@ -1840,9 +1877,16 @@ async function ejecutarEliminar() {
   }
   try {
     const url = SHEETS_WEBAPP_URL + '?accion=eliminar&folio=' + encodeURIComponent(folioSeleccionado);
-    await fetch(url, { method: 'GET' });
+    const response = await fetch(url, { method: 'GET' });
+    const result = await response.json();
+    
+    if (!result.ok) {
+      mostrarToast('Error al eliminar de Sheets: ' + (result.error || 'Error desconocido'), 'error');
+      return;
+    }
   } catch(e) {
-    mostrarToast('Error al eliminar de Sheets', 'error');
+    mostrarToast('Error al eliminar de Sheets: ' + e.message, 'error');
+    return;
   }
 
   cerrarModal('modal-eliminar');
@@ -1983,6 +2027,8 @@ function mostrarToast(msg, tipo = '') {
 let centroActual = 'GRAL';
 let chartMTTR = null;
 let chartMTBF = null;
+let paginaActual = 1;
+const elementosPorPagina = 50;
 
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
@@ -2202,14 +2248,14 @@ async function actualizarMetricas() {
 
   ordenesDelCentro.forEach(o => {
     if ((o.estado || '') !== 'CERRADA') return;
-    const fecha = parseFecha(o.fecha_reporte);
+    // CORREGIDO: Usar fecha de atención (fecha_recibo) en lugar de fecha_reporte para MTTR
+    const fecha = parseFecha(o.fecha_atencion || o.fecha_recibo || o.fecha_reporte);
     if (!fecha || fecha.getFullYear() !== anio) return;
     const mes = fecha.getMonth();
 
     // Verificar si es mantenimiento menor (solo estos cuentan para MTTR)
     const tipoMantenimiento = (o.tipo_mantenimiento || '').toUpperCase();
     if (tipoMantenimiento === 'MAYOR') {
-      console.log('⏭️ Orden excluida de MTTR (mantenimiento mayor):', o.folio);
       return;
     }
 
@@ -2217,51 +2263,41 @@ async function actualizarMetricas() {
     let horas = 0;
     if (o.horas_efectivas && o.horas_efectivas !== '') {
       horas = parseFloat(o.horas_efectivas);
-      console.log('📊 Usando horas efectivas:', horas, 'para orden:', o.folio);
     } else {
       // Calcular horas laborables excluyendo fines de semana
       const recibo  = parseHora(o.hora_recibo);
       const entrega = parseHora(o.hora_entrega_equipo || o.hora_entrega);
-      const fechaReporte = parseFecha(o.fecha_reporte);
+      // CORREGIDO: Usar fecha de atención (fecha_recibo) como inicio
+      const fechaAtencion = parseFecha(o.fecha_atencion || o.fecha_recibo || o.fecha_reporte);
       const fechaLiberacion = parseFecha(o.fecha_liberacion);
-      console.log('⏰ Parseo horas - Recibo:', recibo, 'Entrega:', entrega);
-      console.log('📅 Parseo fechas - Reporte:', fechaReporte, 'Liberación:', fechaLiberacion);
       
       if (recibo === null || entrega === null) {
-        console.log('❌ Horas inválidas para orden:', o.folio);
         return;
       }
-      if (!fechaReporte) {
-        console.log('❌ Fecha de reporte inválida para orden:', o.folio);
+      if (!fechaAtencion) {
         return;
       }
 
       // Crear fechas completas para calcular horas laborables
-      // recibo y entrega son minutos desde medianoche, convertir a horas y minutos
       const reciboHoras = Math.floor(recibo / 60);
       const reciboMinutos = recibo % 60;
       const entregaHoras = Math.floor(entrega / 60);
       const entregaMinutos = entrega % 60;
       
-      const fechaRecibo = new Date(fechaReporte);
+      const fechaRecibo = new Date(fechaAtencion);
       fechaRecibo.setHours(reciboHoras, reciboMinutos, 0, 0);
       
-      // Usar fecha de liberación si está disponible, si no usar fecha de reporte
-      const fechaBaseEntrega = fechaLiberacion || fechaReporte;
+      const fechaBaseEntrega = fechaLiberacion || fechaAtencion;
       const fechaEntrega = new Date(fechaBaseEntrega);
       fechaEntrega.setHours(entregaHoras, entregaMinutos, 0, 0);
       
-      console.log('📊 Fechas completas - Recibo:', fechaRecibo, 'Entrega:', fechaEntrega);
-      
       // Calcular horas laborables excluyendo fines de semana
       horas = calcularHorasLaborablesEntreFechas(fechaRecibo, fechaEntrega);
-      console.log('📊 Horas laborables (excluyendo fines de semana):', horas, 'para orden:', o.folio);
     }
     
     if (horas > 0 && horas < 1000) {
       mttrPorMes[mes].suma  += horas;
       mttrPorMes[mes].count += 1;
-      console.log('✅ MTTR actualizado - Mes', mes, ':', horas, 'horas');
     }
   });
 
