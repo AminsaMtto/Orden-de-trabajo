@@ -68,7 +68,6 @@ async function guardarOrden(datos) {
 
     return result;
   } catch (err) {
-    console.error('guardarOrden error:', err);
     return { ok: false, error: err.message };
   }
 }
@@ -83,7 +82,6 @@ async function obtenerOrdenes() {
     const result = await response.json();
     return result.ordenes || [];
   } catch (err) {
-    console.warn('obtenerOrdenes:', err.message);
     return [];
   }
 }
@@ -125,7 +123,6 @@ async function cerrarOrden(folio, datosCierre) {
     const result   = await response.json();
     return result;
   } catch (err) {
-    console.error('cerrarOrden error:', err);
     return { ok: false, error: err.message };
   }
 }
@@ -144,7 +141,6 @@ async function guardarConfiguracionHoras(configHoras) {
     const result = await response.json();
     return result;
   } catch (err) {
-    console.error('guardarConfiguracionHoras error:', err);
     return { ok: false, error: err.message };
   }
 }
@@ -159,7 +155,6 @@ async function obtenerConfiguracionHoras() {
     const result = await response.json();
     return result.config || {};
   } catch (err) {
-    console.warn('obtenerConfiguracionHoras:', err.message);
     return {};
   }
 }
@@ -180,7 +175,6 @@ async function guardarConfiguracionUsuarios(usuarios) {
     const result = await response.json();
     return result;
   } catch (err) {
-    console.error('guardarConfiguracionUsuarios error:', err);
     return { ok: false, error: err.message };
   }
 }
@@ -195,7 +189,6 @@ async function obtenerConfiguracionUsuarios() {
     const result = await response.json();
     return result.usuarios || [];
   } catch (err) {
-    console.warn('obtenerConfiguracionUsuarios:', err.message);
     return [];
   }
 }
