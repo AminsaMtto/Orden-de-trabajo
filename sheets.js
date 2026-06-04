@@ -1,4 +1,14 @@
-const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyyaYCgC9qEmND4dYtuYN1d2t3eV2HmUxLyEstz4PyADvwT3y_Cyz3EEeIHJKP0SP1JbA/exec';
+const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxG_KL1UpnVDXZyHrXrLQyVg-mK61_keFbTz8htMPH7tqlrNPLLaP5ftg_DlZMUD1GhKg/exec';
+
+// CORREGIDO: Helper para obtener el token de autenticación
+function obtenerToken() {
+  try {
+    const sesion = JSON.parse(sessionStorage.getItem('aminsa_sesion') || '{}');
+    return sesion.token || '';
+  } catch(e) {
+    return '';
+  }
+}
 
 // ── Guardar orden ──────────────────────────────────────────────
 // Divide los datos en campos individuales para no exceder el límite de URL
@@ -38,15 +48,13 @@ async function guardarOrden(datos) {
     params.set('nombre_firma_recibe', datos.nombre_firma_recibe || ''); // CORREGIDO: firma_recibe -> nombre_firma_recibe
     params.set('firma_conformidad',  datos.firma_conformidad || ''); // CORREGIDO: firma_conf -> firma_conformidad
     params.set('estado',             datos.estado || 'ABIERTA'); // NUEVO: Guardar estado explícitamente
+    params.set('token',              obtenerToken()); // CORREGIDO: Enviar token de autenticación
 
     const url = SHEETS_WEBAPP_URL + '?' + params.toString();
-    console.log('🔍 DEPURACIÓN - URL enviada:', url);
-    console.log('🔍 DEPURACIÓN - Parámetros:', Object.fromEntries(params.entries()));
-    
+
     const response = await fetch(url, { method: 'GET' });
     const result   = await response.json();
-    
-    console.log('🔍 DEPURACIÓN - Respuesta del backend:', result);
+
     return result;
   } catch (err) {
     console.error('guardarOrden error:', err);
@@ -59,7 +67,7 @@ async function obtenerOrdenes() {
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 8000);
-    const response = await fetch(SHEETS_WEBAPP_URL + '?accion=listar', { signal: controller.signal });
+    const response = await fetch(SHEETS_WEBAPP_URL + '?accion=listar&token=' + encodeURIComponent(obtenerToken()), { signal: controller.signal });
     clearTimeout(timer);
     const result = await response.json();
     return result.ordenes || [];
@@ -98,6 +106,7 @@ async function cerrarOrden(folio, datosCierre) {
     params.set('tipo_mantenimiento', datosCierre.tipo_mantenimiento || ''); // NUEVO: Tipo de mantenimiento (MAYOR/MENOR)
     params.set('estado', 'CERRADA'); // NUEVO: Actualizar estado a CERRADA
     params.set('fecha_cierre', new Date().toISOString().split('T')[0]); // NUEVO: Guardar fecha de cierre actual
+    params.set('token', obtenerToken()); // CORREGIDO: Enviar token de autenticación
 
     const url = SHEETS_WEBAPP_URL + '?' + params.toString();
     const response = await fetch(url, { method: 'GET' });
@@ -115,6 +124,7 @@ async function guardarConfiguracionHoras(configHoras) {
     const params = new URLSearchParams();
     params.set('accion', 'guardarConfigHoras');
     params.set('config', JSON.stringify(configHoras));
+    params.set('token', obtenerToken()); // CORREGIDO: Enviar token de autenticación
 
     const url = SHEETS_WEBAPP_URL + '?' + params.toString();
     const response = await fetch(url, { method: 'GET' });
@@ -131,7 +141,7 @@ async function obtenerConfiguracionHoras() {
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 8000);
-    const response = await fetch(SHEETS_WEBAPP_URL + '?accion=obtenerConfigHoras', { signal: controller.signal });
+    const response = await fetch(SHEETS_WEBAPP_URL + '?accion=obtenerConfigHoras&token=' + encodeURIComponent(obtenerToken()), { signal: controller.signal });
     clearTimeout(timer);
     const result = await response.json();
     return result.config || {};
@@ -147,6 +157,7 @@ async function guardarConfiguracionUsuarios(usuarios) {
     const params = new URLSearchParams();
     params.set('accion', 'guardarConfigUsuarios');
     params.set('usuarios', JSON.stringify(usuarios));
+    params.set('token', obtenerToken()); // CORREGIDO: Enviar token de autenticación
 
     // Usar POST con redirección para evitar límite de URL
     const response = await fetch(SHEETS_WEBAPP_URL, {
@@ -171,7 +182,7 @@ async function obtenerConfiguracionUsuarios() {
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 8000);
-    const response = await fetch(SHEETS_WEBAPP_URL + '?accion=obtenerConfigUsuarios', { signal: controller.signal });
+    const response = await fetch(SHEETS_WEBAPP_URL + '?accion=obtenerConfigUsuarios&token=' + encodeURIComponent(obtenerToken()), { signal: controller.signal });
     clearTimeout(timer);
     const result = await response.json();
     return result.usuarios || [];
