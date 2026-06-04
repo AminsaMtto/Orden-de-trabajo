@@ -1,10 +1,20 @@
-const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwMRtekBU5U2_x1n3uLCNfR_4QR639RH63gsENV_RVSpIi1Imz1h0_02Rj8Z_j4nQviaA/exec';
+const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzeVbw8UdOj0FSH9GOAqFR7ZrsoPzaeRl5DumtSouiwWW6whSy3LoQnHTXCySFB134esA/exec';
 
 // CORREGIDO: Helper para obtener el token de autenticación
 function obtenerToken() {
   try {
     const sesion = JSON.parse(sessionStorage.getItem('aminsa_sesion') || '{}');
     return sesion.token || '';
+  } catch(e) {
+    return '';
+  }
+}
+
+// CORREGIDO: Helper para obtener el usuario de autenticación
+function obtenerUsuario() {
+  try {
+    const sesion = JSON.parse(sessionStorage.getItem('aminsa_sesion') || '{}');
+    return sesion.usuario || '';
   } catch(e) {
     return '';
   }
@@ -49,6 +59,7 @@ async function guardarOrden(datos) {
     params.set('firma_conformidad',  datos.firma_conformidad || ''); // CORREGIDO: firma_conf -> firma_conformidad
     params.set('estado',             datos.estado || 'ABIERTA'); // NUEVO: Guardar estado explícitamente
     params.set('token',              obtenerToken()); // CORREGIDO: Enviar token de autenticación
+    params.set('usuario',            obtenerUsuario()); // CORREGIDO: Enviar usuario para validación
 
     const url = SHEETS_WEBAPP_URL + '?' + params.toString();
 
@@ -67,7 +78,7 @@ async function obtenerOrdenes() {
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 8000);
-    const response = await fetch(SHEETS_WEBAPP_URL + '?accion=listar&token=' + encodeURIComponent(obtenerToken()), { signal: controller.signal });
+    const response = await fetch(SHEETS_WEBAPP_URL + '?accion=listar&token=' + encodeURIComponent(obtenerToken()) + '&usuario=' + encodeURIComponent(obtenerUsuario()), { signal: controller.signal });
     clearTimeout(timer);
     const result = await response.json();
     return result.ordenes || [];
@@ -107,6 +118,7 @@ async function cerrarOrden(folio, datosCierre) {
     params.set('estado', 'CERRADA'); // NUEVO: Actualizar estado a CERRADA
     params.set('fecha_cierre', new Date().toISOString().split('T')[0]); // NUEVO: Guardar fecha de cierre actual
     params.set('token', obtenerToken()); // CORREGIDO: Enviar token de autenticación
+    params.set('usuario', obtenerUsuario()); // CORREGIDO: Enviar usuario para validación
 
     const url = SHEETS_WEBAPP_URL + '?' + params.toString();
     const response = await fetch(url, { method: 'GET' });
@@ -125,6 +137,7 @@ async function guardarConfiguracionHoras(configHoras) {
     params.set('accion', 'guardarConfigHoras');
     params.set('config', JSON.stringify(configHoras));
     params.set('token', obtenerToken()); // CORREGIDO: Enviar token de autenticación
+    params.set('usuario', obtenerUsuario()); // CORREGIDO: Enviar usuario para validación
 
     const url = SHEETS_WEBAPP_URL + '?' + params.toString();
     const response = await fetch(url, { method: 'GET' });
@@ -141,7 +154,7 @@ async function obtenerConfiguracionHoras() {
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 8000);
-    const response = await fetch(SHEETS_WEBAPP_URL + '?accion=obtenerConfigHoras&token=' + encodeURIComponent(obtenerToken()), { signal: controller.signal });
+    const response = await fetch(SHEETS_WEBAPP_URL + '?accion=obtenerConfigHoras&token=' + encodeURIComponent(obtenerToken()) + '&usuario=' + encodeURIComponent(obtenerUsuario()), { signal: controller.signal });
     clearTimeout(timer);
     const result = await response.json();
     return result.config || {};
@@ -158,19 +171,14 @@ async function guardarConfiguracionUsuarios(usuarios) {
     params.set('accion', 'guardarConfigUsuarios');
     params.set('usuarios', JSON.stringify(usuarios));
     params.set('token', obtenerToken()); // CORREGIDO: Enviar token de autenticación
+    params.set('usuario', obtenerUsuario()); // CORREGIDO: Enviar usuario para validación
 
-    // Usar POST con redirección para evitar límite de URL
-    const response = await fetch(SHEETS_WEBAPP_URL, {
-      method: 'POST',
-      body: params,
-      mode: 'no-cors',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
+    // CORREGIDO: Usar GET sin no-cors para poder detectar errores
+    const response = await fetch(SHEETS_WEBAPP_URL + '?' + params.toString(), {
+      method: 'GET'
     });
-    
-    // Con no-cors no podemos leer la respuesta, así que asumimos éxito
-    return { ok: true };
+    const result = await response.json();
+    return result;
   } catch (err) {
     console.error('guardarConfiguracionUsuarios error:', err);
     return { ok: false, error: err.message };
@@ -182,7 +190,7 @@ async function obtenerConfiguracionUsuarios() {
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 8000);
-    const response = await fetch(SHEETS_WEBAPP_URL + '?accion=obtenerConfigUsuarios&token=' + encodeURIComponent(obtenerToken()), { signal: controller.signal });
+    const response = await fetch(SHEETS_WEBAPP_URL + '?accion=obtenerConfigUsuarios&token=' + encodeURIComponent(obtenerToken()) + '&usuario=' + encodeURIComponent(obtenerUsuario()), { signal: controller.signal });
     clearTimeout(timer);
     const result = await response.json();
     return result.usuarios || [];
