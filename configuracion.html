@@ -985,6 +985,7 @@ async function cargarUsuarios() {
     if (usuariosData && usuariosData.length > 0) {
       usuarios = usuariosData;
     } else {
+      console.warn('No se pudieron cargar usuarios desde Google Sheets, usando fallback local');
       // CORREGIDO: Usuario admin por defecto con contraseña hasheada
       const hashPassword = (str) => {
         let hash = 0;
