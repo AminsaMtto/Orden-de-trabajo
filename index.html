@@ -1246,7 +1246,7 @@
       </svg>
       <p style="font-family:'Cormorant SC',serif;font-size:17px;letter-spacing:1.5px;margin-bottom:10px">¿Eliminar esta orden?</p>
       <p style="font-family:'Inconsolata',monospace;font-size:12px;color:var(--texto-sec);letter-spacing:1px;margin-bottom:4px">Folio: <strong id="modal-eliminar-folio" style="color:var(--negro)"></strong></p>
-      <p style="font-family:'Inconsolata',monospace;font-size:11px;color:var(--texto-ter);letter-spacing:1px;margin-top:8px">Esta acción eliminará la orden del registro local.<br>En Google Sheets deberás eliminarla manualmente.</p>
+      <p style="font-family:'Inconsolata',monospace;font-size:11px;color:var(--texto-ter);letter-spacing:1px;margin-top:8px">Esta acción eliminará la orden del sistema y de Google Sheets permanentemente.</p>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="cerrarModal('modal-eliminar')">Cancelar</button>
@@ -1532,14 +1532,20 @@ function actualizarStats() {
   if (mesSeleccionado === '') {
     // "Todos los Meses" - mostrar todas las órdenes del año actual
     ordenesFiltradas = todasLasOrdenes.filter(o => {
-      const fecha = parseFecha(o.fecha_reporte);
-      return fecha && fecha.getFullYear() === anioActual;
+      const fechaTimestamp = parseFecha(o.fecha_reporte);
+      // CORREGIDO: Convertir timestamp a Date antes de llamar getFullYear()
+      if (!fechaTimestamp) return false;
+      const fecha = new Date(fechaTimestamp);
+      return fecha.getFullYear() === anioActual;
     });
   } else {
     // Mes específico seleccionado
     ordenesFiltradas = todasLasOrdenes.filter(o => {
-      const fecha = parseFecha(o.fecha_reporte);
-      return fecha && fecha.getMonth() === parseInt(mesSeleccionado) && fecha.getFullYear() === anioActual;
+      const fechaTimestamp = parseFecha(o.fecha_reporte);
+      // CORREGIDO: Convertir timestamp a Date antes de llamar getFullYear()
+      if (!fechaTimestamp) return false;
+      const fecha = new Date(fechaTimestamp);
+      return fecha.getMonth() === parseInt(mesSeleccionado) && fecha.getFullYear() === anioActual;
     });
   }
   
@@ -2096,18 +2102,11 @@ function formatearHoras(horas) {
 function calcularTiempoDuracion(orden) {
   if (!orden || orden.estado !== 'CERRADA') return '-';
   
-  console.log('🔍 DEPURACIÓN calcularTiempoDuracion - orden.folio:', orden.folio);
-  console.log('🔍 DEPURACIÓN calcularTiempoDuracion - horas_efectivas:', orden.horas_efectivas);
-  console.log('🔍 DEPURACIÓN calcularTiempoDuracion - tipo_mantenimiento:', orden.tipo_mantenimiento);
-  
   // Si tiene horas efectivas, usarlas
   if (orden.horas_efectivas && orden.horas_efectivas !== '') {
     const horas = parseFloat(orden.horas_efectivas);
-    console.log('🔍 DEPURACIÓN calcularTiempoDuracion - horas parseadas:', horas);
     if (!isNaN(horas)) {
-      const resultado = formatearHoras(horas);
-      console.log('🔍 DEPURACIÓN calcularTiempoDuracion - resultado:', resultado);
-      return resultado;
+      return formatearHoras(horas);
     }
   }
   
@@ -2140,19 +2139,6 @@ function calcularTiempoDuracion(orden) {
   const horas = calcularHorasLaborablesEntreFechas(fechaRecibo, fechaEntrega);
   
   return formatearHoras(horas);
-}
-
-function formatearHoras(horas) {
-  if (horas < 1) {
-    const minutos = Math.round(horas * 60);
-    return `${minutos} min`;
-  }
-  const h = Math.floor(horas);
-  const m = Math.round((horas - h) * 60);
-  if (m === 0) {
-    return `${h}h`;
-  }
-  return `${h}h ${m}m`;
 }
 
 function parseFecha(str) {
