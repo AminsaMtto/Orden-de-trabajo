@@ -329,8 +329,7 @@ async function iniciarSesion() {
     }
   } catch(e) {
     // CORREGIDO: Eliminar fallback de emergencia con credenciales hardcodeadas
-    // Si el sistema no responde, mostrar error detallado para diagnóstico
-    console.error('Error de conexión:', e);
+    // Si el sistema no responde, mostrar error en lugar de usar credenciales inseguras
     errorEl.textContent = 'Error de conexión con el servidor. Verifica tu conexión a internet.';
     errorEl.classList.add('visible');
   } finally {
