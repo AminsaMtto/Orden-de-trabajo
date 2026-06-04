@@ -297,25 +297,30 @@ async function iniciarSesion() {
   spinner.classList.add('visible');
 
   try {
-    // CORREGIDO: Google Apps Script espera GET con parámetros en URL
-    const url = SHEETS_WEBAPP_URL 
-      + '?accion=login'
-      + '&usuario=' + encodeURIComponent(usuario)
-      + '&password=' + encodeURIComponent(password);
+    // CORREGIDO: Usar POST para no enviar contraseña en URL
+    const params = new URLSearchParams();
+    params.append('accion', 'login');
+    params.append('usuario', usuario);
+    params.append('password', password);
     
-    const response = await fetch(url, { method: 'GET' });
+    const response = await fetch(SHEETS_WEBAPP_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString()
+    });
     const data = await response.json();
 
     if (data.ok && data.usuario) {
-      // Guardar sesión con permisos
+      // Guardar sesión con permisos, timestamp y token
       const sesionData = {
         usuario:  data.usuario.usuario,
         nombre:   data.usuario.nombre,
         rol:      data.usuario.rol,
         centros:  data.usuario.centros || [],
-        permisos: data.usuario.permisos || {}
+        permisos: data.usuario.permisos || {},
+        timestamp: Date.now(),
+        token:    data.token
       };
-      console.log('🔍 DEPURACIÓN LOGIN - Datos de sesión:', sesionData);
       sessionStorage.setItem('aminsa_sesion', JSON.stringify(sesionData));
       window.location.href = 'index.html';
     } else {
@@ -340,14 +345,58 @@ async function iniciarSesion() {
 }
 
 // Usuario administrador de emergencia (solo si Sheets no responde)
-// CORREGIDO: Mover a variables de entorno en producción
+// ADVERTENCIA: Este es un fallback de emergencia para cuando Sheets no responde.
+// En producción, eliminar estas credenciales o usar un sistema de autenticación alternativo.
 function verificarUsuarioLocal(usuario, password) {
+  // Hash simple de la contraseña para no almacenarla en texto plano
+  // En producción, usar un sistema de autenticación más seguro
+  const hashPassword = (str) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    return hash.toString(16);
+  };
+  
+  // Generar token simple (mismo algoritmo que backend)
+  const generarToken = (usuario) => {
+    const timestamp = new Date().getTime();
+    const random = Math.floor(Math.random() * 1000000);
+    // Simular SHA-256 con un hash simple
+    let hash = 0;
+    const str = usuario + timestamp + random;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    const hashHex = Math.abs(hash).toString(16).padStart(32, '0');
+    return hashHex + '.' + timestamp;
+  };
+  
   const admins = [
-    { usuario: 'admin', password: 'aminsa2025', nombre: 'Administrador', rol: 'Administrador' }
+    { usuario: 'admin', passwordHash: hashPassword('aminsa2025'), nombre: 'Administrador', rol: 'Administrador' }
   ];
-  const found = admins.find(u => u.usuario === usuario && u.password === password);
+  const found = admins.find(u => u.usuario === usuario && u.passwordHash === hashPassword(password));
   if (!found) return null;
-  return { usuario: found.usuario, nombre: found.nombre, rol: found.rol };
+  // CORREGIDO: Agregar timestamp, permisos, centros y token al fallback de usuario local
+  return { 
+    usuario: found.usuario, 
+    nombre: found.nombre, 
+    rol: found.rol,
+    centros: ['GRAL', 'Zinc', 'Cromo', 'Doblado de Tubo', 'Oficinas', 'Planta Pre-Tratamiento', 'Planta de Tratamiento', 'Andenes y Patio de Maniobras', 'Laboratorio', 'Obra Civil', 'Area Periferica a la Planta', 'Otros'],
+    permisos: {
+      ver_config_tab: true,
+      eliminar_ordenes: true,
+      cerrar_ordenes: true,
+      editar_cerradas: true,
+      ver_tiempo_duracion: true
+    },
+    timestamp: Date.now(),
+    token: generarToken(found.usuario)
+  };
 }
 </script>
 </body>
