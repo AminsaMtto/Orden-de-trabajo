@@ -821,6 +821,7 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="auth.js"></script>
 <script src="sheets.js"></script>
 <script>
 // ── Variables globales ─────────────────────────────────────────
@@ -850,22 +851,42 @@ function verificarSesion() {
     window.location.href = 'login.html';
     return false;
   }
-  sesionActual = JSON.parse(raw);
   
-  // Los administradores siempre pueden acceder a configuración
-  // Otros usuarios necesitan permiso específico
-  if (sesionActual.rol !== 'Administrador') {
-    const permisos = sesionActual.permisos || {};
-    if (!permisos.ver_config_tab) {
-      alert('No tienes permiso para acceder a la configuración');
-      window.location.href = 'index.html';
-      return false;
+  try {
+    const sesion = JSON.parse(raw);
+    
+    // CORREGIDO: Verificar expiración de sesión (1 hora)
+    if (sesion.timestamp) {
+      const edad = Date.now() - sesion.timestamp;
+      const SESION_TIMEOUT_MS = 60 * 60 * 1000; // 1 hora
+      if (edad > SESION_TIMEOUT_MS) {
+        sessionStorage.removeItem('aminsa_sesion');
+        window.location.href = 'login.html';
+        return false;
+      }
     }
+    
+    sesionActual = sesion;
+    
+    // Los administradores siempre pueden acceder a configuración
+    // Otros usuarios necesitan permiso específico
+    if (sesionActual.rol !== 'Administrador') {
+      const permisos = sesionActual.permisos || {};
+      if (!permisos.ver_config_tab) {
+        alert('No tienes permiso para acceder a la configuración');
+        window.location.href = 'index.html';
+        return false;
+      }
+    }
+    
+    document.getElementById('user-nombre').textContent = sesionActual.nombre;
+    document.getElementById('user-rol').textContent = sesionActual.rol;
+    return true;
+  } catch(e) {
+    sessionStorage.removeItem('aminsa_sesion');
+    window.location.href = 'login.html';
+    return false;
   }
-  
-  document.getElementById('user-nombre').textContent = sesionActual.nombre;
-  document.getElementById('user-rol').textContent = sesionActual.rol;
-  return true;
 }
 
 function cerrarSesion() {
@@ -964,13 +985,23 @@ async function cargarUsuarios() {
     if (usuariosData && usuariosData.length > 0) {
       usuarios = usuariosData;
     } else {
-      // Usuario admin por defecto
+      // CORREGIDO: Usuario admin por defecto con contraseña hasheada
+      const hashPassword = (str) => {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+          const char = str.charCodeAt(i);
+          hash = ((hash << 5) - hash) + char;
+          hash = hash & hash;
+        }
+        return hash.toString(16);
+      };
+      
       usuarios = [
         {
           id: '1',
           usuario: 'admin',
           nombre: 'Administrador',
-          password: 'aminsa2025',
+          passwordHash: hashPassword('aminsa2025'),
           rol: 'Administrador',
           centros: CENTROS,
           permisos: {
@@ -987,15 +1018,25 @@ async function cargarUsuarios() {
         }
       ];
     }
-  } catch(e) {
+    } catch(e) {
     console.warn('Error al cargar usuarios:', e);
-    // Usuario admin por defecto
+    // CORREGIDO: Usuario admin por defecto con contraseña hasheada
+    const hashPassword = (str) => {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      return hash.toString(16);
+    };
+    
     usuarios = [
       {
         id: '1',
         usuario: 'admin',
         nombre: 'Administrador',
-        password: 'aminsa2025',
+        passwordHash: hashPassword('aminsa2025'),
         rol: 'Administrador',
         centros: CENTROS,
         permisos: {
