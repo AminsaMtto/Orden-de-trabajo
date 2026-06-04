@@ -179,10 +179,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   // VERIFICAR SESIÓN: Usar la misma clave que en index.html ('aminsa_sesion')
   const sesion = JSON.parse(sessionStorage.getItem('aminsa_sesion') || '{}');
-  console.log('DEPURACIÓN - Verificando sesión inicial:', sesion);
   
   if (!sesion.nombre) {
-    console.log('DEPURACIÓN - No hay sesión activa, redirigiendo al login');
     alert('Debes iniciar sesión para acceder a esta página');
     window.location.href = 'login.html';
     return;
@@ -198,15 +196,11 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(actualizarFechaHora, 60000);
     
     // AUTOCOMPLETAR: Llenar "Quién Reporta" con el usuario de la sesión
-    console.log('DEPURACIÓN INICIAL - Sesión válida:', sesion);
-    console.log('DEPURACIÓN INICIAL - Nombre usuario:', sesion.nombre);
-    
     document.getElementById('quien-reporta').value = sesion.nombre;
     document.getElementById('quien-reporta').setAttribute('readonly', true);
     // Agregar estilo visual para indicar que está autocompletado
     document.getElementById('quien-reporta').style.backgroundColor = '#f0f0f0';
     document.getElementById('quien-reporta').style.cursor = 'not-allowed';
-    console.log('DEPURACIÓN INICIAL - Valor asignado:', document.getElementById('quien-reporta').value);
   }
 
   setupGrupos();
@@ -394,47 +388,65 @@ function imprimirOrden() {
   }, 500);
 }
 
+let guardandoOrden = false;
+
 async function guardarOrdenLocal() {
+  if (guardandoOrden) {
+    mostrarToast('Ya se está guardando la orden, espera un momento...', 'error');
+    return;
+  }
+  
+  guardandoOrden = true;
+  const btn = document.getElementById('btn-guardar');
+  btn.disabled = true;
+  
   const datos = leerFormulario();
   
-  // DEPURACIÓN: Mostrar datos que se van a guardar
-  console.log('🔍 DEPURACIÓN - Datos a guardar:', datos);
-  console.log('📋 Centro:', datos.centro_de_negocio);
-  console.log('📋 Tipo:', datos.tipo_trabajo);
-  console.log('📋 Equipo:', datos.equipo_reportado);
-  console.log('📋 Folio:', datos.folio);
-  
-  if (!datos.folio)            { mostrarToast('Selecciona un Centro de Negocio para generar el Folio', 'error'); return; }
-  if (!datos.equipo_reportado) { mostrarToast('Ingresa el equipo reportado', 'error'); return; }
-  if (!datos.falla_reportada)  { mostrarToast('Describe la falla reportada', 'error'); return; }
-  if (!datos.quien_reporta)    { mostrarToast('Indica quién reporta', 'error'); return; }
+  if (!datos.folio)            { mostrarToast('Selecciona un Centro de Negocio para generar el Folio', 'error'); guardandoOrden = false; btn.disabled = false; return; }
+  if (!datos.equipo_reportado) { mostrarToast('Ingresa el equipo reportado', 'error'); guardandoOrden = false; btn.disabled = false; return; }
+  if (!datos.falla_reportada)  { mostrarToast('Describe la falla reportada', 'error'); guardandoOrden = false; btn.disabled = false; return; }
+  if (!datos.quien_reporta)    { mostrarToast('Indica quién reporta', 'error'); guardandoOrden = false; btn.disabled = false; return; }
 
-  const res = await guardarOrden(datos);
-  if (res && res.ok) { 
-    mostrarToast(`Orden ${datos.folio} guardada en Google Sheets`, 'success'); 
-    // CORREGIDO: Actualizar el botón para mostrar que se guardó correctamente
-    const btn = document.getElementById('btn-guardar');
-    btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Guardado';
-    btn.disabled = true;
-    btn.style.opacity = '0.5';
-  } else { 
-    mostrarToast(`Error al guardar en Sheets: ${res ? res.error : 'sin conexión'}`, 'error'); 
-    return;
+  try {
+    const res = await guardarOrden(datos);
+    if (res && res.ok) { 
+      mostrarToast(`Orden ${datos.folio} guardada en Google Sheets`, 'success'); 
+      // CORREGIDO: Actualizar el botón para mostrar que se guardó correctamente
+      btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Guardado';
+      btn.style.opacity = '0.5';
+    } else { 
+      mostrarToast(`Error al guardar en Sheets: ${res ? res.error : 'sin conexión'}`, 'error'); 
+      btn.disabled = false;
+    }
+  } catch(e) {
+    mostrarToast(`Error al guardar en Sheets: ${e.message}`, 'error');
+    btn.disabled = false;
+  } finally {
+    guardandoOrden = false;
   }
 }
 
 async function cargarOrdenExistente(folio) {
+  const abortController = new AbortController();
+  const timeoutId = setTimeout(() => abortController.abort(), 10000); // 10 segundos timeout
+  
   let orden = null;
   try {
-    const res    = await fetch(SHEETS_WEBAPP_URL + '?accion=listar');
+    const res    = await fetch(SHEETS_WEBAPP_URL + '?accion=listar', { 
+      signal: abortController.signal 
+    });
     const result = await res.json();
     orden = (result.ordenes || []).find(o => o.folio === folio) || null;
-  } catch(e) { /* sin conexión */ }
+  } catch(e) { 
+    if (e.name === 'AbortError') {
+      mostrarToast('Tiempo de espera agotado al cargar la orden', 'error');
+    } else {
+      /* sin conexión */
+    }
+  } finally {
+    clearTimeout(timeoutId);
+  }
   if (!orden) { mostrarToast('Orden no encontrada en Google Sheets', 'error'); return; }
-
-  // DEPURACIÓN: Mostrar datos recibidos del backend
-  console.log('🔍 DEPURACIÓN orden.html - Orden cargada:', JSON.stringify(orden));
-  console.log('🔍 DEPURACIÓN orden.html - Campos de la orden:', Object.keys(orden));
 
   // CORREGIDO: Usar nombres de campos consistentes con sheets.js
   // Función para formatear fecha ISO a formato local
@@ -536,14 +548,9 @@ function limpiarFormulario() {
   
   // Asegurar que 'quien-reporta' siempre tenga el valor del usuario
   const sesion = JSON.parse(sessionStorage.getItem('aminsa_sesion') || '{}');
-  console.log('DEPURACIÓN - Sesión:', sesion);
-  console.log('DEPURACIÓN - Nombre usuario:', sesion.nombre);
   
   if (sesion.nombre) {
     document.getElementById('quien-reporta').value = sesion.nombre;
-    console.log('DEPURACIÓN - Valor asignado a quien-reporta:', document.getElementById('quien-reporta').value);
-  } else {
-    console.log('DEPURACIÓN - No hay nombre en la sesión');
   }
 }
 
