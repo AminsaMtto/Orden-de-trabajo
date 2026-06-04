@@ -1521,7 +1521,6 @@ async function cargarOrdenes() {
     todasLasOrdenes = (result.ordenes || []).map(normalizarOrden)
       .sort((a, b) => parseFecha(b.fecha_reporte || 0) - parseFecha(a.fecha_reporte || 0));
   } catch(e) {
-    console.warn('No se pudo conectar a Sheets:', e.message);
     todasLasOrdenes = [];
     mostrarToast('No se pudo conectar a Google Sheets', 'error');
   }
@@ -1858,14 +1857,7 @@ async function ejecutarCierre() {
     tipo_mantenimiento:           document.getElementById('c-tipo-mantenimiento').value,
   };
 
-  console.log('🔍 DEPURACIÓN FRONTEND - datosCierre:', datosCierre);
-  console.log('🔍 DEPURACIÓN FRONTEND - horas_efectivas:', datosCierre.horas_efectivas);
-  console.log('🔍 DEPURACIÓN FRONTEND - tipo_mantenimiento:', datosCierre.tipo_mantenimiento);
-
   const resultCierre = await cerrarOrden(folioSeleccionado, datosCierre);
-  console.log('🔍 DEPURACIÓN FRONTEND - Respuesta del backend:', JSON.stringify(resultCierre));
-  console.log('🔍 DEPURACIÓN FRONTEND - horas_efectivas_guardadas:', resultCierre.horas_efectivas_guardadas);
-  console.log('🔍 DEPURACIÓN FRONTEND - tipo_mantenimiento_guardado:', resultCierre.tipo_mantenimiento_guardado);
   if (resultCierre && resultCierre.ok === false) {
     mostrarToast('Error al cerrar en Sheets: ' + (resultCierre.error || 'desconocido'), 'error');
     return;
@@ -1995,7 +1987,6 @@ async function ejecutarEdicionCerrada() {
       mostrarToast('Error: ' + (result.error || 'No se pudo actualizar'), 'error');
     }
   } catch (e) {
-    console.error('Error al editar orden cerrada:', e);
     mostrarToast('Error de conexión al guardar', 'error');
   }
 }
@@ -2221,29 +2212,12 @@ async function actualizarMetricas() {
   try {
     configHoras = await obtenerConfiguracionHoras();
   } catch(e) {
-    console.warn('Error al cargar configuración de horas:', e);
   }
   
   const CENTROS = ['Zinc', 'Cromo', 'Doblado de Tubo', 'Oficinas',
     'Planta Pre-Tratamiento', 'Planta de Tratamiento',
     'Andenes y Patio de Maniobras', 'Laboratorio',
     'Obra Civil', 'Area Periferica a la Planta', 'Otros'];
-
-  // DEPURACIÓN: Mostrar datos de órdenes cerradas
-  console.log('🔍 DEPURACIÓN MTTR - Centro:', centroActual);
-  console.log('🔍 Órdenes del centro:', ordenesDelCentro.length);
-  console.log('🔍 Órdenes cerradas:', ordenesDelCentro.filter(o => (o.estado || '') === 'CERRADA').length);
-  
-  ordenesDelCentro.forEach(o => {
-    if ((o.estado || '') === 'CERRADA') {
-      console.log('📋 Orden cerrada:', o.folio, {
-        estado: o.estado,
-        hora_recibo: o.hora_recibo,
-        hora_entrega_equipo: o.hora_entrega_equipo,
-        fecha_reporte: o.fecha_reporte
-      });
-    }
-  });
 
   // ── MTTR por mes ──────────────────────────────────────────
   const mttrPorMes = Array(12).fill(null).map(() => ({ suma: 0, count: 0 }));
