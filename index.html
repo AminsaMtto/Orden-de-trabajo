@@ -1437,7 +1437,11 @@ async function verificarConexion() {
   const dot   = document.getElementById('sync-dot');
   const label = document.getElementById('sync-label');
   try {
-    const res    = await fetchConTimeout(SHEETS_WEBAPP_URL + '?accion=listar', 8000);
+    // CORREGIDO: Enviar token y usuario para autenticación
+    const token = sessionStorage.getItem('aminsa_sesion') ? JSON.parse(sessionStorage.getItem('aminsa_sesion')).token : '';
+    const usuario = sessionStorage.getItem('aminsa_sesion') ? JSON.parse(sessionStorage.getItem('aminsa_sesion')).usuario : '';
+    const url = SHEETS_WEBAPP_URL + '?accion=listar&token=' + encodeURIComponent(token) + '&usuario=' + encodeURIComponent(usuario);
+    const res = await fetchConTimeout(url, 8000);
     const result = await res.json();
     if (result.ok !== false) {
       dot.className = 'sync-dot online';
@@ -1508,7 +1512,11 @@ function parseFecha(fecha) {
 
 async function cargarOrdenes() {
   try {
-    const res    = await fetchConTimeout(SHEETS_WEBAPP_URL + '?accion=listar', 8000);
+    // CORREGIDO: Enviar token y usuario para autenticación
+    const token = sessionStorage.getItem('aminsa_sesion') ? JSON.parse(sessionStorage.getItem('aminsa_sesion')).token : '';
+    const usuario = sessionStorage.getItem('aminsa_sesion') ? JSON.parse(sessionStorage.getItem('aminsa_sesion')).usuario : '';
+    const url = SHEETS_WEBAPP_URL + '?accion=listar&token=' + encodeURIComponent(token) + '&usuario=' + encodeURIComponent(usuario);
+    const res = await fetchConTimeout(url, 8000);
     const result = await res.json();
     todasLasOrdenes = (result.ordenes || []).map(normalizarOrden)
       .sort((a, b) => parseFecha(b.fecha_reporte || 0) - parseFecha(a.fecha_reporte || 0));
@@ -1882,7 +1890,10 @@ async function ejecutarEliminar() {
     return;
   }
   try {
-    const url = SHEETS_WEBAPP_URL + '?accion=eliminar&folio=' + encodeURIComponent(folioSeleccionado);
+    // CORREGIDO: Enviar token y usuario para autenticación
+    const token = sessionStorage.getItem('aminsa_sesion') ? JSON.parse(sessionStorage.getItem('aminsa_sesion')).token : '';
+    const usuario = sessionStorage.getItem('aminsa_sesion') ? JSON.parse(sessionStorage.getItem('aminsa_sesion')).usuario : '';
+    const url = SHEETS_WEBAPP_URL + '?accion=eliminar&folio=' + encodeURIComponent(folioSeleccionado) + '&token=' + encodeURIComponent(token) + '&usuario=' + encodeURIComponent(usuario);
     const response = await fetch(url, { method: 'GET' });
     const result = await response.json();
     
@@ -1965,6 +1976,11 @@ async function ejecutarEdicionCerrada() {
     const params = new URLSearchParams();
     params.set('accion', 'editarCerrada');
     Object.entries(datos).forEach(([k, v]) => params.set(k, v || ''));
+    // CORREGIDO: Enviar token y usuario para autenticación
+    const token = sessionStorage.getItem('aminsa_sesion') ? JSON.parse(sessionStorage.getItem('aminsa_sesion')).token : '';
+    const usuario = sessionStorage.getItem('aminsa_sesion') ? JSON.parse(sessionStorage.getItem('aminsa_sesion')).usuario : '';
+    params.set('token', token);
+    params.set('usuario', usuario);
 
     const url = SHEETS_WEBAPP_URL + '?' + params.toString();
     const response = await fetch(url, { method: 'GET' });
