@@ -294,7 +294,10 @@ async function generarFolio() {
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 6000);
-    const res   = await fetch(SHEETS_WEBAPP_URL + '?accion=listar', { signal: controller.signal });
+    // CORREGIDO: Enviar token y usuario para autenticación
+    const token = sessionStorage.getItem('aminsa_sesion') ? JSON.parse(sessionStorage.getItem('aminsa_sesion')).token : '';
+    const usuario = sessionStorage.getItem('aminsa_sesion') ? JSON.parse(sessionStorage.getItem('aminsa_sesion')).usuario : '';
+    const res   = await fetch(SHEETS_WEBAPP_URL + '?accion=listar&token=' + encodeURIComponent(token) + '&usuario=' + encodeURIComponent(usuario), { signal: controller.signal });
     clearTimeout(timer);
     const data  = await res.json();
     const remotas = data.ordenes || [];
@@ -432,7 +435,10 @@ async function cargarOrdenExistente(folio) {
   
   let orden = null;
   try {
-    const res    = await fetch(SHEETS_WEBAPP_URL + '?accion=listar', { 
+    // CORREGIDO: Enviar token y usuario para autenticación
+    const token = sessionStorage.getItem('aminsa_sesion') ? JSON.parse(sessionStorage.getItem('aminsa_sesion')).token : '';
+    const usuario = sessionStorage.getItem('aminsa_sesion') ? JSON.parse(sessionStorage.getItem('aminsa_sesion')).usuario : '';
+    const res    = await fetch(SHEETS_WEBAPP_URL + '?accion=listar&token=' + encodeURIComponent(token) + '&usuario=' + encodeURIComponent(usuario), { 
       signal: abortController.signal 
     });
     const result = await res.json();
