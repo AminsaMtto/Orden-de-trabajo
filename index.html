@@ -1373,6 +1373,29 @@
   </div>
 </div>
 
+<!-- Modal Agregar Observación -->
+<div class="modal-overlay" id="modal-observacion">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <h2>Agregar Observación — <span id="modal-observacion-folio"></span></h2>
+      <button class="modal-close" onclick="cerrarModal('modal-observacion')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Observación</label>
+        <textarea id="obs-texto" rows="4" placeholder="Por ejemplo: por qué no se cerró la orden, estado actual, notas adicionales…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cerrarModal('modal-observacion')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarObservacion()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="sheets.js"></script>
@@ -1639,6 +1662,7 @@ function renderTabla(ordenes) {
               <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
             </svg>
           </button>
+          <button class="btn btn-ghost btn-sm" onclick="abrirModalObservacion('${o.folio}')" title="Agregar Observación">Obs</button>
           ${estado !== 'CERRADA'
             ? `<button class="btn btn-success btn-sm btn-cerrar-rol" onclick="abrirModalCerrar('${o.folio}')" style="${(sesionActual && sesionActual.rol !== 'Administrador' && sesionActual.rol !== 'Técnico') ? 'display:none' : ''}">Cerrar</button>`
             : `<button class="btn btn-primary btn-sm btn-editar-cerrada" onclick="abrirModalEditarCerrada('${o.folio}')" style="${(sesionActual && sesionActual.rol !== 'Administrador') ? 'display:none' : ''}">Editar</button>`}
@@ -1883,6 +1907,26 @@ async function ejecutarCierre() {
   mostrarToast(`Orden ${folioSeleccionado} cerrada correctamente`, 'success');
   await cargarOrdenes(); // Recargar para mostrar el estado actualizado
   await actualizarMetricas(); // CORREGIDO: Actualizar métricas después de cerrar orden
+}
+
+function abrirModalObservacion(folio) {
+  folioSeleccionado = folio;
+  const o = todasLasOrdenes.find(x => x.folio === folio);
+  document.getElementById('modal-observacion-folio').textContent = folio;
+  document.getElementById('obs-texto').value = o.observaciones || '';
+  document.getElementById('modal-observacion').classList.add('visible');
+}
+
+async function guardarObservacion() {
+  const observacion = document.getElementById('obs-texto').value.trim();
+  const result = await actualizarObservacion(folioSeleccionado, observacion);
+  if (result && result.ok) {
+    mostrarToast('Observación guardada correctamente', 'success');
+    cerrarModal('modal-observacion');
+    await cargarOrdenes();
+  } else {
+    mostrarToast('Error al guardar observación: ' + (result ? result.error : 'desconocido'), 'error');
+  }
 }
 
 function abrirModalEliminar(folio) {
