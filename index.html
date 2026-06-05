@@ -1788,30 +1788,31 @@ function verOrden(folio) {
   }
 
   const campos = [
-    ['Folio', o.folio], 
+    ['Folio', o.folio],
     ['Fecha Reporte', formatearFecha(o.fecha_reporte)],
-    ['Hora Reporte', formatearHora(o.hora_reporte)], 
+    ['Hora Reporte', formatearHora(o.hora_reporte)],
     ['Quién Reporta', o.quien_reporta],
-    ['Centro de Negocio', o.centro_de_negocio], 
+    ['Centro de Negocio', o.centro_de_negocio],
     ['Tipo de Trabajo', o.tipo_trabajo || o.tipo_mantenimiento],
-    ['Equipo Reportado', o.equipo_reportado, true], 
+    ['Equipo Reportado', o.equipo_reportado, true],
     ['No. Control', o.no_control],
-    ['Grado Urgencia', o.grado_urgencia], 
+    ['Grado Urgencia', o.grado_urgencia],
     ['Frecuencia Falla', o.frecuencia_falla],
     ['Falla Reportada', o.falla_reportada, true],
     ['Diagnóstico Inicial', o.diagnostico_inicial, true],
-    ['Técnico(s)', o.tecnicos], 
+    ['Técnico(s)', o.tecnicos],
     ['Fecha Atención', formatearFecha(o.fecha_atencion)],
-    ['Refacciones Requeridas', o.refacciones_requeridas], 
+    ['Refacciones Requeridas', o.refacciones_requeridas],
     ['Refacciones en Almacén', o.refacciones_almacen],
-    ['Fecha Est. Entrega', formatearFecha(o.fecha_estimada_entrega)], 
+    ['Fecha Est. Entrega', formatearFecha(o.fecha_estimada_entrega)],
     ['Costo Aprox.', o.costo_refacciones],
     ['Descripción Reparación', o.descripcion_reparacion, true],
-    ['Fecha Liberación', formatearFecha(o.fecha_liberacion)], 
+    ['Fecha Liberación', formatearFecha(o.fecha_liberacion)],
     ['Hora Entrega', formatearHora(o.hora_entrega_equipo)],
     ['Estado', o.estado || 'ABIERTA'],
   ];
   if (o.fecha_cierre) campos.push(['Fecha Cierre', formatearFecha(o.fecha_cierre)]);
+  if (o.observaciones) campos.push(['Observaciones', o.observaciones, true]);
 
   document.getElementById('modal-ver-body').innerHTML = `
     <div class="detail-grid">
