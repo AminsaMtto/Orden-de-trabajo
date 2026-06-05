@@ -1,4 +1,4 @@
-const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxe_bG-7_vlfOuVRAVR4I3N16JNvp1HVzMfLAmhn47d5gEaunRdr2Nlx6XR83UsZ2Y46g/exec';
+const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwbftRvId7Ragfu3oBWqZQBjNRJHs-45zR4R7lBF3FiwcZZL0PTgJCtI7ZuNK4aFPYYig/exec';
 
 // CORREGIDO: Helper para obtener el token de autenticación
 function obtenerToken() {
