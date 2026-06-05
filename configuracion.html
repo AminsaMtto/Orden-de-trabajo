@@ -782,6 +782,50 @@
       </div>
 
       <div class="form-group">
+        <label>Permisos de Refacciones</label>
+        <div class="permisos-grid">
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-ver_refacciones" checked>
+            <label for="perm-ver_refacciones">Ver Refacciones</label>
+          </div>
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-agregar_refacciones">
+            <label for="perm-agregar_refacciones">Agregar Refacciones</label>
+          </div>
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-editar_refacciones">
+            <label for="perm-editar_refacciones">Editar Refacciones</label>
+          </div>
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-eliminar_refacciones">
+            <label for="perm-eliminar_refacciones">Eliminar Refacciones</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Permisos de Preventivos</label>
+        <div class="permisos-grid">
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-ver_preventivos" checked>
+            <label for="perm-ver_preventivos">Ver Preventivos</label>
+          </div>
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-agregar_preventivos">
+            <label for="perm-agregar_preventivos">Agregar Preventivos</label>
+          </div>
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-editar_preventivos">
+            <label for="perm-editar_preventivos">Editar Preventivos</label>
+          </div>
+          <div class="permiso-item">
+            <input type="checkbox" id="perm-eliminar_preventivos">
+            <label for="perm-eliminar_preventivos">Eliminar Preventivos</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
         <label>Permisos Adicionales</label>
         <div class="permisos-grid">
           <div class="permiso-item">
@@ -1013,7 +1057,19 @@ async function cargarUsuarios() {
             ver_metricas: true,
             ver_config: true,
             ver_tiempo_duracion: true,
-            exportar: true
+            exportar: true,
+            ver_preventivos: true,
+            agregar_preventivos: true,
+            editar_preventivos: true,
+            eliminar_preventivos: true,
+            ver_refacciones: true,
+            agregar_refacciones: true,
+            editar_refacciones: true,
+            eliminar_refacciones: true,
+            ver_ordenes_tab: true,
+            ver_preventivos_tab: true,
+            ver_refacciones_tab: true,
+            ver_config_tab: true
           }
         }
       ];
@@ -1048,7 +1104,19 @@ async function cargarUsuarios() {
           ver_metricas: true,
           ver_config: true,
           ver_tiempo_duracion: true,
-          exportar: true
+          exportar: true,
+          ver_preventivos: true,
+          agregar_preventivos: true,
+          editar_preventivos: true,
+          eliminar_preventivos: true,
+          ver_refacciones: true,
+          agregar_refacciones: true,
+          editar_refacciones: true,
+          eliminar_refacciones: true,
+          ver_ordenes_tab: true,
+          ver_preventivos_tab: true,
+          ver_refacciones_tab: true,
+          ver_config_tab: true
         }
       }
     ];
@@ -1190,8 +1258,14 @@ async function guardarUsuario() {
     cerrar_ordenes: document.getElementById('perm-cerrar-ordenes').checked,
     eliminar_ordenes: document.getElementById('perm-eliminar-ordenes').checked,
     ver_ordenes_tab: document.getElementById('perm-ver-ordenes-tab').checked,
-    ver_preventivos: document.getElementById('perm-ver-preventivos').checked,
-    ver_refacciones: document.getElementById('perm-ver-refacciones').checked,
+    ver_preventivos: document.getElementById('perm-ver_preventivos').checked,
+    agregar_preventivos: document.getElementById('perm-agregar_preventivos').checked,
+    editar_preventivos: document.getElementById('perm-editar_preventivos').checked,
+    eliminar_preventivos: document.getElementById('perm-eliminar_preventivos').checked,
+    ver_refacciones: document.getElementById('perm-ver_refacciones').checked,
+    agregar_refacciones: document.getElementById('perm-agregar_refacciones').checked,
+    editar_refacciones: document.getElementById('perm-editar_refacciones').checked,
+    eliminar_refacciones: document.getElementById('perm-eliminar_refacciones').checked,
     ver_config_tab: document.getElementById('perm-ver-config-tab').checked,
     ver_metricas: document.getElementById('perm-ver-metricas').checked,
     ver_tiempo_duracion: document.getElementById('perm-ver_tiempo_duracion').checked,
