@@ -1,4 +1,4 @@
-const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwbftRvId7Ragfu3oBWqZQBjNRJHs-45zR4R7lBF3FiwcZZL0PTgJCtI7ZuNK4aFPYYig/exec';
+const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxA9y1eibPtTI4YqlUmtWmt4Ve0liweAznipuiZMbgQG_qYN8s59H27mwT2sHw2ToebNw/exec';
 
 // CORREGIDO: Helper para obtener el token de autenticación
 function obtenerToken() {
@@ -115,6 +115,7 @@ async function cerrarOrden(folio, datosCierre) {
     params.set('tipo_mantenimiento', datosCierre.tipo_mantenimiento || ''); // NUEVO: Tipo de mantenimiento (MAYOR/MENOR)
     params.set('estado', 'CERRADA'); // NUEVO: Actualizar estado a CERRADA
     params.set('fecha_cierre', new Date().toISOString().split('T')[0]); // NUEVO: Guardar fecha de cierre actual
+    params.set('observaciones', datosCierre.observaciones || ''); // NUEVO: Observaciones
     params.set('token', obtenerToken()); // CORREGIDO: Enviar token de autenticación
     params.set('usuario', obtenerUsuario()); // CORREGIDO: Enviar usuario para validación
 
