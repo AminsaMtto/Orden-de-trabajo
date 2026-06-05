@@ -1,4 +1,4 @@
-const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxA9y1eibPtTI4YqlUmtWmt4Ve0liweAznipuiZMbgQG_qYN8s59H27mwT2sHw2ToebNw/exec';
+const SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxVDVI7a0sfkWG_RD-jw3_ujy-_MQfi_ahDSFQ4KsDiUTEvRDDfFR4MywoucPOfXDH58Q/exec';
 
 // CORREGIDO: Helper para obtener el token de autenticación
 function obtenerToken() {
@@ -118,6 +118,24 @@ async function cerrarOrden(folio, datosCierre) {
     params.set('observaciones', datosCierre.observaciones || ''); // NUEVO: Observaciones
     params.set('token', obtenerToken()); // CORREGIDO: Enviar token de autenticación
     params.set('usuario', obtenerUsuario()); // CORREGIDO: Enviar usuario para validación
+
+    const url = SHEETS_WEBAPP_URL + '?' + params.toString();
+    const response = await fetch(url, { method: 'GET' });
+    const result   = await response.json();
+    return result;
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+async function actualizarObservacion(folio, observacion) {
+  try {
+    const params = new URLSearchParams();
+    params.set('accion', 'actualizarObservacion');
+    params.set('folio', folio);
+    params.set('observaciones', observacion || '');
+    params.set('token', obtenerToken());
+    params.set('usuario', obtenerUsuario());
 
     const url = SHEETS_WEBAPP_URL + '?' + params.toString();
     const response = await fetch(url, { method: 'GET' });
