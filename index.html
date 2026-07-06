@@ -80,27 +80,32 @@
       height: 32px;
       background: rgba(255,255,255,0.2);
     }
-    .header-title {
-      font-family: 'Cormorant SC', serif;
-      font-size: 17px;
-      font-weight: 500;
-      letter-spacing: 3px;
-      color: #ffffff;
-       line-height: 1.2;
-    }
-    .header-sub {
-      font-family: 'Inconsolata', monospace;
-      font-size: 10px;
-      color: #aaa;
-      margin-top: 3px;
-      letter-spacing: 1px;
-    }
+    .header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.header-title {
+  font-family: 'Cormorant SC', serif;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  color: #ffffff;
+  line-height: 1;
+}
+.header-sub {
+  font-family: 'Inconsolata', monospace;
+  font-size: 10px;
+  color: #999;
+  letter-spacing: 1px;
+  line-height: 1;
+}
 .header-codigo {
   font-family: 'Inconsolata', monospace;
   font-size: 9px;
-  color: #ccc;
-  margin-top: 2px;
+  color: #999;
   letter-spacing: 1px;
+  line-height: 1;
 }
     .header-right {
       display: flex;
